@@ -1,0 +1,672 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 77;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		C421F07C2E698C3B0014612D /* SwiftSoup in Frameworks */ = {isa = PBXBuildFile; productRef = C421F07B2E698C3B0014612D /* SwiftSoup */; };
+		C421F07F2E698C490014612D /* SelectableText in Frameworks */ = {isa = PBXBuildFile; productRef = C421F07E2E698C490014612D /* SelectableText */; };
+		C421F0822E698C5D0014612D /* SQLite in Frameworks */ = {isa = PBXBuildFile; productRef = C421F0812E698C5D0014612D /* SQLite */; };
+		C4D35E922E881B2100A39EC4 /* Kingfisher in Frameworks */ = {isa = PBXBuildFile; productRef = C4D35E912E881B2100A39EC4 /* Kingfisher */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		C4F581F02E65A57A00A9B0B9 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = C4F581DA2E65A57900A9B0B9 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = C4F581E12E65A57900A9B0B9;
+			remoteInfo = BearReaderApplication;
+		};
+		C4F581FA2E65A57A00A9B0B9 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = C4F581DA2E65A57900A9B0B9 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = C4F581E12E65A57900A9B0B9;
+			remoteInfo = BearReaderApplication;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXFileReference section */
+		C45EC7F02E8A941700915D42 /* README.md */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = README.md; sourceTree = "<group>"; };
+		C4F581E22E65A57900A9B0B9 /* BearReaderApplication.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = BearReaderApplication.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		C4F581EF2E65A57A00A9B0B9 /* BearReaderApplicationTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = BearReaderApplicationTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		C4F581F92E65A57A00A9B0B9 /* BearReaderApplicationUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = BearReaderApplicationUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+/* End PBXFileReference section */
+
+/* Begin PBXFileSystemSynchronizedRootGroup section */
+		C4F581E42E65A57900A9B0B9 /* BearReaderApplication */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = BearReaderApplication;
+			sourceTree = "<group>";
+		};
+		C4F581F22E65A57A00A9B0B9 /* BearReaderApplicationTests */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = BearReaderApplicationTests;
+			sourceTree = "<group>";
+		};
+		C4F581FC2E65A57A00A9B0B9 /* BearReaderApplicationUITests */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = BearReaderApplicationUITests;
+			sourceTree = "<group>";
+		};
+/* End PBXFileSystemSynchronizedRootGroup section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		C4F581DF2E65A57900A9B0B9 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				C4D35E922E881B2100A39EC4 /* Kingfisher in Frameworks */,
+				C421F0822E698C5D0014612D /* SQLite in Frameworks */,
+				C421F07C2E698C3B0014612D /* SwiftSoup in Frameworks */,
+				C421F07F2E698C490014612D /* SelectableText in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		C4F581EC2E65A57A00A9B0B9 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		C4F581F62E65A57A00A9B0B9 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		C4F581D92E65A57900A9B0B9 = {
+			isa = PBXGroup;
+			children = (
+				C45EC7F02E8A941700915D42 /* README.md */,
+				C4F581E42E65A57900A9B0B9 /* BearReaderApplication */,
+				C4F581F22E65A57A00A9B0B9 /* BearReaderApplicationTests */,
+				C4F581FC2E65A57A00A9B0B9 /* BearReaderApplicationUITests */,
+				C4F581E32E65A57900A9B0B9 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		C4F581E32E65A57900A9B0B9 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				C4F581E22E65A57900A9B0B9 /* BearReaderApplication.app */,
+				C4F581EF2E65A57A00A9B0B9 /* BearReaderApplicationTests.xctest */,
+				C4F581F92E65A57A00A9B0B9 /* BearReaderApplicationUITests.xctest */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		C4F581E12E65A57900A9B0B9 /* BearReaderApplication */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = C4F582032E65A57A00A9B0B9 /* Build configuration list for PBXNativeTarget "BearReaderApplication" */;
+			buildPhases = (
+				C4F581DE2E65A57900A9B0B9 /* Sources */,
+				C4F581DF2E65A57900A9B0B9 /* Frameworks */,
+				C4F581E02E65A57900A9B0B9 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			fileSystemSynchronizedGroups = (
+				C4F581E42E65A57900A9B0B9 /* BearReaderApplication */,
+			);
+			name = BearReaderApplication;
+			packageProductDependencies = (
+				C421F07B2E698C3B0014612D /* SwiftSoup */,
+				C421F07E2E698C490014612D /* SelectableText */,
+				C421F0812E698C5D0014612D /* SQLite */,
+				C4D35E912E881B2100A39EC4 /* Kingfisher */,
+			);
+			productName = BearReaderApplication;
+			productReference = C4F581E22E65A57900A9B0B9 /* BearReaderApplication.app */;
+			productType = "com.apple.product-type.application";
+		};
+		C4F581EE2E65A57A00A9B0B9 /* BearReaderApplicationTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = C4F582062E65A57A00A9B0B9 /* Build configuration list for PBXNativeTarget "BearReaderApplicationTests" */;
+			buildPhases = (
+				C4F581EB2E65A57A00A9B0B9 /* Sources */,
+				C4F581EC2E65A57A00A9B0B9 /* Frameworks */,
+				C4F581ED2E65A57A00A9B0B9 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				C4F581F12E65A57A00A9B0B9 /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				C4F581F22E65A57A00A9B0B9 /* BearReaderApplicationTests */,
+			);
+			name = BearReaderApplicationTests;
+			packageProductDependencies = (
+			);
+			productName = BearReaderApplicationTests;
+			productReference = C4F581EF2E65A57A00A9B0B9 /* BearReaderApplicationTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+		C4F581F82E65A57A00A9B0B9 /* BearReaderApplicationUITests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = C4F582092E65A57A00A9B0B9 /* Build configuration list for PBXNativeTarget "BearReaderApplicationUITests" */;
+			buildPhases = (
+				C4F581F52E65A57A00A9B0B9 /* Sources */,
+				C4F581F62E65A57A00A9B0B9 /* Frameworks */,
+				C4F581F72E65A57A00A9B0B9 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				C4F581FB2E65A57A00A9B0B9 /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				C4F581FC2E65A57A00A9B0B9 /* BearReaderApplicationUITests */,
+			);
+			name = BearReaderApplicationUITests;
+			packageProductDependencies = (
+			);
+			productName = BearReaderApplicationUITests;
+			productReference = C4F581F92E65A57A00A9B0B9 /* BearReaderApplicationUITests.xctest */;
+			productType = "com.apple.product-type.bundle.ui-testing";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		C4F581DA2E65A57900A9B0B9 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = 1;
+				LastSwiftUpdateCheck = 1640;
+				LastUpgradeCheck = 1640;
+				TargetAttributes = {
+					C4F581E12E65A57900A9B0B9 = {
+						CreatedOnToolsVersion = 16.4;
+					};
+					C4F581EE2E65A57A00A9B0B9 = {
+						CreatedOnToolsVersion = 16.4;
+						TestTargetID = C4F581E12E65A57900A9B0B9;
+					};
+					C4F581F82E65A57A00A9B0B9 = {
+						CreatedOnToolsVersion = 16.4;
+						TestTargetID = C4F581E12E65A57900A9B0B9;
+					};
+				};
+			};
+			buildConfigurationList = C4F581DD2E65A57900A9B0B9 /* Build configuration list for PBXProject "BearReaderApplication" */;
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = C4F581D92E65A57900A9B0B9;
+			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				C421F07A2E698C3B0014612D /* XCRemoteSwiftPackageReference "SwiftSoup" */,
+				C421F07D2E698C490014612D /* XCRemoteSwiftPackageReference "SelectableText" */,
+				C421F0802E698C5D0014612D /* XCRemoteSwiftPackageReference "SQLite.swift" */,
+				C4D35E902E881B2100A39EC4 /* XCRemoteSwiftPackageReference "Kingfisher" */,
+			);
+			preferredProjectObjectVersion = 77;
+			productRefGroup = C4F581E32E65A57900A9B0B9 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				C4F581E12E65A57900A9B0B9 /* BearReaderApplication */,
+				C4F581EE2E65A57A00A9B0B9 /* BearReaderApplicationTests */,
+				C4F581F82E65A57A00A9B0B9 /* BearReaderApplicationUITests */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		C4F581E02E65A57900A9B0B9 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		C4F581ED2E65A57A00A9B0B9 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		C4F581F72E65A57A00A9B0B9 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		C4F581DE2E65A57900A9B0B9 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		C4F581EB2E65A57A00A9B0B9 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		C4F581F52E65A57A00A9B0B9 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		C4F581F12E65A57A00A9B0B9 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = C4F581E12E65A57900A9B0B9 /* BearReaderApplication */;
+			targetProxy = C4F581F02E65A57A00A9B0B9 /* PBXContainerItemProxy */;
+		};
+		C4F581FB2E65A57A00A9B0B9 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = C4F581E12E65A57900A9B0B9 /* BearReaderApplication */;
+			targetProxy = C4F581FA2E65A57A00A9B0B9 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		C4F582012E65A57A00A9B0B9 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				DEVELOPMENT_TEAM = XNQA5U6UFX;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.5;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = iphoneos;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+			};
+			name = Debug;
+		};
+		C4F582022E65A57A00A9B0B9 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DEVELOPMENT_TEAM = XNQA5U6UFX;
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.5;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				SDKROOT = iphoneos;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		C4F582042E65A57A00A9B0B9 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CLANG_UNDEFINED_BEHAVIOR_SANITIZER_INTEGER = YES;
+				CLANG_UNDEFINED_BEHAVIOR_SANITIZER_NULLABILITY = YES;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = XNQA5U6UFX;
+				ENABLE_PREVIEWS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_TREAT_WARNINGS_AS_ERRORS = YES;
+				GCC_UNROLL_LOOPS = YES;
+				GCC_WARN_PEDANTIC = YES;
+				GCC_WARN_STRICT_SELECTOR_MATCH = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = "Bear Reader";
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.news";
+				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "To save an image to your Photos, we need your permission.";
+				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = dev.mysh.BearReaderApplication;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_STRICT_MEMORY_SAFETY = YES;
+				SWIFT_TREAT_WARNINGS_AS_ERRORS = YES;
+				SWIFT_UPCOMING_FEATURE_NONISOLATED_NONSENDING_BY_DEFAULT = YES;
+				SWIFT_VERSION = 6.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		C4F582052E65A57A00A9B0B9 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CLANG_UNDEFINED_BEHAVIOR_SANITIZER_INTEGER = YES;
+				CLANG_UNDEFINED_BEHAVIOR_SANITIZER_NULLABILITY = YES;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = XNQA5U6UFX;
+				ENABLE_PREVIEWS = YES;
+				GCC_OPTIMIZATION_LEVEL = fast;
+				GCC_TREAT_WARNINGS_AS_ERRORS = YES;
+				GCC_UNROLL_LOOPS = YES;
+				GCC_WARN_PEDANTIC = YES;
+				GCC_WARN_STRICT_SELECTOR_MATCH = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = "Bear Reader";
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.news";
+				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "To save an image to your Photos, we need your permission.";
+				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = dev.mysh.BearReaderApplication;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_STRICT_MEMORY_SAFETY = YES;
+				SWIFT_TREAT_WARNINGS_AS_ERRORS = YES;
+				SWIFT_UPCOMING_FEATURE_NONISOLATED_NONSENDING_BY_DEFAULT = YES;
+				SWIFT_VERSION = 6.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+		C4F582072E65A57A00A9B0B9 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = XNQA5U6UFX;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.5;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = dev.mysh.BearReaderApplicationTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/BearReaderApplication.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/BearReaderApplication";
+			};
+			name = Debug;
+		};
+		C4F582082E65A57A00A9B0B9 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = XNQA5U6UFX;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.5;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = dev.mysh.BearReaderApplicationTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/BearReaderApplication.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/BearReaderApplication";
+			};
+			name = Release;
+		};
+		C4F5820A2E65A57A00A9B0B9 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = XNQA5U6UFX;
+				GENERATE_INFOPLIST_FILE = YES;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = dev.mysh.BearReaderApplicationUITests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = BearReaderApplication;
+			};
+			name = Debug;
+		};
+		C4F5820B2E65A57A00A9B0B9 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = XNQA5U6UFX;
+				GENERATE_INFOPLIST_FILE = YES;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = dev.mysh.BearReaderApplicationUITests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = BearReaderApplication;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		C4F581DD2E65A57900A9B0B9 /* Build configuration list for PBXProject "BearReaderApplication" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				C4F582012E65A57A00A9B0B9 /* Debug */,
+				C4F582022E65A57A00A9B0B9 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		C4F582032E65A57A00A9B0B9 /* Build configuration list for PBXNativeTarget "BearReaderApplication" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				C4F582042E65A57A00A9B0B9 /* Debug */,
+				C4F582052E65A57A00A9B0B9 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		C4F582062E65A57A00A9B0B9 /* Build configuration list for PBXNativeTarget "BearReaderApplicationTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				C4F582072E65A57A00A9B0B9 /* Debug */,
+				C4F582082E65A57A00A9B0B9 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		C4F582092E65A57A00A9B0B9 /* Build configuration list for PBXNativeTarget "BearReaderApplicationUITests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				C4F5820A2E65A57A00A9B0B9 /* Debug */,
+				C4F5820B2E65A57A00A9B0B9 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		C421F07A2E698C3B0014612D /* XCRemoteSwiftPackageReference "SwiftSoup" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/scinfu/SwiftSoup.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 2.11.0;
+			};
+		};
+		C421F07D2E698C490014612D /* XCRemoteSwiftPackageReference "SelectableText" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/kevinhermawan/SelectableText.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 1.0.0;
+			};
+		};
+		C421F0802E698C5D0014612D /* XCRemoteSwiftPackageReference "SQLite.swift" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/stephencelis/SQLite.swift.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 0.15.4;
+			};
+		};
+		C4D35E902E881B2100A39EC4 /* XCRemoteSwiftPackageReference "Kingfisher" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/onevcat/Kingfisher.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 8.5.0;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		C421F07B2E698C3B0014612D /* SwiftSoup */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = C421F07A2E698C3B0014612D /* XCRemoteSwiftPackageReference "SwiftSoup" */;
+			productName = SwiftSoup;
+		};
+		C421F07E2E698C490014612D /* SelectableText */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = C421F07D2E698C490014612D /* XCRemoteSwiftPackageReference "SelectableText" */;
+			productName = SelectableText;
+		};
+		C421F0812E698C5D0014612D /* SQLite */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = C421F0802E698C5D0014612D /* XCRemoteSwiftPackageReference "SQLite.swift" */;
+			productName = SQLite;
+		};
+		C4D35E912E881B2100A39EC4 /* Kingfisher */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = C4D35E902E881B2100A39EC4 /* XCRemoteSwiftPackageReference "Kingfisher" */;
+			productName = Kingfisher;
+		};
+/* End XCSwiftPackageProductDependency section */
+	};
+	rootObject = C4F581DA2E65A57900A9B0B9 /* Project object */;
+}
