@@ -60,19 +60,19 @@ final class BearBlogService: BearBlogServiceProtocol, Sendable {
         guard let url = URL(string: "\(baseURL)?page=\(page)") else {
             throw BearBlogError.invalidURL
         }
+                
+        var request = URLRequest(url: url)
         
         if refresh {
-            self.urlSession.configuration.requestCachePolicy = .reloadRevalidatingCacheData
+            request.cachePolicy = .useProtocolCachePolicy
         }
-        
-        var request = URLRequest(url: url)
         
         if let language = language {
             request.setValue("lang=\(language);", forHTTPHeaderField: "Cookie")
         }
         
         do {
-            let (data, _) = try await urlSession.data(for: request)
+            let (data, _) = try await self.urlSession.data(for: request)
             let html = String(data: data, encoding: .utf8) ?? ""
             return try await getPosts(from: html)
         } catch {
@@ -89,18 +89,19 @@ final class BearBlogService: BearBlogServiceProtocol, Sendable {
             throw BearBlogError.invalidURL
         }
         
-        if refresh {
-            self.urlSession.configuration.requestCachePolicy = .reloadRevalidatingCacheData
-        }
         
         var request = URLRequest(url: url)
+        
+        if refresh {
+            request.cachePolicy = .useProtocolCachePolicy
+        }
         
         if let language = language {
             request.setValue("lang=\(language);", forHTTPHeaderField: "Cookie")
         }
         
         do {
-            let (data, _) = try await urlSession.data(for: request)
+            let (data, _) = try await self.urlSession.data(for: request)
             let html = String(data: data, encoding: .utf8) ?? ""
             return try await getPosts(from: html)
         } catch {
@@ -121,7 +122,7 @@ final class BearBlogService: BearBlogServiceProtocol, Sendable {
         do {
             var request = URLRequest(url: url)
             request.cachePolicy = .returnCacheDataElseLoad
-            let (data, _) = try await urlSession.data(for: request)
+            let (data, _) = try await self.urlSession.data(for: request)
             let html = String(data: data, encoding: .utf8) ?? ""
             
             guard let postContent = try await parseMainContentToStructured(from: html) else {
@@ -159,17 +160,24 @@ final class BearBlogService: BearBlogServiceProtocol, Sendable {
     private func parseMainContentToStructured(from html: String) async throws -> PostContent? {
         let settings = await getCurrentSettings()
         let document = try parse(html)
-        
+
         // No <main> - no gain
         guard let mainElement = try document.select(settings.cssSelectors.mainContent).first() else {
             return nil
         }
-        
+
         var elements: [ContentElement] = []
-        
-        for child in try mainElement.select("> *") {
+        try await parseElements(from: mainElement, into: &elements, settings: settings)
+
+        return PostContent(elements: elements)
+    }
+
+    private func parseElements(from container: Element, into elements: inout [ContentElement], settings: SettingsModel) async throws {
+        let children = try container.select("> *")
+
+        for child in children {
             let tagName = child.tagName()
-            
+
             switch tagName {
             case "img":
                 if let images = try? child.select("img").compactMap({ img in
@@ -179,7 +187,7 @@ final class BearBlogService: BearBlogServiceProtocol, Sendable {
                 }) {
                     images.forEach { elements.append(.image($0)) }
                 }
-                    
+
             case "p", "a":
                 // Check if this is a tags paragraph
                 if let classAttr = try? child.attr("class"), classAttr == "tags" {
@@ -249,13 +257,19 @@ final class BearBlogService: BearBlogServiceProtocol, Sendable {
                         platform: platform
                     )
                     elements.append(.video(video))
+                    continue
                 }
                 // Code blocks are hidden inside of div for some reason
                 else if let highlight = try? child.attr("highlight"), !highlight.isEmpty,
                    let codeElement = try? child.select("code").first(),
                    let codeText = try? codeElement.text(), !codeText.isEmpty {
                     elements.append(.codeBlock(codeText))
+                    continue
                 }
+
+                // Generic div - recursively parse its children
+                try await parseElements(from: child, into: &elements, settings: settings)
+
             case "h1": continue
             case "h2":
                 let text = try child.text()
@@ -286,7 +300,5 @@ final class BearBlogService: BearBlogServiceProtocol, Sendable {
                 }
             }
         }
-        
-        return PostContent(elements: elements)
     }
 }
