@@ -1,10 +1,23 @@
+<picture>
+  <source srcset="https://github.com/user-attachments/assets/5e018657-7d15-490e-86a6-a17af44ec439" media="(prefers-color-scheme: light)"/>
+  <source srcset="https://github.com/user-attachments/assets/54cd9377-dbdf-4692-b6ff-da3b985becfd" media="(prefers-color-scheme: dark)"/>
+  <img src="https://github.com/user-attachments/assets/54cd9377-dbdf-4692-b6ff-da3b985becfd" alt="Bear Reader Icon"/>
+</picture>
+
 # Bear Reader
 
 **Warning**: There's no official release on App Store just yet. Screenshots will be added later.
 
 SwiftUI-based iOS/iPadOS Bear Blog Reader. Optimized for iPhone SE. Supports iOS 17, 18 and 26. iPadOS is supported too, but not as a primary target.
 
+<picture>
+  <source width="213" height="429" srcset="https://github.com/user-attachments/assets/1e698187-c4bc-4acb-8c29-469a1fecba65" media="(prefers-color-scheme: light)"/>
+  <source width="213" height="429" srcset="https://github.com/user-attachments/assets/dda95386-bdb0-48f4-a886-68afbf21d3e0" media="(prefers-color-scheme: dark)"/>
+  <img width="213" height="429" alt="Bear Reader on iPhone SE" srcset="https://github.com/user-attachments/assets/1e698187-c4bc-4acb-8c29-469a1fecba65"/>
+</picture>
+
 ## Features
+
 
 - Built for offline use: open a post to cache it, read it when you feel like it
 - Fully local search: no requests to remote server, only on posts that you encountered
