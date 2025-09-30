@@ -19,8 +19,8 @@ enum BearBlogError: Error {
 }
 
 protocol BearBlogServiceProtocol {
-    func getTrending(page: Int, language: String?) async throws -> [PostItem]
-    func getRecent(page: Int, language: String?) async throws -> [PostItem]
+    func getTrending(page: Int, language: String?, refresh: Bool) async throws -> [PostItem]
+    func getRecent(page: Int, language: String?, refresh: Bool) async throws -> [PostItem]
     func getPostContent(from urlPath: String) async throws -> PostContent
 }
 
@@ -52,13 +52,17 @@ final class BearBlogService: BearBlogServiceProtocol, Sendable {
         return await settingsProvider.getCurrentSettings()
     }
     
-    func getTrending(page: Int = 0, language: String? = nil) async throws -> [PostItem] {
+    func getTrending(page: Int = 0, language: String? = nil, refresh: Bool = false) async throws -> [PostItem] {
         let settings = await getCurrentSettings()
         let baseURL = settings.serviceURL.hasSuffix("/")
         ? String(settings.serviceURL.dropLast())
         : settings.serviceURL
         guard let url = URL(string: "\(baseURL)?page=\(page)") else {
             throw BearBlogError.invalidURL
+        }
+        
+        if refresh {
+            self.urlSession.configuration.requestCachePolicy = .reloadRevalidatingCacheData
         }
         
         var request = URLRequest(url: url)
@@ -76,13 +80,17 @@ final class BearBlogService: BearBlogServiceProtocol, Sendable {
         }
     }
     
-    func getRecent(page: Int = 1, language: String? = nil) async throws -> [PostItem] {
+    func getRecent(page: Int = 1, language: String? = nil, refresh: Bool = false) async throws -> [PostItem] {
         let settings = await getCurrentSettings()
         let baseURL = settings.serviceURL.hasSuffix("/")
         ? String(settings.serviceURL.dropLast())
         : settings.serviceURL
         guard let url = URL(string: "\(baseURL)?newest=true&page=\(page)") else {
             throw BearBlogError.invalidURL
+        }
+        
+        if refresh {
+            self.urlSession.configuration.requestCachePolicy = .reloadRevalidatingCacheData
         }
         
         var request = URLRequest(url: url)

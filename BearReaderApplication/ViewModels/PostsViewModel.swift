@@ -35,7 +35,22 @@ class PostsViewModel: ObservableObject {
         self.bearBlogService = bearBlogService
     }
     
-    func loadInitialPosts() async {
+    func tryToRefreshPosts() async {
+        isLoading = true
+        errorMessage = nil
+        isOffline = false
+        currentPage = 0
+        
+        do {
+            let result = try await fetchPosts(page: currentPage)
+            posts = result
+            isLoading = false
+        } catch {
+            handleError(error, isInitialLoad: posts.isEmpty)
+        }
+    }
+    
+    func loadInitialPosts(refresh: Bool = false) async {
         isLoading = true
         errorMessage = nil
         isOffline = false
@@ -79,12 +94,12 @@ class PostsViewModel: ObservableObject {
         await loadInitialPosts()
     }
     
-    private func fetchPosts(page: Int) async throws -> [PostItem] {
+    private func fetchPosts(page: Int, refresh: Bool = false) async throws -> [PostItem] {
         switch feedType {
         case .trending:
-            return try await bearBlogService.getTrending(page: page, language: nil)
+            return try await bearBlogService.getTrending(page: page, language: nil, refresh: refresh)
         case .recent:
-            return try await bearBlogService.getRecent(page: page, language: nil)
+            return try await bearBlogService.getRecent(page: page, language: nil, refresh: refresh)
         }
     }
     
