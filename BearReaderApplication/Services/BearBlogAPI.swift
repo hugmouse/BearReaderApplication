@@ -225,16 +225,17 @@ final class BearBlogService: BearBlogServiceProtocol, Sendable {
                         elements.append(.text(attributedText))
                     }
                 }
-            case "div":
-                // Check for video, usually embed in iframes
-                if let iframe = try? child.select("iframe").first(),
-                   let src = try? iframe.attr("src"),
-                   src.contains("youtube.com/embed") || src.contains("vimeo.com") {
-
-                    let title = (try? iframe.attr("title")) ?? "Video"
+            case "iframe":
+                print("iframe detected")
+                print(child)
+                if let src = try? child.attr("src"),
+                   src.contains("youtube.com/embed") || src.contains("youtube-nocookie.com/embed/") || src.contains("vimeo.com") {
+                    print("we are inside")
+                    
+                    let title = (try? child.attr("title")) ?? "Video"
                     let platform: String
                     let thumbnailUrl: String
-
+                    
                     if src.contains("youtube.com/embed") {
                         platform = "YouTube"
                         // Extract video ID from URL like "https://www.youtube.com/embed/balls"
@@ -249,7 +250,7 @@ final class BearBlogService: BearBlogServiceProtocol, Sendable {
                         platform = "Video"
                         thumbnailUrl = ""
                     }
-
+                    
                     let video = PostVideo(
                         embedUrl: src,
                         thumbnailUrl: thumbnailUrl,
@@ -258,9 +259,12 @@ final class BearBlogService: BearBlogServiceProtocol, Sendable {
                     )
                     elements.append(.video(video))
                     continue
+                } else {
+                    print("Something went wrong!")
                 }
+            case "div":
                 // Code blocks are hidden inside of div for some reason
-                else if let highlight = try? child.attr("highlight"), !highlight.isEmpty,
+                if let highlight = try? child.attr("highlight"), !highlight.isEmpty,
                    let codeElement = try? child.select("code").first(),
                    let codeText = try? codeElement.text(), !codeText.isEmpty {
                     elements.append(.codeBlock(codeText))
