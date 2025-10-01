@@ -226,41 +226,42 @@ final class BearBlogService: BearBlogServiceProtocol, Sendable {
                     }
                 }
             case "iframe":
-                print("iframe detected")
-                print(child)
-                if let src = try? child.attr("src"),
-                   src.contains("youtube.com/embed") || src.contains("youtube-nocookie.com/embed/") || src.contains("vimeo.com") {
-                    print("we are inside")
-                    
-                    let title = (try? child.attr("title")) ?? "Video"
-                    let platform: String
-                    let thumbnailUrl: String
-                    
-                    if src.contains("youtube.com/embed") {
-                        platform = "YouTube"
-                        // Extract video ID from URL like "https://www.youtube.com/embed/balls"
-                        let videoId = src.components(separatedBy: "/").last?.components(separatedBy: "?").first ?? ""
-                        thumbnailUrl = "https://img.youtube.com/vi/\(videoId)/maxresdefault.jpg"
-                    } else if src.contains("vimeo.com") {
-                        platform = "Vimeo"
-                        // They require additional request to get thumbnail URL, which is annoying
-                        // TODO: support vimeo maybe
-                        thumbnailUrl = ""
-                    } else {
-                        platform = "Video"
-                        thumbnailUrl = ""
+                if let src = try? child.attr("src") {
+                    switch src {
+                    case let url where url.contains("youtube.com/embed") || url.contains("youtube-nocookie.com/embed/"):
+                        let title = (try? child.attr("title")) ?? "Video"
+                        let platform = "YouTube"
+                        
+                        let videoId = url.components(separatedBy: "/").last?.components(separatedBy: "?").first ?? ""
+                        let thumbnailUrl = "https://img.youtube.com/vi/\(videoId)/maxresdefault.jpg"
+                        
+                        let video = PostVideo(
+                            embedUrl: url,
+                            thumbnailUrl: thumbnailUrl,
+                            title: title,
+                            platform: platform
+                        )
+                        elements.append(.video(video))
+                        continue
+                        
+                    case let url where url.contains("vimeo.com"):
+                        let title = (try? child.attr("title")) ?? "Video"
+                        let platform = "Vimeo"
+                        // TODO: Support Vimeo thumbnail fetching, requires API call (public though)
+                        let thumbnailUrl = ""
+                        
+                        let video = PostVideo(
+                            embedUrl: url,
+                            thumbnailUrl: thumbnailUrl,
+                            title: title,
+                            platform: platform
+                        )
+                        elements.append(.video(video))
+                        continue
+                        
+                    default:
+                        print("Encountered unsupported iframe", child)
                     }
-                    
-                    let video = PostVideo(
-                        embedUrl: src,
-                        thumbnailUrl: thumbnailUrl,
-                        title: title,
-                        platform: platform
-                    )
-                    elements.append(.video(video))
-                    continue
-                } else {
-                    print("Something went wrong!")
                 }
             case "div":
                 // Code blocks are hidden inside of div for some reason
