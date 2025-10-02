@@ -12,6 +12,7 @@ import Foundation
 struct PostImage {
     let url: String
     let altText: String
+    let needsPadding: Bool
 }
 
 struct PostUpvote {

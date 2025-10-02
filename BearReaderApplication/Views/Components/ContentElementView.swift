@@ -30,6 +30,7 @@ struct ContentElementView: View {
 
         case .image(let postImage):
             PostImageView(postImage: postImage)
+                .padding([.bottom], postImage.needsPadding ? 16.0 : 0.0)
                 .onAppear {
                     onElementRendered()
                 }

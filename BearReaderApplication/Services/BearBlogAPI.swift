@@ -180,10 +180,11 @@ final class BearBlogService: BearBlogServiceProtocol, Sendable {
 
             switch tagName {
             case "img":
+                // In this case, we actually need to add padding at the bottom since we are not in <p>
                 if let images = try? child.select("img").compactMap({ img in
                     let src = try? img.attr("src")
                     let alt = try? img.attr("alt")
-                    return (src != nil && !src!.isEmpty) ? PostImage(url: src!, altText: alt ?? "") : nil
+                    return (src != nil && !src!.isEmpty) ? PostImage(url: src!, altText: alt ?? "", needsPadding: true) : nil
                 }) {
                     images.forEach { elements.append(.image($0)) }
                 }
@@ -212,7 +213,7 @@ final class BearBlogService: BearBlogServiceProtocol, Sendable {
                     if let images = try? child.select("img").compactMap({ img in
                         let src = try? img.attr("src")
                         let alt = try? img.attr("alt")
-                        return (src != nil && !src!.isEmpty) ? PostImage(url: src!, altText: alt ?? "") : nil
+                        return (src != nil && !src!.isEmpty) ? PostImage(url: src!, altText: alt ?? "", needsPadding: false) : nil
                     }) {
                         images.forEach { elements.append(.image($0)) }
                     }
