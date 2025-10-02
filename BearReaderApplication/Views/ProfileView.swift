@@ -35,7 +35,7 @@ struct ProfileView: View {
                     NavigationLink(destination: HistoryView()) {
                         UnifiedRowView(
                             title: "History",
-                            icon: "clock"
+                            icon: "clock",
                         )
                     }
 
@@ -80,22 +80,63 @@ struct ProfileView: View {
     }
 }
 
+struct SettingsIconView: View {
+    let iconName: String
+    let gradient: Gradient
+    let gradientBorder: [Color]
+    
+    var body: some View {
+        ZStack {
+            RoundedRectangle(cornerRadius: 7)
+                .fill(LinearGradient(
+                    gradient: gradient,
+                    startPoint: .topLeading,
+                    endPoint: .bottomTrailing
+                ))
+            // [.cyan, .blue, .cyan, .blue]
+                .stroke(
+                    RadialGradient(gradient:
+                                    Gradient(colors: gradientBorder),
+                                   center: .zero, startRadius: 10, endRadius: 55),
+                    lineWidth: 1
+                )
+            Image(systemName: iconName)
+                .font(.system(size: 16, weight: .heavy))
+                .foregroundColor(.white)
+        }
+        .frame(width: 30, height: 30)
+    }
+}
+
 struct UnifiedRowView: View {
     let title: String
     let icon: String
     let value: String?
     let valueAlignment: HorizontalAlignment
-    
-    init(title: String, icon: String, value: String? = nil, valueAlignment: HorizontalAlignment = .leading) {
+    let gradient: Gradient
+    let gradientBorder: [Color]
+
+    init(title: String,
+         icon: String,
+         value: String? = nil,
+         valueAlignment: HorizontalAlignment = .leading,
+         gradient: Gradient = Gradient(colors: [Color(UIColor.systemGray2), Color(UIColor.systemGray4)]),
+         gradientBorder: [Color] = [Color(UIColor.systemGray3), Color(UIColor.systemGray4), Color(UIColor.systemGray3), Color(UIColor.systemGray4)]) {
         self.title = title
         self.icon = icon
         self.value = value
         self.valueAlignment = valueAlignment
+        self.gradient = gradient
+        self.gradientBorder = gradientBorder
     }
-    
+
     var body: some View {
         HStack(spacing: 16) {
-            Image(systemName: icon)
+            SettingsIconView(
+                iconName: icon,
+                gradient: gradient,
+                gradientBorder: gradientBorder
+            )
             VStack(alignment: .leading, spacing: 2) {
                 Text(title)
                     .font(.body)
