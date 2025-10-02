@@ -19,7 +19,7 @@ struct SettingsView: View {
     var body: some View {
             List {
                 Section(header: Text("API Configuration"),  footer:
-                    Text("Customize the BearBlog discover page URL to match your preferred instance or if the default URL changes. This helps ensure the app continues working with different BearBlog deployments.")
+                    Text("Customize the BearBlog discover page URL to match your preferred instance or if the default URL changes.")
                         .font(.caption)
                         .foregroundColor(.secondary)
                 ) {
@@ -32,7 +32,7 @@ struct SettingsView: View {
                 }
                 
                 Section(header: Text("CSS Selectors"), footer:
-                    Text("These CSS selectors help the app parse BearBlog content correctly. You may need to adjust them if the website's HTML structure changes or if you're using a custom BearBlog theme. The app uses these to extract post information for a better reading experience.")
+                    Text("These CSS selectors help the app parse BearBlog content correctly. You may need to adjust them if the website's HTML structure changes. The app uses these to extract post information for a better reading experience.")
                         .font(.caption)
                         .foregroundColor(.secondary)
                 ) {
