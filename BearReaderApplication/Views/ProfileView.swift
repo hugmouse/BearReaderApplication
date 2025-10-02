@@ -96,6 +96,7 @@ struct UnifiedRowView: View {
     var body: some View {
         HStack(spacing: 16) {
             Image(systemName: icon)
+                .frame(width: 16.0, alignment: .center)
             VStack(alignment: .leading, spacing: 2) {
                 Text(title)
                     .font(.body)
