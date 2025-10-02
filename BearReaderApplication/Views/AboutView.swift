@@ -14,12 +14,12 @@ struct AboutView: View {
     var body: some View {
         List {
             Section("App Information") {
-                Text("Reader for Bear Blog")
-                Text("Source code: https://github.com/hugmouse/bearblogreader").font(.subheadline)
+                Text("Open-Source Reader for Bear Blog")
+                Text("Source code: https://github.com/hugmouse/BearReaderApplication").font(.subheadline)
                 UnifiedRowView(
                     title: "Version",
                     icon: "info.circle",
-                    value: "1.0.0",
+                    value: Bundle.main.appBuild,
                     valueAlignment: .trailing
                 )
             }
