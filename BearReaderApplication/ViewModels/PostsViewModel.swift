@@ -24,7 +24,7 @@ class PostsViewModel: ObservableObject {
     @Published var errorMessage: String?
     @Published var isOffline = false
     @Published var isBlinking = false
-
+    
     private let feedType: FeedType
     private let bearBlogService: BearBlogServiceProtocol
     private var currentPage = 1
@@ -40,7 +40,7 @@ class PostsViewModel: ObservableObject {
         errorMessage = nil
         isOffline = false
         currentPage = 0
-
+        
         do {
             let result = try await fetchPosts(page: currentPage, refresh: refresh)
             posts = result
@@ -66,13 +66,19 @@ class PostsViewModel: ObservableObject {
         }
     }
     
-    func shouldLoadMore(for post: PostItem) -> Bool {
-        guard let index = posts.firstIndex(where: { $0.url == post.url }) else {
-            return false
+    func loadMoreContentIfNeeded(currentItem item: PostItem?) -> Bool {
+        guard let item = item else {
+            return true
         }
-        return index == posts.count - 10
+        
+        let thresholdIndex = posts.index(posts.endIndex, offsetBy: -5)
+        if posts.firstIndex(where: { $0.id == item.id }) == thresholdIndex {
+            return true
+        }
+        
+        return false
     }
-
+    
     func refresh() async {
         errorMessage = nil
         isOffline = false
@@ -91,10 +97,10 @@ class PostsViewModel: ObservableObject {
     private func handleError(_ error: Error, isInitialLoad: Bool = false) {
         isLoading = false
         isLoadingMore = false
-
+        
         let isNetworkError = NetworkMonitor.isNetworkError(error)
         isOffline = isNetworkError
-
+        
         if isNetworkError && !isInitialLoad && !posts.isEmpty {
             errorMessage = "No internet connection. Showing cached posts."
         } else if isNetworkError && posts.isEmpty {

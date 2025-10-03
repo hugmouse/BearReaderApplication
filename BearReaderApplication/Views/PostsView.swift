@@ -75,7 +75,7 @@ struct PostsView: View {
                             .padding(.vertical, 8)
                             .background(Color.red.opacity(0.8))
                         }
-
+                        
                         List {
                             ForEach(currentViewModel.posts, id: \.url) { post in
                                 NavigationLink(destination: PostView(post: post, vis: $tabBarVisibility)) {
@@ -83,14 +83,14 @@ struct PostsView: View {
                                 }
                                 .onAppear {
                                     tabBarVisibility = .visible
-                                    if currentViewModel.shouldLoadMore(for: post) {
+                                    if currentViewModel.loadMoreContentIfNeeded(currentItem: post) {
                                         Task {
                                             await currentViewModel.loadMorePosts()
                                         }
                                     }
                                 }
                             }
-
+                            
                             if currentViewModel.isLoadingMore {
                                 HStack {
                                     Spacer()
@@ -117,7 +117,7 @@ struct PostsView: View {
                                     .init(color: .clear, location: 1.0)
                                 ]),
                                 startPoint: .bottom,
-                                endPoint: .top 
+                                endPoint: .top
                             )
                             .frame(height: 50)
                             Color.white
