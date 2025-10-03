@@ -16,6 +16,7 @@ struct AboutView: View {
             Section("App Information") {
                 Text("Open-Source Reader for Bear Blog")
                 Text("Source code: https://github.com/hugmouse/BearReaderApplication").font(.subheadline)
+                Text("Privacy Policy: https://github.com/hugmouse/BearReaderApplication/blob/master/PRIVACY.md").font(.subheadline)
                 UnifiedRowView(
                     title: "Version",
                     icon: "info.circle",
