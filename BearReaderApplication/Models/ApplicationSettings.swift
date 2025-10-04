@@ -7,6 +7,8 @@
 //  Copyright 2025 Iaroslav Angliuster
 //
 
+import SwiftUI
+
 struct SettingsModel: Sendable {
     var serviceURL: String
     var userAgent: String
@@ -14,7 +16,7 @@ struct SettingsModel: Sendable {
 
     static let defaults = SettingsModel(
         serviceURL: "https://bearblog.dev/discover/",
-        userAgent: "BearReader/1.0 (https://github.com/hugmouse/BearReaderApplication)",
+        userAgent: "BearReader/\(Bundle.main.appBuild) (https://github.com/hugmouse/BearReaderApplication)",
         cssSelectors: CSSSelectors.defaults
     )
 }
