@@ -264,15 +264,12 @@ final class BearBlogService: BearBlogServiceProtocol, Sendable {
                         print("Encountered unsupported iframe", child)
                     }
                 }
-            case "div":
-                // Code blocks are hidden inside of div for some reason
-                if let highlight = try? child.attr("highlight"), !highlight.isEmpty,
-                   let codeElement = try? child.select("code").first(),
-                   let codeText = try? codeElement.text(), !codeText.isEmpty {
-                    elements.append(.codeBlock(codeText))
+            case "pre":
+                if let preText = try? child.text(), !preText.isEmpty {
+                    elements.append(.codeBlock(preText))
                     continue
                 }
-
+            case "div":
                 // Generic div - recursively parse its children
                 try await parseElements(from: child, into: &elements, settings: settings)
 

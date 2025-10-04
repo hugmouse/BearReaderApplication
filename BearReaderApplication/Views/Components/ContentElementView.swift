@@ -30,12 +30,13 @@ struct ContentElementView: View {
 
         case .image(let postImage):
             PostImageView(postImage: postImage)
-                .padding([.bottom], postImage.needsPadding ? 16.0 : 0.0)
+                .padding([.bottom], 16.0)
                 .onAppear {
                     onElementRendered()
                 }
         case .codeBlock(let codeText):
             CodeBlockView(codeText: codeText)
+                .padding([.bottom], 16.0)
                 .onAppear {
                     onElementRendered()
                 }

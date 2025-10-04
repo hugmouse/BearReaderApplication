@@ -32,6 +32,10 @@ struct HTMLProcessor {
                     * {
                         background: unset;
                     }
+                    code {
+                        font-family: monospace;
+                        font-size: 1rem;
+                    }
                 </style>
             </head>
             <body>
