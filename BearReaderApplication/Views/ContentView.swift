@@ -31,24 +31,30 @@ struct ContentView: View {
                 Label("Trending", systemImage: "house.fill")
             }
             .tag(0)
-            
+
             PostsView(selectedFeedType: $selectedFeedType)
                 .tabItem {
                     Label("Recent", systemImage: "clock.fill")
                 }
                 .tag(1)
 
+                BlogsView()
+            .tabItem {
+                Label("Blogs", systemImage: "book.fill")
+            }
+            .tag(2)
+
                 ProfileView()
             .tabItem {
                 Label("Profile", systemImage: "person.crop.circle")
             }
-            .tag(2)
+            .tag(3)
 
                 SearchView(shouldFocusSearch: $shouldFocusSearch)
             .tabItem {
                 Label("Search", systemImage: "magnifyingglass")
             }
-            .tag(3)
+            .tag(4)
         }
         .onReceive(Just(selectedTab)) {
             if $0 == 0 {

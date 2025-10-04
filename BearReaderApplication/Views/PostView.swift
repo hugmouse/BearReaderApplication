@@ -20,6 +20,7 @@ struct PostView: View {
     @Environment(\.openURL) private var openURL
     @State private var showingShareSheet = false
     @State private var bookmarked = false
+    @State private var isSubscribed = false
 
 
     init(post: PostItem, vis: Binding<Visibility>) {
@@ -80,8 +81,10 @@ struct PostView: View {
             Task {
                 do {
                     bookmarked = try await DatabaseManager.shared.isPostBookmarked(post.url)
+                    isSubscribed = try await DatabaseManager.shared.isSubscribedToBlog(domain: post.domain)
                 } catch {
                     bookmarked = false
+                    isSubscribed = false
                 }
             }
             tabBarVisibility = .hidden
@@ -143,6 +146,35 @@ struct PostView: View {
                         Label(
                             bookmarked ? "Remove from Bookmarks" : "Add to Bookmarks",
                             systemImage: bookmarked ? "bookmark.fill" : "bookmark"
+                        )
+                    }
+
+                    Divider()
+
+                    Button(action: {
+                        Task {
+                            do {
+                                if isSubscribed {
+                                    try await DatabaseManager.shared.unsubscribeFromBlog(domain: post.domain)
+                                    await MainActor.run {
+                                        isSubscribed = false
+                                    }
+                                } else {
+                                    let blogTitle = post.domain.components(separatedBy: ".").first?.capitalized ?? post.domain
+                                    let blogUrl = "https://\(post.domain)/blog/"
+                                    try await DatabaseManager.shared.subscribeToBlog(domain: post.domain, feedUrl: blogUrl, blogTitle: blogTitle)
+                                    await MainActor.run {
+                                        isSubscribed = true
+                                    }
+                                }
+                            } catch {
+                                // subscription toggle
+                            }
+                        }
+                    }) {
+                        Label(
+                            isSubscribed ? "Unsubscribe from \(post.domain)" : "Subscribe to \(post.domain)",
+                            systemImage: isSubscribed ? "star.slash" : "star"
                         )
                     }
                 } label: {

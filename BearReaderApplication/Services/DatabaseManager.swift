@@ -31,6 +31,14 @@ actor DatabaseManager {
     private let lastAccessedAt = Expression<Date?>("last_accessed_at")
     private let isBookmarked = Expression<Bool>("is_bookmarked")
 
+    private let subscribedBlogs = Table("subscribed_blogs")
+    private let blogId = Expression<Int64>("id")
+    private let blogDomain = Expression<String>("domain")
+    private let blogFeedUrl = Expression<String>("feed_url")
+    private let blogTitle = Expression<String>("blog_title")
+    private let subscribedAt = Expression<Date>("subscribed_at")
+    private let lastFetchedAt = Expression<Date?>("last_fetched_at")
+
     private var connection: Connection {
         get throws {
             if let db = db {
@@ -69,6 +77,17 @@ actor DatabaseManager {
             t.column(isBookmarked, defaultValue: false)
         })
         logger.debug("tracked_posts table created successfully")
+
+        logger.debug("Creating subscribed_blogs table")
+        try connection.run(subscribedBlogs.create(ifNotExists: true) { t in
+            t.column(blogId, primaryKey: .autoincrement)
+            t.column(blogDomain, unique: true)
+            t.column(blogFeedUrl)
+            t.column(blogTitle)
+            t.column(subscribedAt)
+            t.column(lastFetchedAt)
+        })
+        logger.debug("subscribed_blogs table created successfully")
     }
     
     
@@ -275,6 +294,69 @@ actor DatabaseManager {
         return results
     }
 
+    // MARK: - Blog Subscription
+
+    func subscribeToBlog(domain: String, feedUrl: String, blogTitle titleValue: String) throws {
+        let conn = try connection
+        logger.debug("Subscribing to blog: \(domain)")
+        let insert = subscribedBlogs.insert(or: .replace,
+                                           blogDomain <- domain,
+                                           blogFeedUrl <- feedUrl,
+                                           blogTitle <- titleValue,
+                                           subscribedAt <- Date(),
+                                           lastFetchedAt <- nil
+        )
+        try conn.run(insert)
+        logger.debug("Subscribed to blog: \(domain)")
+    }
+
+    func unsubscribeFromBlog(domain: String) throws {
+        let conn = try connection
+        logger.debug("Unsubscribing from blog: \(domain)")
+        let blog = subscribedBlogs.filter(blogDomain == domain)
+        try conn.run(blog.delete())
+        logger.debug("Unsubscribed from blog: \(domain)")
+    }
+
+    func isSubscribedToBlog(domain: String) throws -> Bool {
+        let conn = try connection
+        logger.debug("Checking subscription status for: \(domain)")
+        let query = subscribedBlogs.filter(blogDomain == domain).limit(1)
+        let count = try conn.scalar(query.count)
+        logger.debug("Subscription status for \(domain): \(count > 0)")
+        return count > 0
+    }
+
+    func getSubscribedBlogs() throws -> [BlogSubscription] {
+        let conn = try connection
+        var results: [BlogSubscription] = []
+
+        logger.debug("Fetching subscribed blogs")
+        let query = subscribedBlogs.order(subscribedAt.desc)
+
+        for row in try conn.prepare(query) {
+            let subscription = BlogSubscription(
+                id: row[blogId],
+                domain: row[blogDomain],
+                feedUrl: row[blogFeedUrl],
+                blogTitle: row[blogTitle],
+                subscribedAt: row[subscribedAt],
+                lastFetchedAt: row[lastFetchedAt]
+            )
+            results.append(subscription)
+        }
+        logger.debug("Retrieved \(results.count) subscribed blogs")
+
+        return results
+    }
+
+    func updateBlogLastFetched(domain: String) throws {
+        let conn = try connection
+        logger.debug("Updating last fetched time for blog: \(domain)")
+        let blog = subscribedBlogs.filter(blogDomain == domain)
+        try conn.run(blog.update(lastFetchedAt <- Date()))
+        logger.debug("Updated last fetched time for blog: \(domain)")
+    }
 
 }
 

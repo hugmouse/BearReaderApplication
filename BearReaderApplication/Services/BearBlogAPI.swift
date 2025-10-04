@@ -22,6 +22,7 @@ protocol BearBlogServiceProtocol {
     func getTrending(page: Int, language: String?, refresh: Bool) async throws -> [PostItem]
     func getRecent(page: Int, language: String?, refresh: Bool) async throws -> [PostItem]
     func getPostContent(from urlPath: String) async throws -> PostContent
+    func getBlogFeed(domain: String) async throws -> [PostItem]
 }
 
 final class BearBlogService: BearBlogServiceProtocol, Sendable {
@@ -303,5 +304,81 @@ final class BearBlogService: BearBlogServiceProtocol, Sendable {
                 }
             }
         }
+    }
+
+    // I truly hope that they will never change URL, otherwise this will completely destroy itself
+    func getBlogFeed(domain: String) async throws -> [PostItem] {
+        var blogURL = domain
+        if !blogURL.hasPrefix("http://") && !blogURL.hasPrefix("https://") {
+            blogURL = "https://" + blogURL
+        }
+        if blogURL.hasSuffix("/") {
+            blogURL = String(blogURL.dropLast())
+        }
+        blogURL = blogURL + "/blog/"
+
+        guard let url = URL(string: blogURL) else {
+            throw BearBlogError.invalidURL
+        }
+
+        do {
+            var request = URLRequest(url: url)
+            request.cachePolicy = .returnCacheDataElseLoad
+            let (data, _) = try await self.urlSession.data(for: request)
+            let html = String(data: data, encoding: .utf8) ?? ""
+
+            // Parse blog posts from HTML
+            return try await parseBlogPosts(from: html, baseURL: blogURL)
+        } catch {
+            if error is BearBlogError {
+                throw error
+            } else {
+                throw BearBlogError.networkError(error)
+            }
+        }
+    }
+
+    private func parseBlogPosts(from html: String, baseURL: String) async throws -> [PostItem] {
+        let document = try parse(html)
+        let postListItems = try document.select("ul.blog-posts li")
+
+        var posts: [PostItem] = []
+
+        for listItem in postListItems {
+            let timeElement = try listItem.select("span i time").first()
+            let dateString = try timeElement?.text() ?? ""
+
+            let linkElement = try listItem.select("a").first()
+            guard let title = try linkElement?.text(),
+                  let href = try linkElement?.attr("href") else {
+                continue
+            }
+
+
+            let fullURL: String
+            if href.hasPrefix("http://") || href.hasPrefix("https://") {
+                fullURL = href
+            } else if href.hasPrefix("/") {
+                if let baseURLObj = URL(string: baseURL),
+                   let scheme = baseURLObj.scheme,
+                   let host = baseURLObj.host {
+                    fullURL = "\(scheme)://\(host)\(href)"
+                } else {
+                    fullURL = baseURL.replacingOccurrences(of: "/blog/", with: "") + href
+                }
+            } else {
+                fullURL = baseURL + href
+            }
+
+            let post = PostItem(
+                title: title,
+                url: fullURL,
+                age: dateString,
+                rating: "—"
+            )
+            posts.append(post)
+        }
+
+        return posts
     }
 }
