@@ -25,12 +25,12 @@ struct BlogSubscription: Identifiable, Hashable, Equatable {
         self.subscribedAt = subscribedAt
         self.lastFetchedAt = lastFetchedAt
     }
-
+    
     func hash(into hasher: inout Hasher) {
         hasher.combine(id)
         hasher.combine(domain)
     }
-
+    
     static func == (lhs: BlogSubscription, rhs: BlogSubscription) -> Bool {
         return lhs.id == rhs.id && lhs.domain == rhs.domain
     }

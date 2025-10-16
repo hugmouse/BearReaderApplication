@@ -50,7 +50,26 @@ struct BlogsView: View {
                     List {
                         ForEach(viewModel.subscribedBlogs) { blog in
                             NavigationLink(destination: BlogFeedView(blog: blog, vis: $tabBarVisibility)) {
-                                BlogRowView(blog: blog)
+                                VStack(alignment: .leading, spacing: 4) {
+                                    Text(blog.blogTitle)
+                                        .font(.headline)
+                                        .lineLimit(1)
+                                    
+                                    Text(blog.domain)
+                                        .font(.caption)
+                                        .foregroundColor(.secondary)
+                                    
+                                    if let lastFetched = blog.lastFetchedAt {
+                                        Text("Updated \(formatLastFetched(lastFetched))")
+                                            .font(.caption2)
+                                            .foregroundColor(.secondary)
+                                    } else {
+                                        Text("Not fetched yet")
+                                            .font(.caption2)
+                                            .foregroundColor(.secondary)
+                                    }
+                                }
+                                .padding(.vertical, 4)
                             }
                             .onAppear {
                                 tabBarVisibility = .visible
@@ -97,31 +116,7 @@ struct BlogsView: View {
     }
 }
 
-struct BlogRowView: View {
-    let blog: BlogSubscription
 
-    var body: some View {
-        VStack(alignment: .leading, spacing: 4) {
-            Text(blog.blogTitle)
-                .font(.headline)
-                .lineLimit(1)
-
-            Text(blog.domain)
-                .font(.caption)
-                .foregroundColor(.secondary)
-
-            if let lastFetched = blog.lastFetchedAt {
-                Text("Updated \(formatLastFetched(lastFetched))")
-                    .font(.caption2)
-                    .foregroundColor(.secondary)
-            } else {
-                Text("Not fetched yet")
-                    .font(.caption2)
-                    .foregroundColor(.secondary)
-            }
-        }
-        .padding(.vertical, 4)
-    }
 
     private func formatLastFetched(_ date: Date) -> String {
         let timeInterval = Date().timeIntervalSince(date)
@@ -141,4 +136,3 @@ struct BlogRowView: View {
             return formatter.string(from: date)
         }
     }
-}

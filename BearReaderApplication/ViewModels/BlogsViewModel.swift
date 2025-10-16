@@ -10,13 +10,11 @@
 import Foundation
 import SwiftUI
 
-@MainActor
 class BlogsViewModel: ObservableObject {
     @Published var subscribedBlogs: [BlogSubscription] = []
     @Published var isLoading = false
     @Published var errorMessage: String?
 
-    private var lastViewAppearTime: Date?
     private let backgroundRefreshInterval: TimeInterval = 3600
 
     func loadSubscribedBlogs() async {
@@ -62,24 +60,15 @@ class BlogsViewModel: ObservableObject {
     }
 
     func checkAndRefreshIfNeeded() async {
-        let now = Date()
-
-        // Check if we should auto-refresh based on time since last view appear
-        if let lastAppear = lastViewAppearTime {
-            let timeSinceLastAppear = now.timeIntervalSince(lastAppear)
-            if timeSinceLastAppear >= backgroundRefreshInterval {
-                await refreshAllBlogs()
-            }
+        if subscribedBlogs.contains(where: shouldRefreshBlog) {
+            await refreshAllBlogs()
         }
-
-        lastViewAppearTime = now
     }
 
     private func shouldRefreshBlog(_ blog: BlogSubscription) -> Bool {
         guard let lastFetched = blog.lastFetchedAt else {
             return true // Never fetched, should refresh
         }
-
         let timeSinceLastFetch = Date().timeIntervalSince(lastFetched)
         return timeSinceLastFetch >= backgroundRefreshInterval
     }
