@@ -6,18 +6,48 @@
 
 # Bear Reader
 
-**Warning**: There's no official release on App Store just yet. Screenshots will be added later.
+**Warning**: There's no official release on App Store just yet.
 
 SwiftUI-based iOS/iPadOS Bear Blog Reader. Optimized for iPhone SE. Supports iOS 17, 18 and 26. iPadOS is supported too, but not as a primary target.
 
-<picture>
-  <source width="213" height="429" srcset="https://github.com/user-attachments/assets/1e698187-c4bc-4acb-8c29-469a1fecba65" media="(prefers-color-scheme: light)"/>
-  <source width="213" height="429" srcset="https://github.com/user-attachments/assets/dda95386-bdb0-48f4-a886-68afbf21d3e0" media="(prefers-color-scheme: dark)"/>
-  <img width="213" height="429" alt="Bear Reader on iPhone SE" srcset="https://github.com/user-attachments/assets/1e698187-c4bc-4acb-8c29-469a1fecba65"/>
-</picture>
+## Screenshots
+
+To view images in full resolution, open them in a new tab. 
+
+<table>
+  <tr>
+    <td>
+      <picture>
+          <source width="160" height="347" srcset="https://github.com/user-attachments/assets/0930346a-cb0f-4af1-bcde-c8f0d79db6df" media="(prefers-color-scheme: light)" />
+          <source width="160" height="347" srcset="https://github.com/user-attachments/assets/f143fc31-bac5-4a52-9d35-665ae4c7d19c" media="(prefers-color-scheme: dark)" />
+          <img width="160" height="347" alt="Main screen - Trending Posts" src="https://github.com/user-attachments/assets/0930346a-cb0f-4af1-bcde-c8f0d79db6df" />
+        </picture>
+    </td>
+    <td>
+        <picture>
+          <source width="160" height="347" srcset="https://github.com/user-attachments/assets/d5229f9c-6718-4cc9-93f4-878fa9d88204" media="(prefers-color-scheme: light)" />
+          <source width="160" height="347" srcset="https://github.com/user-attachments/assets/afb95ad3-288b-4c16-aea0-e522a923b581" media="(prefers-color-scheme: dark)" />
+          <img width="160" height="347" alt="Blogs page" src="https://github.com/user-attachments/assets/d5229f9c-6718-4cc9-93f4-878fa9d88204" />
+        </picture>
+    </td>
+    <td>
+      <picture>
+        <source width="160" height="347" srcset="https://github.com/user-attachments/assets/be083bb3-6957-4c07-a27d-b5a728b81e55" media="(prefers-color-scheme: light)" />
+        <source width="160" height="347" srcset="https://github.com/user-attachments/assets/fd2d61e3-844d-4ed5-a811-41fdb809c364" media="(prefers-color-scheme: dark)" />
+        <img width="160" height="347" alt="Profile page - Settings, History, Bookmarks, Storage controls and About section" src="https://github.com/user-attachments/assets/be083bb3-6957-4c07-a27d-b5a728b81e55" />
+        </picture>
+    </td>
+    <td>
+      <picture>
+        <source width="160" height="347" srcset="https://github.com/user-attachments/assets/34ca96dd-e826-4da4-9efa-ac9e9d69f2ac" media="(prefers-color-scheme: light)" />
+        <source width="160" height="347" srcset="https://github.com/user-attachments/assets/7e0b2c05-e952-43a6-981a-92d21d0a4754" media="(prefers-color-scheme: dark)" />
+        <img width="160" height="347" alt="Search page" src="https://github.com/user-attachments/assets/34ca96dd-e826-4da4-9efa-ac9e9d69f2ac" />
+        </picture>
+    </td>
+  </tr>
+ </table>
 
 ## Features
-
 
 - Built for offline use: open a post to cache it, read it when you feel like it
 - Fully local search: no requests to remote server, only on posts that you encountered
@@ -57,7 +87,7 @@ There are no strict guidelines, but make sure to follow these when:
 - Check if your view looks good on small screens (like iPhone SE) and big ones (like iPhone 17 Pro Max)
 - Check if the view has any expensive calculations: you might need to move it to the background thread
 - Check if your view looks alright both on iOS 18 and iOS 26
-- If view introduces a new feature that requires network requests: 
+- If view introduces a new feature that requires network requests:
 - - See if you can cache the response
 - - See if it is possible to use it offline
 
