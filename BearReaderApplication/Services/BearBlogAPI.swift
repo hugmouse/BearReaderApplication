@@ -323,7 +323,7 @@ final class BearBlogService: BearBlogServiceProtocol, Sendable {
 
         do {
             var request = URLRequest(url: url)
-            request.cachePolicy = .returnCacheDataElseLoad
+            request.cachePolicy = .useProtocolCachePolicy
             let (data, _) = try await self.urlSession.data(for: request)
             let html = String(data: data, encoding: .utf8) ?? ""
 
