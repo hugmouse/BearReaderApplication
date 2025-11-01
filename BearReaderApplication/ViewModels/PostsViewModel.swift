@@ -24,59 +24,67 @@ class PostsViewModel: ObservableObject {
     @Published var errorMessage: String?
     @Published var isOffline = false
     @Published var isBlinking = false
-    
+
     private let feedType: FeedType
     private let bearBlogService: BearBlogServiceProtocol
-    private var currentPage = 1
+    private var currentPage = 0
+    private var hasMorePages = true
     private var blinkTimer: Timer?
-    
+
     init(feedType: FeedType, bearBlogService: BearBlogServiceProtocol = BearBlogService()) {
         self.feedType = feedType
         self.bearBlogService = bearBlogService
     }
-    
+
     func loadInitialPosts(refresh: Bool = false) async {
         isLoading = true
         errorMessage = nil
         isOffline = false
         currentPage = 0
-        
+        hasMorePages = true
+
         do {
             let result = try await fetchPosts(page: currentPage, refresh: refresh)
             posts = result
+            hasMorePages = !result.isEmpty
             isLoading = false
         } catch {
             handleError(error, isInitialLoad: posts.isEmpty)
         }
     }
-    
+
     func loadMorePosts() async {
-        guard !isLoadingMore else { return }
-        
+        guard !isLoadingMore && !isLoading && hasMorePages else { return }
+
         isLoadingMore = true
         defer { isLoadingMore = false }
+
         let nextPage = currentPage + 1
-        
+
         do {
             let newPosts = try await fetchPosts(page: nextPage)
-            self.posts.append(contentsOf: newPosts)
-            self.currentPage = nextPage
+
+            if !newPosts.isEmpty {
+                self.posts.append(contentsOf: newPosts)
+                self.currentPage = nextPage
+            } else {
+                hasMorePages = false
+            }
         } catch {
             handleError(error, isInitialLoad: false)
         }
     }
-    
-    func loadMoreContentIfNeeded(currentItem item: PostItem?) -> Bool {
-        guard let item = item else {
-            return true
+
+    func shouldLoadMore(currentItem item: PostItem?) -> Bool {
+        guard !isLoadingMore && !isLoading && hasMorePages else { return false }
+        guard let item = item else { return false }
+
+        guard let itemIndex = posts.firstIndex(where: { $0.id == item.id }) else {
+            return false
         }
-        
+
         let thresholdIndex = posts.index(posts.endIndex, offsetBy: -5)
-        if posts.firstIndex(where: { $0.id == item.id }) == thresholdIndex {
-            return true
-        }
-        
-        return false
+        return itemIndex >= thresholdIndex
     }
     
     func refresh() async {

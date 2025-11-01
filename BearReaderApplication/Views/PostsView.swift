@@ -83,14 +83,14 @@ struct PostsView: View {
                                 }
                                 .onAppear {
                                     tabBarVisibility = .visible
-                                    if currentViewModel.loadMoreContentIfNeeded(currentItem: post) {
+                                    if currentViewModel.shouldLoadMore(currentItem: post) {
                                         Task {
                                             await currentViewModel.loadMorePosts()
                                         }
                                     }
                                 }
                             }
-                            
+
                             if currentViewModel.isLoadingMore {
                                 HStack {
                                     Spacer()
