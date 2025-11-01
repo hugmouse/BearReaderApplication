@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		C410DC002EB136B80057A863 /* DTCoreText in Frameworks */ = {isa = PBXBuildFile; productRef = C410DBFF2EB136B80057A863 /* DTCoreText */; };
 		C421F07C2E698C3B0014612D /* SwiftSoup in Frameworks */ = {isa = PBXBuildFile; productRef = C421F07B2E698C3B0014612D /* SwiftSoup */; };
 		C421F07F2E698C490014612D /* SelectableText in Frameworks */ = {isa = PBXBuildFile; productRef = C421F07E2E698C490014612D /* SelectableText */; };
 		C421F0822E698C5D0014612D /* SQLite in Frameworks */ = {isa = PBXBuildFile; productRef = C421F0812E698C5D0014612D /* SQLite */; };
@@ -62,6 +63,7 @@
 			files = (
 				C4D35E922E881B2100A39EC4 /* Kingfisher in Frameworks */,
 				C421F0822E698C5D0014612D /* SQLite in Frameworks */,
+				C410DC002EB136B80057A863 /* DTCoreText in Frameworks */,
 				C421F07C2E698C3B0014612D /* SwiftSoup in Frameworks */,
 				C421F07F2E698C490014612D /* SelectableText in Frameworks */,
 			);
@@ -129,6 +131,7 @@
 				C421F07E2E698C490014612D /* SelectableText */,
 				C421F0812E698C5D0014612D /* SQLite */,
 				C4D35E912E881B2100A39EC4 /* Kingfisher */,
+				C410DBFF2EB136B80057A863 /* DTCoreText */,
 			);
 			productName = BearReaderApplication;
 			productReference = C4F581E22E65A57900A9B0B9 /* BearReaderApplication.app */;
@@ -217,6 +220,7 @@
 				C421F07D2E698C490014612D /* XCRemoteSwiftPackageReference "SelectableText" */,
 				C421F0802E698C5D0014612D /* XCRemoteSwiftPackageReference "SQLite.swift" */,
 				C4D35E902E881B2100A39EC4 /* XCRemoteSwiftPackageReference "Kingfisher" */,
+				C410DBFE2EB136B80057A863 /* XCRemoteSwiftPackageReference "DTCoreText" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = C4F581E32E65A57900A9B0B9 /* Products */;
@@ -418,12 +422,14 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CLANG_STATIC_ANALYZER_MODE = shallow;
 				CLANG_UNDEFINED_BEHAVIOR_SANITIZER_INTEGER = YES;
 				CLANG_UNDEFINED_BEHAVIOR_SANITIZER_NULLABILITY = YES;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = XNQA5U6UFX;
 				ENABLE_PREVIEWS = YES;
+				GCC_DYNAMIC_NO_PIC = YES;
 				GCC_OPTIMIZATION_LEVEL = 0;
 				GCC_TREAT_WARNINGS_AS_ERRORS = YES;
 				GCC_UNROLL_LOOPS = YES;
@@ -443,7 +449,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.0;
+				MARKETING_VERSION = 1.1;
 				PRODUCT_BUNDLE_IDENTIFIER = dev.mysh.BearReaderApplication;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
@@ -460,12 +466,14 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CLANG_STATIC_ANALYZER_MODE = shallow;
 				CLANG_UNDEFINED_BEHAVIOR_SANITIZER_INTEGER = YES;
 				CLANG_UNDEFINED_BEHAVIOR_SANITIZER_NULLABILITY = YES;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = XNQA5U6UFX;
 				ENABLE_PREVIEWS = YES;
+				GCC_DYNAMIC_NO_PIC = YES;
 				GCC_OPTIMIZATION_LEVEL = fast;
 				GCC_TREAT_WARNINGS_AS_ERRORS = YES;
 				GCC_UNROLL_LOOPS = YES;
@@ -485,7 +493,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.0;
+				MARKETING_VERSION = 1.1;
 				PRODUCT_BUNDLE_IDENTIFIER = dev.mysh.BearReaderApplication;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
@@ -611,6 +619,14 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
+		C410DBFE2EB136B80057A863 /* XCRemoteSwiftPackageReference "DTCoreText" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/Cocoanetics/DTCoreText";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 1.6.28;
+			};
+		};
 		C421F07A2E698C3B0014612D /* XCRemoteSwiftPackageReference "SwiftSoup" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/scinfu/SwiftSoup.git";
@@ -646,6 +662,11 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
+		C410DBFF2EB136B80057A863 /* DTCoreText */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = C410DBFE2EB136B80057A863 /* XCRemoteSwiftPackageReference "DTCoreText" */;
+			productName = DTCoreText;
+		};
 		C421F07B2E698C3B0014612D /* SwiftSoup */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = C421F07A2E698C3B0014612D /* XCRemoteSwiftPackageReference "SwiftSoup" */;

@@ -1,6 +1,24 @@
 {
-  "originHash" : "e91dd3288696a7f7a945e08d782a9b576bc573e89e21cc2b07771b5e72a3d2c7",
+  "originHash" : "3b2d20dac18d5fbaf083a9c86f70a4a9bb87e8c14603a195c5831e29d55329f4",
   "pins" : [
+    {
+      "identity" : "dtcoretext",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/Cocoanetics/DTCoreText",
+      "state" : {
+        "revision" : "c0fe041c87c773321785d68a10c63c29a9c763e8",
+        "version" : "1.6.28"
+      }
+    },
+    {
+      "identity" : "dtfoundation",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/Cocoanetics/DTFoundation.git",
+      "state" : {
+        "revision" : "a61be65dd7d5b2cde3acabd13bf320b71f2907a5",
+        "version" : "1.7.19"
+      }
+    },
     {
       "identity" : "kingfisher",
       "kind" : "remoteSourceControl",

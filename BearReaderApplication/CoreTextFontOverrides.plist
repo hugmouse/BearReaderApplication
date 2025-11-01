@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<!-- San Francisco (System Font) -->
+	<key>San Francisco</key>
+	<dict>
+		<key>CTFontFamilyName</key>
+		<string>.AppleSystemUIFont</string>
+	</dict>
+
+	<!-- SF Pro Text -->
+	<key>SF Pro Text</key>
+	<dict>
+		<key>CTFontFamilyName</key>
+		<string>.SFUI-Regular</string>
+	</dict>
+
+	<!-- SF Pro Display -->
+	<key>SF Pro Display</key>
+	<dict>
+		<key>CTFontFamilyName</key>
+		<string>.SFUI-Display</string>
+	</dict>
+
+	<!-- SF Mono (Monospaced) -->
+	<key>SF Mono</key>
+	<dict>
+		<key>CTFontFamilyName</key>
+		<string>.SFMono-Regular</string>
+	</dict>
+
+	<!-- Helvetica Neue (fallback) -->
+	<key>Helvetica Neue</key>
+	<dict>
+		<key>CTFontFamilyName</key>
+		<string>Helvetica Neue</string>
+	</dict>
+
+	<!-- Helvetica -->
+	<key>Helvetica</key>
+	<dict>
+		<key>CTFontFamilyName</key>
+		<string>Helvetica</string>
+	</dict>
+
+	<!-- Menlo (code/monospaced fallback) -->
+	<key>Menlo</key>
+	<dict>
+		<key>CTFontFamilyName</key>
+		<string>Menlo</string>
+	</dict>
+
+	<!-- Courier (code/monospaced fallback) -->
+	<key>Courier</key>
+	<dict>
+		<key>CTFontFamilyName</key>
+		<string>Courier</string>
+	</dict>
+
+	<!-- Courier New -->
+	<key>Courier New</key>
+	<dict>
+		<key>CTFontFamilyName</key>
+		<string>Courier New</string>
+	</dict>
+</dict>
+</plist>

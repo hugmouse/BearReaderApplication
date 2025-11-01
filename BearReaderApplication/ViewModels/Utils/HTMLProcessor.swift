@@ -7,75 +7,57 @@
 //  Copyright 2025 Iaroslav Angliuster
 //
 
-
 import Foundation
 import UIKit
+import DTCoreText
 
-// TODO: Get rid of Apple's AttributedString HTML parser since:
-// - Parsing changes between iOS versions
-// - They can't parse lists with <a> at the start correctly (iOS 17, iOS 18)
-// - Invokes WebKit and JavascriptCore
 struct HTMLProcessor {
     static func htmlToAttributedString(html: String) throws -> AttributedString {
-        // TODO: Maybe this hack with styles is no longer needed
-        let modifiedHTML = """
-            <html>
-            <head>
-                <meta name="viewport" content="width=device-width, initial-scale=1" />
-                <style>
-                    body {
-                        font-family: -apple-system, Helvetica, sans-serif;
-                    }
-                    pre, code {
-                        font-family: monospace;
-                    }
-                    * {
-                        background: unset;
-                    }
-                    code {
-                        font-family: monospace;
-                        font-size: 1rem;
-                    }
-                </style>
-            </head>
-            <body>
-                \(html)
-            </body>
-            </html>
-            """
-        
-        
-        guard let data = modifiedHTML.data(using: .unicode) else {
+        guard let data = html.data(using: .utf8) else {
             return AttributedString()
         }
-        
-        var options: [NSAttributedString.DocumentReadingOptionKey: Any] = [:]
-        
-        options = [
-            .documentType: NSAttributedString.DocumentType.html,
-            .characterEncoding: String.Encoding.utf8.rawValue,
+
+        let defaultFont = UIFont.preferredFont(forTextStyle: .body)
+
+        let parsingOptions: [String: Any] = [
+            DTUseiOS6Attributes: true,
+            DTDefaultFontFamily: defaultFont.familyName,
+            DTDefaultFontName: defaultFont.fontName,
+            DTDefaultFontSize: defaultFont.pointSize,
+            DTDefaultStyleSheet: DTCSSStylesheet(styleBlock: defaultCSS) as Any,
+            DTDefaultLinkDecoration: false
         ]
-                
-        let nsAttributedString = try NSAttributedString(
-            data: data,
-            options: options,
-            documentAttributes: nil
-        )
-        
-        var attributedString = AttributedString(nsAttributedString)
-        
-        // Override font size since default one is too small
-        let bodyFontSize = UIFont.preferredFont(forTextStyle: .body).pointSize
-        
-        for run in attributedString.runs {
-            if let uiFont = run.uiKit.font {
-                let newFont = uiFont.withSize(bodyFontSize)
-                attributedString[run.range].uiKit.font = newFont
-            }
-            // Set colors for light/dark theme
-            attributedString[run.range].uiKit.foregroundColor = UIColor.label
+
+        guard let builder = DTHTMLAttributedStringBuilder(html: data, options: parsingOptions, documentAttributes: nil) else {
+            return AttributedString()
         }
-        
-        return attributedString
+
+        guard let attributedString = builder.generatedAttributedString() else {
+            return AttributedString()
+        }
+
+        let mutableAttributedString = NSMutableAttributedString(attributedString: attributedString)
+        applyColorSchemeSupport(mutableAttributedString)
+
+        return (try? AttributedString(mutableAttributedString, including: \.uiKit)) ?? AttributedString()
+    }
+
+    private static func applyColorSchemeSupport(_ attributedString: NSMutableAttributedString) {
+        attributedString.removeAttribute(.foregroundColor, range: NSRange(location: 0, length: attributedString.length))
+        attributedString.addAttribute(.foregroundColor, value: UIColor.label, range: NSRange(location: 0, length: attributedString.length))
+    }
+
+    private static var defaultCSS: String {
+        """
+        body {
+            font-family: -apple-system, Helvetica, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+        p,i,a,b,h1,h2,h3,h4,h5,h6,span {
+            margin: 0;
+            padding: 0;
+        }
+        """
     }
 }
