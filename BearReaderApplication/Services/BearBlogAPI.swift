@@ -374,8 +374,9 @@ final class BearBlogService: BearBlogServiceProtocol, Sendable {
                 title: title,
                 url: fullURL,
                 age: dateString,
-                rating: "—"
+                rating: ""
             )
+            try await DatabaseManager.shared.saveEncounteredPost(post)
             posts.append(post)
         }
 
