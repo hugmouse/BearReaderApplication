@@ -165,24 +165,9 @@ struct SearchPostRowView: View {
                 Text("\(trackedPost.domain)")
                     .font(.caption)
                     .foregroundColor(.secondary)
-
-                Spacer()
-
-                if trackedPost.wasLoaded {
-                    if trackedPost.isRead {
-                        Image(systemName: "checkmark.circle.fill")
-                            .foregroundColor(.green)
-                            .font(.caption)
-                    } else {
-                        Image(systemName: "eye")
-                            .foregroundColor(.secondary)
-                            .font(.caption)
-                    }
-                }
             }
 
             HStack {
-                InlinePostRating(rating: trackedPost.rating)
                 if let lastAccessed = trackedPost.lastAccessedAt {
                     Text("Last accessed: \(lastAccessed, formatter: relativeDateFormatter)")
                         .font(.caption)
