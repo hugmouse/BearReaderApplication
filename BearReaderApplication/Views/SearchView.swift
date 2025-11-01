@@ -182,18 +182,7 @@ struct SearchPostRowView: View {
             }
 
             HStack {
-                HStack(alignment: .center, spacing: 2) {
-                    Image(systemName: "chevron.up.2")
-                        .font(.caption2)
-                        .foregroundColor(.secondary)
-                    Text("\(trackedPost.rating)")
-                        .font(.caption)
-                        .foregroundColor(.secondary)
-                        .frame(width: 30.0, alignment: .leading)
-                }
-
-                Spacer()
-
+                InlinePostRating(rating: trackedPost.rating)
                 if let lastAccessed = trackedPost.lastAccessedAt {
                     Text("Last accessed: \(lastAccessed, formatter: relativeDateFormatter)")
                         .font(.caption)

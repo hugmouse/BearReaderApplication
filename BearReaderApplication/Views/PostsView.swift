@@ -149,18 +149,7 @@ struct PostRowView: View {
             TitleWithDomainView(post: post)
             
             HStack {
-                HStack(alignment: .center, spacing: 2) {
-                    Image(systemName: "chevron.up.2")
-                        .font(.caption2)
-                        .foregroundColor(.secondary)
-                    Text(post.rating)
-                        .font(.caption)
-                        .foregroundColor(.secondary)
-                        .frame(width: 30.0, alignment: .leading)
-                }
-                
-                Spacer()
-                
+                InlinePostRating(rating: post.rating)
                 Text(post.age)
                     .font(.caption)
                     .foregroundColor(.secondary)
