@@ -72,4 +72,13 @@ class BlogsViewModel: ObservableObject {
         let timeSinceLastFetch = Date().timeIntervalSince(lastFetched)
         return timeSinceLastFetch >= backgroundRefreshInterval
     }
+
+    func markBlogAsViewed(domain: String) async {
+        do {
+            try await DatabaseManager.shared.resetNewPostsCount(domain: domain)
+            await loadSubscribedBlogs()
+        } catch {
+            errorMessage = "Failed to update blog: \(error.localizedDescription)"
+        }
+    }
 }

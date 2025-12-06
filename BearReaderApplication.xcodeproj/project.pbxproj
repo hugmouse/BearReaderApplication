@@ -38,9 +38,22 @@
 		C4F581F92E65A57A00A9B0B9 /* BearReaderApplicationUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = BearReaderApplicationUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		C4F75F9C2EB671DF005A55CB /* Exceptions for "BearReaderApplication" folder in "BearReaderApplication" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = C4F581E12E65A57900A9B0B9 /* BearReaderApplication */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
+
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		C4F581E42E65A57900A9B0B9 /* BearReaderApplication */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				C4F75F9C2EB671DF005A55CB /* Exceptions for "BearReaderApplication" folder in "BearReaderApplication" target */,
+			);
 			path = BearReaderApplication;
 			sourceTree = "<group>";
 		};
@@ -436,6 +449,7 @@
 				GCC_WARN_PEDANTIC = YES;
 				GCC_WARN_STRICT_SELECTOR_MATCH = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = BearReaderApplication/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = "Bear Reader";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.news";
 				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "To save an image to your Photos, we need your permission.";
@@ -480,6 +494,7 @@
 				GCC_WARN_PEDANTIC = YES;
 				GCC_WARN_STRICT_SELECTOR_MATCH = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = BearReaderApplication/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = "Bear Reader";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.news";
 				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "To save an image to your Photos, we need your permission.";

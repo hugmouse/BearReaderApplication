@@ -51,6 +51,7 @@ To view images in full resolution, open them in a new tab.
 
 - Built for offline use: open a post to cache it, read it when you feel like it
 - Fully local search: no requests to remote server, only on posts that you encountered
+- Notification: subscribe to your favourite authors to receive notifications about their latest posts
 - Export your data: everything – besides images cache and post cache – is stored in one SQLite3 file that you can easily export in Profile tab
 - Accessible: every view is tested manually with VoiceOver and custom font size; every view is designed with high contrast in mind
 
@@ -102,6 +103,8 @@ Additionally I have a permission from Herman – Bear Blog owner and creator –
 
 This project includes the following dependencies:
 
+- DTCoreText (2BSD)
+- DTFoundation (2BSD)
 - SwiftSoup (MIT)
 - swift-toolchain-sqlite (Apache 2.0)
 - swift-atomics (Apache 2.0)

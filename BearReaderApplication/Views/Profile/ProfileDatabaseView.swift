@@ -15,6 +15,7 @@ struct SettingsView: View {
     @StateObject private var previewManager = ParserPreviewSelectorViewModel.shared
     @State private var showingResetAlert = false
     @State private var path = [Int]()
+
     
     var body: some View {
             List {

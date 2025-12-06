@@ -16,14 +16,16 @@ struct BlogSubscription: Identifiable, Hashable, Equatable {
     let blogTitle: String
     let subscribedAt: Date
     let lastFetchedAt: Date?
+    let newPostsCount: Int
 
-    init(id: Int64 = 0, domain: String, feedUrl: String, blogTitle: String, subscribedAt: Date = Date(), lastFetchedAt: Date? = nil) {
+    init(id: Int64 = 0, domain: String, feedUrl: String, blogTitle: String, subscribedAt: Date = Date(), lastFetchedAt: Date? = nil, newPostsCount: Int = 0) {
         self.id = id
         self.domain = domain
         self.feedUrl = feedUrl
         self.blogTitle = blogTitle
         self.subscribedAt = subscribedAt
         self.lastFetchedAt = lastFetchedAt
+        self.newPostsCount = newPostsCount
     }
     
     func hash(into hasher: inout Hasher) {

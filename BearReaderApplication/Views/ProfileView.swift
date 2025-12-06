@@ -32,6 +32,13 @@ struct ProfileView: View {
                         )
                     }
                     
+                    NavigationLink(destination: ProfileNotificationsView()) {
+                        UnifiedRowView(
+                            title: "Notifications",
+                            icon: "bell"
+                        )
+                    }
+                    
                     NavigationLink(destination: HistoryView()) {
                         UnifiedRowView(
                             title: "History",

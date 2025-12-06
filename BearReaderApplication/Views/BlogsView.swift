@@ -12,14 +12,28 @@ import SwiftUI
 struct BlogsView: View {
     @StateObject private var viewModel = BlogsViewModel()
     @State private var tabBarVisibility: Visibility = .visible
+    @State private var lastBackgroundRefresh: Date?
+    @StateObject private var permissionManager = NotificationPermissionManager()
 
     var body: some View {
         NavigationStack {
             HStack {
-                Text("Blogs")
-                    .font(.title)
-                    .fontWeight(.bold)
-                    .multilineTextAlignment(.leading)
+                VStack(alignment: .leading, spacing: 2) {
+                    Text("Blogs")
+                        .font(.title)
+                        .fontWeight(.bold)
+                        .multilineTextAlignment(.leading)
+
+                    if let lastRefresh = lastBackgroundRefresh {
+                        Text("BG refresh: \(formatLastFetched(lastRefresh))")
+                            .font(.caption2)
+                            .foregroundColor(.secondary)
+                    } else {
+                        Text("BG refresh: never")
+                            .font(.caption2)
+                            .foregroundColor(.secondary)
+                    }
+                }
                 Spacer()
             }
             .padding([.top, .leading], 16.0)
@@ -50,23 +64,38 @@ struct BlogsView: View {
                     List {
                         ForEach(viewModel.subscribedBlogs) { blog in
                             NavigationLink(destination: BlogFeedView(blog: blog, vis: $tabBarVisibility)) {
-                                VStack(alignment: .leading, spacing: 4) {
-                                    Text(blog.blogTitle)
-                                        .font(.headline)
-                                        .lineLimit(1)
-                                    
-                                    Text(blog.domain)
-                                        .font(.caption)
-                                        .foregroundColor(.secondary)
-                                    
-                                    if let lastFetched = blog.lastFetchedAt {
-                                        Text("Updated \(formatLastFetched(lastFetched))")
-                                            .font(.caption2)
+                                HStack {
+                                    VStack(alignment: .leading, spacing: 4) {
+                                        Text(blog.blogTitle)
+                                            .font(.headline)
+                                            .lineLimit(1)
+
+                                        Text(blog.domain)
+                                            .font(.caption)
                                             .foregroundColor(.secondary)
-                                    } else {
-                                        Text("Not fetched yet")
-                                            .font(.caption2)
-                                            .foregroundColor(.secondary)
+
+                                        if let lastFetched = blog.lastFetchedAt {
+                                            Text("Updated \(formatLastFetched(lastFetched))")
+                                                .font(.caption2)
+                                                .foregroundColor(.secondary)
+                                        } else {
+                                            Text("Not fetched yet")
+                                                .font(.caption2)
+                                                .foregroundColor(.secondary)
+                                        }
+                                    }
+
+                                    Spacer()
+
+                                    if blog.newPostsCount > 0 {
+                                        Text("\(blog.newPostsCount)")
+                                            .font(.caption)
+                                            .fontWeight(.semibold)
+                                            .foregroundColor(.white)
+                                            .padding(.horizontal, 8)
+                                            .padding(.vertical, 4)
+                                            .background(Color.accentColor)
+                                            .clipShape(Capsule())
                                     }
                                 }
                                 .padding(.vertical, 4)
@@ -74,6 +103,11 @@ struct BlogsView: View {
                             .onAppear {
                                 tabBarVisibility = .visible
                             }
+                            .simultaneousGesture(TapGesture().onEnded {
+                                Task {
+                                    await viewModel.markBlogAsViewed(domain: blog.domain)
+                                }
+                            })
                         }
                         .onDelete { indexSet in
                             Task {
@@ -109,10 +143,18 @@ struct BlogsView: View {
                 Task {
                     await viewModel.loadSubscribedBlogs()
                     await viewModel.checkAndRefreshIfNeeded()
+                    loadLastBackgroundRefresh()
                 }
+            }
+            .onReceive(NotificationCenter.default.publisher(for: UIApplication.willEnterForegroundNotification)) { _ in
+                loadLastBackgroundRefresh()
             }
         }
         .toolbar(tabBarVisibility, for: .tabBar)
+    }
+
+    private func loadLastBackgroundRefresh() {
+        lastBackgroundRefresh = UserDefaults.standard.object(forKey: "lastBackgroundRefresh") as? Date
     }
 }
 

@@ -38,6 +38,7 @@ actor DatabaseManager {
     private let blogTitle = Expression<String>("blog_title")
     private let subscribedAt = Expression<Date>("subscribed_at")
     private let lastFetchedAt = Expression<Date?>("last_fetched_at")
+    private let newPostsCount = Expression<Int>("new_posts_count")
 
     private var connection: Connection {
         get throws {
@@ -86,8 +87,16 @@ actor DatabaseManager {
             t.column(blogTitle)
             t.column(subscribedAt)
             t.column(lastFetchedAt)
+            t.column(newPostsCount, defaultValue: 0)
         })
         logger.debug("subscribed_blogs table created successfully")
+
+        do {
+            try connection.run(subscribedBlogs.addColumn(newPostsCount, defaultValue: 0))
+            logger.debug("Added newPostsCount column to existing table")
+        } catch {
+            logger.debug("newPostsCount column already exists")
+        }
     }
     
     
@@ -235,6 +244,23 @@ actor DatabaseManager {
 
         return results
     }
+
+    func getTrackedPostUrls(for domainFilter: String) throws -> Set<String> {
+        let conn = try connection
+        logger.debug("Fetching tracked post URLs for domain: \(domainFilter)")
+
+        let query = trackedPosts
+            .select(url)
+            .filter(domain == domainFilter)
+
+        var urls = Set<String>()
+        for row in try conn.prepare(query) {
+            urls.insert(row[url])
+        }
+
+        logger.debug("Retrieved \(urls.count) tracked post URLs for domain: \(domainFilter)")
+        return urls
+    }
     
     func clearAllData() throws {
         let conn = try connection
@@ -341,7 +367,8 @@ actor DatabaseManager {
                 feedUrl: row[blogFeedUrl],
                 blogTitle: row[blogTitle],
                 subscribedAt: row[subscribedAt],
-                lastFetchedAt: row[lastFetchedAt]
+                lastFetchedAt: row[lastFetchedAt],
+                newPostsCount: row[newPostsCount]
             )
             results.append(subscription)
         }
@@ -356,6 +383,37 @@ actor DatabaseManager {
         let blog = subscribedBlogs.filter(blogDomain == domain)
         try conn.run(blog.update(lastFetchedAt <- Date()))
         logger.debug("Updated last fetched time for blog: \(domain)")
+    }
+
+    func incrementNewPostsCount(domain: String, by count: Int) throws {
+        let conn = try connection
+        logger.debug("Incrementing new posts count for blog: \(domain) by \(count)")
+        let blog = subscribedBlogs.filter(blogDomain == domain)
+
+        if let currentRow = try conn.pluck(blog) {
+            let currentCount = currentRow[newPostsCount]
+            try conn.run(blog.update(newPostsCount <- currentCount + count))
+            logger.debug("New posts count updated for \(domain): \(currentCount + count)")
+        }
+    }
+
+    func resetNewPostsCount(domain: String) throws {
+        let conn = try connection
+        logger.debug("Resetting new posts count for blog: \(domain)")
+        let blog = subscribedBlogs.filter(blogDomain == domain)
+        try conn.run(blog.update(newPostsCount <- 0))
+        logger.debug("New posts count reset for \(domain)")
+    }
+
+    func getNewPostsCount(domain: String) throws -> Int {
+        let conn = try connection
+        logger.debug("Getting new posts count for blog: \(domain)")
+        let blog = subscribedBlogs.filter(blogDomain == domain)
+
+        if let row = try conn.pluck(blog) {
+            return row[newPostsCount]
+        }
+        return 0
     }
 
 }
