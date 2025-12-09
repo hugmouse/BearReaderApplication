@@ -149,7 +149,6 @@ struct PostRowView: View {
             TitleWithDomainView(post: post)
             
             HStack {
-                InlinePostRating(rating: post.rating)
                 Text(post.age)
                     .font(.caption)
                     .foregroundColor(.secondary)

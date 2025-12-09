@@ -130,7 +130,6 @@ struct ProfilePostRowView: View {
 
             HStack {
                 HStack(alignment: .center, spacing: 2) {
-                    InlinePostRating(rating: trackedPost.rating)
                     if let lastAccessed = trackedPost.lastAccessedAt {
                         Text("Last read: \(lastAccessed, formatter: relativeDateFormatter)")
                             .font(.caption)
