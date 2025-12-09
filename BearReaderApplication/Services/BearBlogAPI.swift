@@ -132,9 +132,11 @@ final class BearBlogService: BearBlogServiceProtocol, Sendable {
             
             return postContent
         } catch {
+            print("[getPostContent] Throwed somewhere!", error)
             if error is BearBlogError {
                 throw error
             } else {
+                // Why would it be network error? It might be any other one.
                 throw BearBlogError.networkError(error)
             }
         }
@@ -217,11 +219,9 @@ final class BearBlogService: BearBlogServiceProtocol, Sendable {
                         return (src != nil && !src!.isEmpty) ? PostImage(url: src!, altText: alt ?? "", needsPadding: false) : nil
                     }) {
                         images.forEach { elements.append(.image($0)) }
+                        try child.select("img").remove()
                     }
 
-                    // Remove image elements before parsing the text content of the paragraph,
-                    // otherwise attributedstring actually tries to display it
-                    try child.select("img").remove()
                     let htmlContent = try child.outerHtml()
                     if !htmlContent.isEmpty, let attributedText = try? HTMLProcessor.htmlToAttributedString(html: htmlContent) {
                         elements.append(.text(attributedText))
@@ -284,18 +284,6 @@ final class BearBlogService: BearBlogServiceProtocol, Sendable {
                 let text = try child.text()
                 if !text.isEmpty {
                     elements.append(.header3(text))
-                }
-            case "form":
-                if let formId = try? child.attr("id"), formId == "upvote-form",
-                   let uidInput = try? child.select("input[name='uid']").first(),
-                   let uid = try? uidInput.attr("value"),
-                   let titleInput = try? child.select("input[name='title']").first(),
-                   let title = try? titleInput.attr("value"),
-                   let countElement = try? child.select(".upvote-count").first(),
-                   let countText = try? countElement.text(),
-                   let count = Int(countText) {
-                    let upvote = PostUpvote(uid: uid, title: title, count: count)
-                    elements.append(.upvote(upvote))
                 }
             default:
                 let htmlContent = try child.outerHtml()
