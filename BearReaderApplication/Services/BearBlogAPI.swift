@@ -270,8 +270,8 @@ final class BearBlogService: BearBlogServiceProtocol, Sendable {
                     elements.append(.codeBlock(preText))
                     continue
                 }
-            case "div":
-                // Generic div - recursively parse its children
+            case "div", "center", "section", "article":
+                // Generic container - recursively parse its children
                 try await parseElements(from: child, into: &elements, settings: settings)
 
             case "h1": continue
