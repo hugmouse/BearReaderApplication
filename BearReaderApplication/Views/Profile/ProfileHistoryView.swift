@@ -22,12 +22,13 @@ struct HistoryView: View {
                 List {
                     ForEach(viewModel.historyPosts, id: \.id) { trackedPost in
                         NavigationLink(destination: PostView(post: trackedPost.toPost, vis: $tabBarVisibility)) {
-                            ProfilePostRowView(trackedPost: trackedPost)
+                            HistoryPostView(trackedPost: trackedPost)
                         }
                         .onAppear {
                             tabBarVisibility = .visible
                         }
                     }
+                    .listSectionSeparator(.hidden, edges: .top)
                 }
                 .listStyle(.plain)
             }

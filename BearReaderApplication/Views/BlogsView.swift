@@ -116,6 +116,7 @@ struct BlogsView: View {
                                 }
                             }
                         }
+                        .listSectionSeparator(.hidden, edges: .top)
                     }
                     .listStyle(.inset)
                     .padding([.top], 4.0)

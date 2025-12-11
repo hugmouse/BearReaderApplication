@@ -82,6 +82,7 @@ struct PostView: View {
                 do {
                     bookmarked = try await DatabaseManager.shared.isPostBookmarked(post.url)
                     isSubscribed = try await DatabaseManager.shared.isSubscribedToBlog(domain: post.domain)
+                    try await DatabaseManager.shared.addToBrowsingHistory(_url: post.url, _title: post.title)
                 } catch {
                     bookmarked = false
                     isSubscribed = false

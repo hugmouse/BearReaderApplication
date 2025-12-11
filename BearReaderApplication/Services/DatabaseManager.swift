@@ -39,6 +39,12 @@ actor DatabaseManager {
     private let subscribedAt = Expression<Date>("subscribed_at")
     private let lastFetchedAt = Expression<Date?>("last_fetched_at")
     private let newPostsCount = Expression<Int>("new_posts_count")
+    
+    private let visitHistoryTable = Table("visit_history")
+    private let visitHistoryID = Expression<Int64>("id")
+    private let visitHistoryURL = Expression<String>("url")
+    private let visitHistoryTitle = Expression<String>("title")
+    private let visitHistoryDate = Expression<Date>("date")
 
     private var connection: Connection {
         get throws {
@@ -90,6 +96,15 @@ actor DatabaseManager {
             t.column(newPostsCount, defaultValue: 0)
         })
         logger.debug("subscribed_blogs table created successfully")
+        
+        logger.debug("Creating visit_history table")
+        try connection.run(visitHistoryTable.create(ifNotExists: true) { t in
+            t.column(visitHistoryID, primaryKey: .autoincrement)
+            t.column(visitHistoryURL)
+            t.column(visitHistoryTitle)
+            t.column(visitHistoryDate)
+        })
+        logger.debug("visit_history table created successfully")
 
         do {
             try connection.run(subscribedBlogs.addColumn(newPostsCount, defaultValue: 0))
@@ -414,6 +429,41 @@ actor DatabaseManager {
             return row[newPostsCount]
         }
         return 0
+    }
+    
+    // MARK: - Browsing history related things
+    
+    func addToBrowsingHistory(_url: String, _title: String) throws {
+        let conn = try connection
+        logger.debug("Adding an entry to browsing history")
+        let insert = visitHistoryTable.insert(or: .ignore,
+                                              visitHistoryURL <- _url,
+                                              visitHistoryTitle <- _title,
+                                              visitHistoryDate <- Date.now,
+        )
+        try conn.run(insert)
+    }
+    
+    func getBrowsingHistory() throws -> [BrowsingHistory] {
+        let conn = try connection
+        
+        var results: [BrowsingHistory] = []
+        
+        logger.debug("Fetching browsing history")
+        let query = visitHistoryTable.order(visitHistoryDate.desc)
+        
+        for row in try conn.prepare(query) {
+            let subscription = BrowsingHistory(
+                id: row[visitHistoryID],
+                title: row[visitHistoryTitle],
+                url: row[visitHistoryURL],
+                date: row[visitHistoryDate],
+            )
+            results.append(subscription)
+        }
+        logger.debug("Retrieved \(results.count) entries in browsing history")
+        
+        return results
     }
 
 }

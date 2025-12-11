@@ -90,6 +90,8 @@ struct PostsView: View {
                                     }
                                 }
                             }
+                            .listSectionSeparator(.hidden, edges: .top)
+
 
                             if currentViewModel.isLoadingMore {
                                 HStack {

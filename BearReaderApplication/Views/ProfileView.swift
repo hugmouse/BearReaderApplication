@@ -31,6 +31,7 @@ struct ProfileView: View {
                             icon: "gearshape"
                         )
                     }
+                    .listSectionSeparator(.hidden, edges: .top)
                     
                     NavigationLink(destination: ProfileNotificationsView()) {
                         UnifiedRowView(
@@ -145,10 +146,28 @@ struct ProfilePostRowView: View {
     }
 }
 
+struct HistoryPostView: View {
+    let trackedPost: BrowsingHistory
+    
+    var body: some View {
+        VStack(alignment: .leading, spacing: 4) {
+            TitleWithDomainView(post: trackedPost.toPost)
+            
+            HStack {
+                HStack(alignment: .center, spacing: 2) {
+                        Text("Visited on: \(trackedPost.date, formatter: relativeDateFormatter)")
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+                    }
+                }
+            }
+        }
+    }
+
 
 @MainActor
 class ProfileViewModel: ObservableObject {
-    @Published var historyPosts: [TrackedPostData] = []
+    @Published var historyPosts: [BrowsingHistory] = []
     @Published var bookmarkedPosts: [TrackedPostData] = []
 
 
@@ -156,8 +175,8 @@ class ProfileViewModel: ObservableObject {
 
     func loadPosts() async {
         do {
-            let readPosts = try await DatabaseManager.shared.getReadPosts()
-            historyPosts = (readPosts).sorted { $0.lastAccessedAt ?? $0.encounteredAt > $1.lastAccessedAt ?? $1.encounteredAt }
+            let readPosts = try await DatabaseManager.shared.getBrowsingHistory()
+            historyPosts = (readPosts).sorted { $0.date > $1.date }
         } catch {
             historyPosts = []
         }
