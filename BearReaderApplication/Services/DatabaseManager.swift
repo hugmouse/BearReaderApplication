@@ -444,6 +444,12 @@ actor DatabaseManager {
         try conn.run(insert)
     }
     
+    func deleteItemFromBrowsingHistory(id: Int64) throws {
+        let conn = try connection
+        let post = browsingHistoryTable.filter(browsingHistoryID == id)
+        try conn.run(post.delete())
+    }
+    
     func getBrowsingHistory() throws -> [BrowsingHistory] {
         let conn = try connection
         

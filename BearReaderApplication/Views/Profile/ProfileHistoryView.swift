@@ -27,6 +27,15 @@ struct HistoryView: View {
                         .onAppear {
                             tabBarVisibility = .visible
                         }
+                        .swipeActions(edge: .trailing) {
+                            Button(role: .destructive) {
+                                Task {
+                                    await viewModel.removeItemFromBrowsingHistory(trackedPost)
+                                }
+                            } label: {
+                                Label("Delete", systemImage: "trash")
+                            }
+                        }
                     }
                     .listSectionSeparator(.hidden, edges: .top)
                 }

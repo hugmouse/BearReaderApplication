@@ -195,9 +195,20 @@ class ProfileViewModel: ObservableObject {
         do {
             try await DatabaseManager.shared.removeTrackedPost(post.url)
         } catch {
-            // Silent fail for post removal
+            print("Remove post failed:", error)
+            // TODO: Handle it somehow if this throws
         }
         await loadPosts()
+    }
+    
+    func removeItemFromBrowsingHistory(_ post: BrowsingHistory) async {
+        do {
+            try await DatabaseManager.shared.deleteItemFromBrowsingHistory(id: post.id)
+        } catch {
+            print("Remove item from browsing history failed:", error)
+            // TODO: Handle it somehow if this throws
+        }
+        historyPosts.removeAll { $0.id == post.id }
     }
 }
 
