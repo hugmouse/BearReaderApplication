@@ -11,113 +11,104 @@ import SwiftUI
 
 struct BlogFeedView: View {
     let blog: BlogSubscription
-    @StateObject private var viewModel: BlogFeedViewModel
     @Binding var tabBarVisibility: Visibility
+    
+    @StateObject private var viewModel: BlogFeedViewModel
     @State private var showingUnsubscribeAlert = false
     @Environment(\.dismiss) private var dismiss
-
+    
     init(blog: BlogSubscription, vis: Binding<Visibility>) {
         self.blog = blog
         self._tabBarVisibility = vis
         self._viewModel = StateObject(wrappedValue: BlogFeedViewModel(domain: blog.domain))
     }
-
+    
     var body: some View {
-        ZStack(alignment: .top) {
-            if let errorMessage = viewModel.errorMessage, viewModel.posts.isEmpty {
-                VStack {
-                    Image(systemName: viewModel.isOffline ? "wifi.slash" : "exclamationmark.triangle")
-                        .font(.largeTitle)
-                        .foregroundColor(viewModel.isOffline ? .red : .orange)
-                    Text(errorMessage)
-                        .foregroundColor(.secondary)
-                        .multilineTextAlignment(.center)
-                        .padding(.horizontal)
-                    Button("Retry") {
-                        Task {
-                            await viewModel.loadFeed()
-                        }
-                    }
-                    .padding(.top)
-                }
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
-            } else if viewModel.isLoading && viewModel.posts.isEmpty {
-                ProgressView("Loading feed...")
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
-            } else if viewModel.posts.isEmpty && !viewModel.isLoading {
-                Text("No posts found in this blog")
-                    .foregroundColor(.gray)
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+        Group {
+            if viewModel.isLoading && viewModel.posts.isEmpty {
+                ProgressView("Fetching Feed...")
+            } else if viewModel.posts.isEmpty {
+                emptyStateOverlay
             } else {
-                VStack(spacing: 0) {
-                    // Offline banner
-                    if let errorMessage = viewModel.errorMessage, viewModel.isOffline && !viewModel.posts.isEmpty {
-                        HStack {
-                            Image(systemName: "wifi.slash")
-                                .foregroundColor(.white)
-                            Text(errorMessage)
-                                .foregroundColor(.white)
-                                .font(.caption)
-                            Spacer()
-                            Button("Retry") {
-                                Task {
-                                    await viewModel.refresh()
-                                }
-                            }
-                            .foregroundColor(.white)
-                            .font(.caption)
-                        }
-                        .padding(.horizontal, 16)
-                        .padding(.vertical, 8)
-                        .background(Color.red.opacity(0.8))
-                    }
-
-                    List {
-                        ForEach(viewModel.posts, id: \.url) { post in
-                            NavigationLink(destination: PostView(post: post, vis: $tabBarVisibility)) {
-                                PostRowView(post: post)
-                            }
-                            .onAppear {
-                                tabBarVisibility = .visible
-                            }
-                        }
-                    }
-                    .listStyle(.inset)
-                    .refreshable {
-                        await viewModel.refresh()
-                    }
-                }
+                feedContent
             }
         }
         .navigationTitle(blog.blogTitle)
-        .navigationBarTitleDisplayMode(.automatic)
-        .toolbar {
-            ToolbarItem(placement: .navigationBarTrailing) {
-                Button(action: {
-                    showingUnsubscribeAlert = true
-                }) {
-                    Image(systemName: "star.slash")
-                }
-            }
-        }
-        .alert("Unsubscribe from Blog", isPresented: $showingUnsubscribeAlert) {
-            Button("Cancel", role: .cancel) { }
-            Button("Unsubscribe", role: .destructive) {
-                Task {
-                    do {
-                        try await DatabaseManager.shared.unsubscribeFromBlog(domain: blog.domain)
-                        dismiss()
-                    } catch {
-                        // Silent fail, or show error
-                    }
-                }
-            }
+        .navigationBarTitleDisplayMode(.inline)
+        .toolbar { trailingToolbar }
+        .alert("Unsubscribe", isPresented: $showingUnsubscribeAlert) {
+            alertButtons
         } message: {
             Text("Are you sure you want to unsubscribe from \(blog.blogTitle)?")
         }
-        .onAppear {
+        .task(id: blog.domain) {
+            await viewModel.loadFeed()
+        }
+    }
+    
+    // TODO: move those views into separate files?
+    
+    @ViewBuilder
+    private var feedContent: some View {
+        VStack(spacing: 0) {
+            if let error = viewModel.errorMessage, viewModel.isOffline {
+                offlineBanner(message: error)
+            }
+            
+            List(viewModel.posts, id: \.url) { post in
+                NavigationLink(destination: PostView(post: post, vis: $tabBarVisibility)) {
+                    PostRowView(post: post)
+                }
+                .onAppear { tabBarVisibility = .visible }
+            }
+            .listStyle(.inset)
+            .refreshable { await viewModel.refresh() }
+        }
+    }
+    
+    private func offlineBanner(message: String) -> some View {
+        HStack {
+            Label(message, systemImage: "wifi.slash")
+                .font(.caption)
+            Spacer()
+            Button("Retry") { Task { await viewModel.refresh() } }
+                .font(.caption).bold()
+        }
+        .padding()
+        .background(.red.opacity(0.8))
+        .foregroundStyle(.white)
+    }
+    
+    @ViewBuilder
+    private var emptyStateOverlay: some View {
+        if let error = viewModel.errorMessage {
+            ContentUnavailableView {
+                Label(error, systemImage: viewModel.isOffline ? "wifi.slash" : "exclamationmark.triangle")
+            } actions: {
+                Button("Retry") { Task { await viewModel.loadFeed() } }
+            }
+        } else {
+            ContentUnavailableView("No Posts", systemImage: "tray", description: Text("This blog is currently empty."))
+        }
+    }
+    
+    
+    @ToolbarContentBuilder
+    private var trailingToolbar: some ToolbarContent {
+        ToolbarItem(placement: .topBarTrailing) {
+            Button { showingUnsubscribeAlert = true } label: {
+                Image(systemName: "star.slash")
+            }
+        }
+    }
+    
+    @ViewBuilder
+    private var alertButtons: some View {
+        Button("Cancel", role: .cancel) { }
+        Button("Unsubscribe", role: .destructive) {
             Task {
-                await viewModel.loadFeed()
+                try? await DatabaseManager.shared.unsubscribeFromBlog(domain: blog.domain)
+                dismiss()
             }
         }
     }
