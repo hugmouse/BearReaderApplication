@@ -68,6 +68,11 @@ actor DatabaseManager {
         }
     }
     
+    private func withConnection<R>(_ body: (Connection) throws -> R) throws -> R {
+        let conn = try connection
+        return try body(conn)
+    }
+    
     private func createTable(using connection: Connection) throws {
         logger.debug("Creating tracked_posts table")
         try connection.run(trackedPosts.create(ifNotExists: true) { t in
@@ -129,6 +134,28 @@ actor DatabaseManager {
         )
         try conn.run(insert)
         logger.debug("Post saved successfully: \(post.url)")
+    }
+    
+    func saveEncounteredPosts(_ posts: [PostItem]) throws {
+        logger.debug("Saving encountered posts")
+        try withConnection { conn in
+            let encounteredAt = Date()
+            try conn.transaction {
+                let rows = posts.map { post in
+                    [
+                        trackedPostsURL <- post.url,
+                        trackedPostsTitle <- post.title,
+                        trackedPostsAge <- post.age,
+                        trackedPostsRating <- post.rating,
+                        trackedPostsDomain <- post.domain,
+                        trackedPostsEncounteredAt <- encounteredAt,
+                        trackedPostsViewID <- 0
+                    ]
+                }
+                try conn.run(trackedPosts.insertMany(or: .ignore, rows))
+            }
+        }
+        logger.debug("Saved encountered posts, amount: \(posts.count)")
     }
     
     func markAsLoaded(_ postUrl: String) throws {
