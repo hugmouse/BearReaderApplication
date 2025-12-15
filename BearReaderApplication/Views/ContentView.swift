@@ -11,6 +11,35 @@
 import SwiftUI
 import Combine
 
+struct TabBarAccessor: UIViewControllerRepresentable {
+    var onReselect: () -> Void
+    
+    func makeUIViewController(context: Context) -> TabObserver {
+        TabObserver()
+    }
+    
+    func updateUIViewController(_ uiViewController: TabObserver, context: Context) {
+        uiViewController.onReselect = onReselect
+    }
+    
+    class TabObserver: UIViewController, UITabBarControllerDelegate {
+        var onReselect: (() -> Void)?
+        
+        override func viewDidAppear(_ animated: Bool) {
+            super.viewDidAppear(animated)
+            tabBarController?.delegate = self
+        }
+        
+        func tabBarController(_ tbc: UITabBarController, shouldSelect vc: UIViewController) -> Bool {
+            // Check if the user is tapping the already active tab and check for "Search"
+            if unsafe vc == tbc.selectedViewController && tbc.selectedIndex == 4 {
+                onReselect?()
+            }
+            return true
+        }
+    }
+}
+
 struct ContentView: View {
     @State var selectedFeedType: FeedType
     @State private var selectedTab = 0
@@ -25,7 +54,7 @@ struct ContentView: View {
     }
 
     var body: some View {
-        TabView(selection: $selectedTab) {
+            TabView(selection: $selectedTab) {
                 PostsView(selectedFeedType: $selectedFeedType)
             .tabItem {
                 Label("Trending", systemImage: "house.fill")
@@ -50,7 +79,7 @@ struct ContentView: View {
             }
             .tag(3)
 
-                SearchView(shouldFocusSearch: $shouldFocusSearch)
+                SearchView()
             .tabItem {
                 Label("Search", systemImage: "magnifyingglass")
             }

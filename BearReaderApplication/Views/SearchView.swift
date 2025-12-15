@@ -12,13 +12,13 @@ import SwiftUI
 import Combine
 
 struct SearchView: View {
-    @Binding var shouldFocusSearch: Bool
     @StateObject private var viewModel = SearchViewModel()
-    @State private var isSearchFocused: Bool = false
+    @FocusState private var isSearchFocused: Bool
+    
     @State private var tabBarVisibility: Visibility = .visible
     
     var body: some View {
-        NavigationStack() {
+        NavigationStack {
             VStack(spacing: 8.0) {
                 if !isSearchFocused && viewModel.searchText.isEmpty {
                     HStack {
@@ -30,14 +30,14 @@ struct SearchView: View {
                     }
                     .padding([.top, .leading], 16.0)
                 }
-                SearchBar(searchText: $viewModel.searchText, shouldFocus: $shouldFocusSearch, isSearchFocused: $isSearchFocused)
+                
+                SearchBar(searchText: $viewModel.searchText, isFocused: $isSearchFocused)
                     .padding([.top], isSearchFocused || !viewModel.searchText.isEmpty ? 16.0 : 0.0)
                     .padding([.bottom], 4.0)
                 
                 if viewModel.searchText.isEmpty {
                     SearchEmptyState()
                 } else {
-                    // Posts search section
                     if !viewModel.filteredPosts.isEmpty {
                         List {
                             Section("Posts") {
@@ -48,9 +48,7 @@ struct SearchView: View {
                                             searchText: viewModel.searchText
                                         )
                                     }
-                                    .onAppear {
-                                        tabBarVisibility = .visible
-                                    }
+                                    .onAppear { tabBarVisibility = .visible }
                                 }
                             }
                         }
@@ -63,20 +61,29 @@ struct SearchView: View {
             }
         }
         .animation(.easeInOut(duration: 0.2), value: isSearchFocused)
-        .animation(.easeInOut(duration: 0.2), value: viewModel.searchText.isEmpty)
         .navigationBarTitle("")
         .navigationBarHidden(true)
         .onAppear {
             viewModel.loadAllPosts()
         }
+        .background(
+            TabBarAccessor {
+                // TODO: this doesn't work – you have to tap tab "Search" 3 times for this state to change its value.
+                // But if we wait ~500ms after we received a signal (which is happening upon tapping on ACTIVE tab), then it works as expected. Why?
+                // Here I'm constantly trying to set focus to true with hope that we can focus it SOMETIMES faster than 500ms.
+                for i in 1...15 {
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.034 * Double(i)) {
+                        self.isSearchFocused = true
+                    }
+                }
+            }
+        )
     }
 }
 
 struct SearchBar: View {
     @Binding var searchText: String
-    @Binding var shouldFocus: Bool
-    @Binding var isSearchFocused: Bool
-    @FocusState private var isFieldFocused: Bool
+    var isFocused: FocusState<Bool>.Binding
     
     var body: some View {
         HStack {
@@ -85,7 +92,7 @@ struct SearchBar: View {
             
             TextField("Search posts...", text: $searchText)
                 .textFieldStyle(.plain)
-                .focused($isFieldFocused)
+                .focused(isFocused)
             
             if !searchText.isEmpty {
                 Button("Clear") {
@@ -99,15 +106,6 @@ struct SearchBar: View {
         .background(Color(UIColor.systemGray6))
         .cornerRadius(10)
         .padding(.horizontal)
-        .onChange(of: shouldFocus) { _, newValue in
-            if newValue {
-                isFieldFocused = true
-                shouldFocus = false
-            }
-        }
-        .onChange(of: isFieldFocused) { _, newValue in
-            isSearchFocused = newValue
-        }
     }
 }
 
@@ -155,7 +153,7 @@ struct SearchNoResultsState: View {
 struct SearchPostRowView: View {
     let trackedPost: TrackedPostData
     let searchText: String
-
+    
     var body: some View {
         VStack(alignment: .leading, spacing: 4) {
             HStack {
@@ -166,7 +164,7 @@ struct SearchPostRowView: View {
                     .font(.caption)
                     .foregroundColor(.secondary)
             }
-
+            
             HStack {
                 if let lastAccessed = trackedPost.lastAccessedAt {
                     Text("Last accessed: \(lastAccessed, formatter: relativeDateFormatter)")
