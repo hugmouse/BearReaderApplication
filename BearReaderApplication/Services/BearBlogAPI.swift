@@ -370,4 +370,139 @@ final class BearBlogService: BearBlogServiceProtocol, Sendable {
 
         return posts
     }
+
+    private func parseElements(from container: Element, into elements: inout [ContentElement], settings: SettingsModel) async throws {
+        let children = try container.select("> *")
+        
+        for child in children {
+            let tagName = child.tagName()
+            
+            switch tagName {
+            case "img":
+                try extractStandaloneImage(from: child, into: &elements)
+                
+            case "p", "a":
+                try extractParagraphOrLink(from: child, into: &elements)
+                
+            case "iframe":
+                extractIframe(from: child, into: &elements)
+                
+            case "pre":
+                if let preText = try? child.text(), !preText.isEmpty {
+                    elements.append(.codeBlock(preText))
+                }
+                
+            case "div", "center", "section", "article":
+                // Generic container - recursively parse its children
+                try await parseElements(from: child, into: &elements, settings: settings)
+                
+            case "h1":
+                continue
+                
+            case "h2", "h3":
+                try extractHeader(from: child, tagName: tagName, into: &elements)
+                
+            default:
+                try extractAttributedText(from: child, into: &elements)
+            }
+        }
+    }
+    
+    private func extractStandaloneImage(from child: Element, into elements: inout [ContentElement]) throws {
+        // Standalone images require padding
+        if let images = try? child.select("img").compactMap({ img in
+            let src = try? img.attr("src")
+            let alt = try? img.attr("alt")
+            return (src != nil && !src!.isEmpty) ? PostImage(url: src!, altText: alt ?? "", needsPadding: true) : nil
+        }) {
+            images.forEach { elements.append(.image($0)) }
+        }
+    }
+    
+    private func extractParagraphOrLink(from child: Element, into elements: inout [ContentElement]) throws {
+        if let classAttr = try? child.attr("class"), classAttr == "tags" {
+            try extractTags(from: child, into: &elements)
+        } else {
+            try extractContentWithInlineImages(from: child, into: &elements)
+        }
+    }
+    
+    private func extractTags(from child: Element, into elements: inout [ContentElement]) throws {
+        let tagLinks = try child.select("a")
+        let tags = tagLinks.compactMap { link -> PostTag? in
+            guard let href = try? link.attr("href"),
+                  let text = try? link.text(),
+                  text.hasPrefix("#") else { return nil }
+            
+            let components = href.components(separatedBy: "?q=")
+            let query = components.count > 1 ? components[1] : ""
+            return PostTag(text: text, query: query)
+        }
+        
+        if !tags.isEmpty {
+            elements.append(.tags(tags))
+        }
+    }
+    
+    private func extractContentWithInlineImages(from child: Element, into elements: inout [ContentElement]) throws {
+        if let images = try? child.select("img").compactMap({ img in
+            let src = try? img.attr("src")
+            let alt = try? img.attr("alt")
+            return (src != nil && !src!.isEmpty) ? PostImage(url: src!, altText: alt ?? "", needsPadding: false) : nil
+        }) {
+            images.forEach { elements.append(.image($0)) }
+            try child.select("img").remove()
+        }
+        
+        try extractAttributedText(from: child, into: &elements)
+    }
+    
+    private func extractIframe(from child: Element, into elements: inout [ContentElement]) {
+        guard let src = try? child.attr("src") else { return }
+        
+        switch src {
+        case let url where url.contains("youtube.com/embed") || url.contains("youtube-nocookie.com/embed/"):
+            let title = (try? child.attr("title")) ?? "Video"
+            guard let ytVideo = parseYouTubeEmbed(from: url, title: title) else { return }
+            
+            elements.append(.video(PostVideo(
+                embedUrl: ytVideo.embedURL.absoluteString,
+                thumbnailUrl: ytVideo.thumbnailURL.absoluteString,
+                title: ytVideo.title,
+                platform: "YouTube"
+            )))
+            
+        case let url where url.contains("vimeo.com"):
+            let title = (try? child.attr("title")) ?? "Video"
+            
+            elements.append(.video(PostVideo(
+                embedUrl: url,
+                thumbnailUrl: "", // Needs additional API call, not doing that for now
+                title: title,
+                platform: "Vimeo"
+            )))
+            
+        default:
+            print("Encountered unsupported iframe", child)
+        }
+    }
+    
+    private func extractHeader(from child: Element, tagName: String, into elements: inout [ContentElement]) throws {
+        let text = try child.text()
+        guard !text.isEmpty else { return }
+        
+        if tagName == "h2" {
+            elements.append(.header2(text))
+        } else if tagName == "h3" {
+            elements.append(.header3(text))
+        }
+    }
+    
+    private func extractAttributedText(from child: Element, into elements: inout [ContentElement]) throws {
+        let htmlContent = try child.outerHtml()
+        if !htmlContent.isEmpty, let attributedText = try? HTMLProcessor.htmlToAttributedString(html: htmlContent) {
+            elements.append(.text(attributedText))
+        }
+    }
+
 }
