@@ -17,27 +17,6 @@ struct BlogsView: View {
 
     var body: some View {
         NavigationStack {
-            HStack {
-                VStack(alignment: .leading, spacing: 2) {
-                    Text("Blogs")
-                        .font(.title)
-                        .fontWeight(.bold)
-                        .multilineTextAlignment(.leading)
-
-                    if let lastRefresh = lastBackgroundRefresh {
-                        Text("BG refresh: \(formatLastFetched(lastRefresh))")
-                            .font(.caption2)
-                            .foregroundColor(.secondary)
-                    } else {
-                        Text("BG refresh: never")
-                            .font(.caption2)
-                            .foregroundColor(.secondary)
-                    }
-                }
-                Spacer()
-            }
-            .padding([.top, .leading], 16.0)
-            .padding([.bottom], -12.0)
             ZStack {
                 if viewModel.isLoading && viewModel.subscribedBlogs.isEmpty {
                     ProgressView("Loading blogs...")
@@ -119,22 +98,6 @@ struct BlogsView: View {
                         .listSectionSeparator(.hidden, edges: .top)
                     }
                     .listStyle(.inset)
-                    .padding([.top], 4.0)
-                    .mask {
-                        VStack(spacing: 0) {
-                            LinearGradient(
-                                gradient: Gradient(stops: [
-                                    .init(color: .clear, location: 0),
-                                    .init(color: .black, location: 1.0)
-                                ]),
-                                startPoint: .top,
-                                endPoint: .bottom
-                            )
-                            .frame(height: 20)
-                            Color.black
-                        }
-                        .edgesIgnoringSafeArea(.all)
-                    }
                     .refreshable {
                         await viewModel.refreshAllBlogs()
                     }
@@ -151,7 +114,6 @@ struct BlogsView: View {
                 loadLastBackgroundRefresh()
             }
         }
-        .toolbar(tabBarVisibility, for: .tabBar)
     }
 
     private func loadLastBackgroundRefresh() {

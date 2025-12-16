@@ -15,6 +15,7 @@ struct PostsView: View {
     @Binding var selectedFeedType: FeedType
     @StateObject private var trendingViewModel = PostsViewModel(feedType: .trending)
     @StateObject private var recentViewModel = PostsViewModel(feedType: .recent)
+    @StateObject private var router = Router.shared
     @State private var tabBarVisibility: Visibility = .visible
     
     private var currentViewModel: PostsViewModel {
@@ -27,7 +28,7 @@ struct PostsView: View {
     }
     
     var body: some View {
-        NavigationStack() {
+        NavigationStack(path: $router.path) {
             ZStack(alignment: .top) {
                 if let errorMessage = currentViewModel.errorMessage, currentViewModel.posts.isEmpty {
                     VStack {
@@ -78,7 +79,7 @@ struct PostsView: View {
                         
                         List {
                             ForEach(currentViewModel.posts, id: \.url) { post in
-                                NavigationLink(destination: PostView(post: post, vis: $tabBarVisibility)) {
+                                NavigationLink(value: post) {
                                     PostRowView(post: post)
                                 }
                                 .onAppear {
@@ -110,6 +111,10 @@ struct PostsView: View {
                         .refreshable {
                             await currentViewModel.refresh()
                         }
+                    }
+                    // Can't put this inside of List for whatever reason
+                    .navigationDestination(for: PostItem.self) { post in
+                        PostView(post: post, vis: .constant(.visible))
                     }
                     .mask {
                         VStack(spacing: 0) {

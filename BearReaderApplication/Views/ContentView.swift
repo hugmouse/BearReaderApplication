@@ -44,6 +44,7 @@ struct ContentView: View {
     @State var selectedFeedType: FeedType
     @State private var selectedTab = 0
     @State private var shouldFocusSearch = false
+    @StateObject private var router = Router.shared
 
     init() {
         let appearance = UITabBarAppearance()
@@ -54,7 +55,7 @@ struct ContentView: View {
     }
 
     var body: some View {
-            TabView(selection: $selectedTab) {
+            TabView(selection: $router.selectedTab) {
                 PostsView(selectedFeedType: $selectedFeedType)
             .tabItem {
                 Label("Trending", systemImage: "house.fill")

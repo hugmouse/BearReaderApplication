@@ -14,6 +14,7 @@ import os.log
 
 @main
 struct BearReaderApplicationApp: App {
+    @StateObject private var notificationManager = NotificationManager.shared
     @Environment(\.scenePhase) private var phase
 
     private let logger = Logger(subsystem: "BearReader", category: "BackgroundRefresh")
@@ -21,6 +22,7 @@ struct BearReaderApplicationApp: App {
 
     init() {
         configureURLCache()
+        UNUserNotificationCenter.current().delegate = NotificationManager.shared
     }
 
     var body: some Scene {
@@ -59,6 +61,7 @@ struct BearReaderApplicationApp: App {
         }
     }
 
+    // TODO: move it out of here somewhere, don't think it belongs here
     private func fetchBlogsData() async {
         logger.info("Starting background blog refresh")
 
@@ -84,7 +87,16 @@ struct BearReaderApplicationApp: App {
                                 content.title = "New post from \(blog.blogTitle)"
                                 content.body = "\(newPost.title)"
                                 content.sound = UNNotificationSound.default
-
+                                
+                                // PACK DATA: Store all fields needed to reconstruct the Post object
+                                content.userInfo = [
+                                    "title": newPost.title,
+                                    "url": newPost.url, // Assumes newPost.url is a String
+                                    "age": newPost.age,
+                                    "rating": newPost.rating,
+                                    "domain": blog.domain // Use the domain from the blog loop context
+                                ]
+                                
                                 let trigger = UNTimeIntervalNotificationTrigger(timeInterval: Double(5 + i), repeats: false)
                                 let request = UNNotificationRequest(identifier: newPost.url, content: content, trigger: trigger)
                                 do {
