@@ -115,28 +115,43 @@ final class BearBlogService: BearBlogServiceProtocol, Sendable {
         if urlPath.hasPrefix("//") {
             fullURL = "https:" + urlPath
         }
-        
+
         guard let url = URL(string: fullURL) else {
             throw BearBlogError.invalidURL
         }
-        
+
+        let request = URLRequest(url: url)
+
+        // Check cache first
+        if let cachedResponse = URLCache.shared.cachedResponse(for: request) {
+            let html = String(data: cachedResponse.data, encoding: .utf8) ?? ""
+            if let postContent = try await parseMainContentToStructured(from: html) {
+                return postContent
+            }
+        }
+
+        // Cache miss
         do {
-            var request = URLRequest(url: url)
-            request.cachePolicy = .returnCacheDataElseLoad
-            let (data, _) = try await self.urlSession.data(for: request)
+            let (data, response) = try await self.urlSession.data(for: request)
+
+            // Store in cache for offline access, at least I hope this is how it works
+            if let httpResponse = response as? HTTPURLResponse {
+                let cachedResponse = CachedURLResponse(response: httpResponse, data: data)
+                URLCache.shared.storeCachedResponse(cachedResponse, for: request)
+            }
+
             let html = String(data: data, encoding: .utf8) ?? ""
-            
+
             guard let postContent = try await parseMainContentToStructured(from: html) else {
                 throw BearBlogError.noData
             }
-            
+
             return postContent
         } catch {
             print("[getPostContent] Throwed somewhere!", error)
             if error is BearBlogError {
                 throw error
             } else {
-                // Why would it be network error? It might be any other one.
                 throw BearBlogError.networkError(error)
             }
         }
