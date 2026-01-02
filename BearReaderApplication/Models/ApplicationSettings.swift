@@ -13,12 +13,32 @@ struct SettingsModel: Sendable {
     var serviceURL: String
     var userAgent: String
     var cssSelectors: CSSSelectors
+    var cacheSettings: CacheSettings
 
     static let defaults = SettingsModel(
         serviceURL: "https://bearblog.dev/discover/",
         userAgent: "BearReader/\(Bundle.main.appBuild) (https://github.com/hugmouse/BearReaderApplication)",
-        cssSelectors: CSSSelectors.defaults
+        cssSelectors: CSSSelectors.defaults,
+        cacheSettings: CacheSettings.defaults
     )
+}
+
+struct CacheSettings: Sendable {
+    var memoryCacheMB: Int
+    var diskCacheMB: Int
+
+    var memoryCapacityBytes: Int { memoryCacheMB * 1024 * 1024 }
+    var diskCapacityBytes: Int { diskCacheMB * 1024 * 1024 }
+
+    static let defaults = CacheSettings(
+        memoryCacheMB: 50,
+        diskCacheMB: 1000
+    )
+
+    static let minMemoryMB = 10
+    static let maxMemoryMB = 200
+    static let minDiskMB = 100
+    static let maxDiskMB = 5000
 }
 
 struct CSSSelectors: Sendable {

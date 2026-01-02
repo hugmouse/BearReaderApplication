@@ -13,7 +13,7 @@ import SwiftUI
 @MainActor
 class SettingsManager: ObservableObject {
     static let shared = SettingsManager()
-    
+
     @AppStorage("serviceURL") var serviceURL: String = SettingsModel.defaults.serviceURL
     @AppStorage("userAgent") var userAgent: String = SettingsModel.defaults.userAgent
     @AppStorage("cssPostsList") var cssPostsList: String = SettingsModel.defaults.cssSelectors.postsList
@@ -21,7 +21,9 @@ class SettingsManager: ObservableObject {
     @AppStorage("cssPostAge") var cssPostAge: String = SettingsModel.defaults.cssSelectors.postAge
     @AppStorage("cssPostRating") var cssPostRating: String = SettingsModel.defaults.cssSelectors.postRating
     @AppStorage("cssMainContent") var cssMainContent: String = SettingsModel.defaults.cssSelectors.mainContent
-    
+    @AppStorage("memoryCacheMB") var memoryCacheMB: Int = CacheSettings.defaults.memoryCacheMB
+    @AppStorage("diskCacheMB") var diskCacheMB: Int = CacheSettings.defaults.diskCacheMB
+
     var currentSettings: SettingsModel {
         SettingsModel(
             serviceURL: serviceURL,
@@ -32,10 +34,14 @@ class SettingsManager: ObservableObject {
                 postAge: cssPostAge,
                 postRating: cssPostRating,
                 mainContent: cssMainContent
+            ),
+            cacheSettings: CacheSettings(
+                memoryCacheMB: memoryCacheMB,
+                diskCacheMB: diskCacheMB
             )
         )
     }
-    
+
     func resetToDefaults() {
         serviceURL = SettingsModel.defaults.serviceURL
         userAgent = SettingsModel.defaults.userAgent
@@ -44,6 +50,16 @@ class SettingsManager: ObservableObject {
         cssPostAge = SettingsModel.defaults.cssSelectors.postAge
         cssPostRating = SettingsModel.defaults.cssSelectors.postRating
         cssMainContent = SettingsModel.defaults.cssSelectors.mainContent
+        memoryCacheMB = CacheSettings.defaults.memoryCacheMB
+        diskCacheMB = CacheSettings.defaults.diskCacheMB
+        applyURLCacheSettings()
+    }
+
+    func applyURLCacheSettings() {
+        let memoryCapacity = memoryCacheMB * 1024 * 1024
+        let diskCapacity = diskCacheMB * 1024 * 1024
+        let urlCache = URLCache(memoryCapacity: memoryCapacity, diskCapacity: diskCapacity)
+        URLCache.shared = urlCache
     }
 }
 

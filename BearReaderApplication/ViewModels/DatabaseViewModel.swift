@@ -71,7 +71,7 @@ class DatabaseViewModel: ObservableObject {
         return "Unknown"
     }
 
-    private func loadCacheInfo() {
+    func loadCacheInfo() {
         let cache = URLCache.shared
         let memoryUsage = cache.currentMemoryUsage
         let diskUsage = cache.currentDiskUsage

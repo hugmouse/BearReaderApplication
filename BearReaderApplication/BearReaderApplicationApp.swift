@@ -42,10 +42,11 @@ struct BearReaderApplicationApp: App {
         }
     }
 
-    // TODO: make configurable by the user
     private func configureURLCache() {
-        let memoryCapacity = 50 * 1024 * 1024 // 50 MB
-        let diskCapacity = 1000 * 1024 * 1024 // 1  GB
+        let memoryCacheMB = UserDefaults.standard.object(forKey: "memoryCacheMB") as? Int ?? CacheSettings.defaults.memoryCacheMB
+        let diskCacheMB = UserDefaults.standard.object(forKey: "diskCacheMB") as? Int ?? CacheSettings.defaults.diskCacheMB
+        let memoryCapacity = memoryCacheMB * 1024 * 1024
+        let diskCapacity = diskCacheMB * 1024 * 1024
         let urlCache = URLCache(memoryCapacity: memoryCapacity, diskCapacity: diskCapacity)
         URLCache.shared = urlCache
     }

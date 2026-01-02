@@ -137,20 +137,71 @@ struct EditableSettingsRowView: View {
 
 struct StorageView: View {
     @StateObject private var viewModel = DatabaseViewModel()
+    @StateObject private var settingsManager = SettingsManager.shared
     @State private var showingDeleteAlert = false
     @State private var showingClearCacheAlert = false
     @State private var showingActivitySheet = false
-    
+
     var body: some View {
         List {
             Section(header: Text("Database Information")) {
                 UnifiedRowView(title: "Database Size", icon: "externaldrive", value: viewModel.databaseSize, valueAlignment: .trailing)
             }
 
-            Section(header: Text("Cache Information")) {
+            Section(header: Text("Cache Usage")) {
                 UnifiedRowView(title: "Total Cache Size", icon: "memorychip", value: viewModel.totalCacheSize, valueAlignment: .trailing)
                 UnifiedRowView(title: "Memory Cache", icon: "cpu", value: viewModel.cacheMemoryUsage, valueAlignment: .trailing)
                 UnifiedRowView(title: "Disk Cache", icon: "internaldrive", value: viewModel.cacheDiskUsage, valueAlignment: .trailing)
+            }
+
+            Section(header: Text("Cache Limits"), footer: Text("Changes take effect immediately. Reducing limits will clear cached data.")) {
+                VStack(alignment: .leading, spacing: 8) {
+                    HStack {
+                        Image(systemName: "cpu")
+                            .frame(width: 16)
+                        Text("Memory Cache Limit")
+                        Spacer()
+                        Text("\(settingsManager.memoryCacheMB) MB")
+                            .foregroundColor(.secondary)
+                    }
+                    Slider(
+                        value: Binding(
+                            get: { Double(settingsManager.memoryCacheMB) },
+                            set: { settingsManager.memoryCacheMB = Int($0) }
+                        ),
+                        in: Double(CacheSettings.minMemoryMB)...Double(CacheSettings.maxMemoryMB),
+                        step: 10
+                    )
+                    .onChange(of: settingsManager.memoryCacheMB) {
+                        settingsManager.applyURLCacheSettings()
+                        viewModel.loadCacheInfo()
+                    }
+                }
+                .padding(.vertical, 4)
+
+                VStack(alignment: .leading, spacing: 8) {
+                    HStack {
+                        Image(systemName: "internaldrive")
+                            .frame(width: 16)
+                        Text("Disk Cache Limit")
+                        Spacer()
+                        Text(diskCacheLimitText)
+                            .foregroundColor(.secondary)
+                    }
+                    Slider(
+                        value: Binding(
+                            get: { Double(settingsManager.diskCacheMB) },
+                            set: { settingsManager.diskCacheMB = Int($0) }
+                        ),
+                        in: Double(CacheSettings.minDiskMB)...Double(CacheSettings.maxDiskMB),
+                        step: 100
+                    )
+                    .onChange(of: settingsManager.diskCacheMB) {
+                        settingsManager.applyURLCacheSettings()
+                        viewModel.loadCacheInfo()
+                    }
+                }
+                .padding(.vertical, 4)
             }
 
             Section(header: Text("Storage Usage")) {
@@ -226,6 +277,15 @@ struct StorageView: View {
             if let databaseURL = viewModel.getDatabaseURL() {
                 ActivityViewController(activityItems: [databaseURL])
             }
+        }
+    }
+
+    private var diskCacheLimitText: String {
+        if settingsManager.diskCacheMB >= 1000 {
+            let gb = Double(settingsManager.diskCacheMB) / 1000.0
+            return "\(gb.formatted(.number.precision(.fractionLength(1)))) GB"
+        } else {
+            return "\(settingsManager.diskCacheMB) MB"
         }
     }
 }
