@@ -45,6 +45,21 @@ struct ProfileNotificationsView: View {
                         .foregroundStyle(.red)
                 }
             }
+
+            #if DEBUG
+            Section {
+                Button(action: scheduleTestNotifications) {
+                    HStack(spacing: 16) {
+                        Image(systemName: "bell.and.waves.left.and.right")
+                        Text("Test Grouped Notifications")
+                    }
+                }
+            } header: {
+                Text("Testing")
+            } footer: {
+                Text("Schedules 6 test notifications from 2 fake blogs to test thread grouping.")
+            }
+            #endif
         }
         .task {
             await checkPermissionStatus()
@@ -129,4 +144,36 @@ struct ProfileNotificationsView: View {
             openURL(url)
         }
     }
+
+    #if DEBUG
+    private func scheduleTestNotifications() {
+        Task {
+            let center = UNUserNotificationCenter.current()
+
+            let testData: [(blog: String, blogTitle: String, posts: [String])] = [
+                ("test-blog-a.bearblog.dev", "Test Blog A", ["First Post from A", "Second Post from A", "Third Post from A"]),
+                ("test-blog-b.bearblog.dev", "Test Blog B", ["First Post from B", "Second Post from B", "Third Post from B"])
+            ]
+
+            for blogData in testData {
+                for (index, postTitle) in blogData.posts.enumerated() {
+                    let content = UNMutableNotificationContent()
+                    content.title = "New post from \(blogData.blogTitle)"
+                    content.body = postTitle
+                    content.sound = .default
+                    content.threadIdentifier = blogData.blog
+
+                    let identifier = "test-\(blogData.blog)-\(index)"
+                    let request = UNNotificationRequest(identifier: identifier, content: content, trigger: nil)
+
+                    do {
+                        try await center.add(request)
+                    } catch {
+                        print("Failed to schedule test notification: \(error)")
+                    }
+                }
+            }
+        }
+    }
+    #endif
 }

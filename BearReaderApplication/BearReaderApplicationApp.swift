@@ -83,23 +83,23 @@ struct BearReaderApplicationApp: App {
                         logger.info("Found \(newPosts.count) new posts for \(blog.domain)")
                         
                         if UIApplication.shared.applicationState == .background {
-                            for (i, newPost) in newPosts.enumerated() {
+                            for newPost in newPosts {
                                 let content = UNMutableNotificationContent()
                                 content.title = "New post from \(blog.blogTitle)"
                                 content.body = "\(newPost.title)"
                                 content.sound = UNNotificationSound.default
+                                content.threadIdentifier = blog.domain
+
                                 
-                                // PACK DATA: Store all fields needed to reconstruct the Post object
                                 content.userInfo = [
                                     "title": newPost.title,
-                                    "url": newPost.url, // Assumes newPost.url is a String
+                                    "url": newPost.url,
                                     "age": newPost.age,
                                     "rating": newPost.rating,
-                                    "domain": blog.domain // Use the domain from the blog loop context
+                                    "domain": blog.domain
                                 ]
                                 
-                                let trigger = UNTimeIntervalNotificationTrigger(timeInterval: Double(5 + i), repeats: false)
-                                let request = UNNotificationRequest(identifier: newPost.url, content: content, trigger: trigger)
+                                let request = UNNotificationRequest(identifier: newPost.url, content: content, trigger: nil)
                                 do {
                                     try await UNUserNotificationCenter.current().add(request)
                                 } catch {
