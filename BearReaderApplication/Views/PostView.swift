@@ -80,9 +80,13 @@ struct PostView: View {
         .onAppear {
             Task {
                 do {
-                    bookmarked = try await DatabaseManager.shared.isPostBookmarked(post.url)
-                    isSubscribed = try await DatabaseManager.shared.isSubscribedToBlog(domain: post.domain)
-                    try await DatabaseManager.shared.addToBrowsingHistory(_url: post.url, _title: post.title)
+                    let status = try await DatabaseManager.shared.getPostStatusAndRecordHistory(
+                        postUrl: post.url,
+                        postTitle: post.title,
+                        blogDomain: post.domain
+                    )
+                    bookmarked = status.isBookmarked
+                    isSubscribed = status.isSubscribed
                 } catch {
                     bookmarked = false
                     isSubscribed = false

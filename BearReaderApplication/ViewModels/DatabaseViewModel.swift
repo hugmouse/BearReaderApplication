@@ -20,13 +20,19 @@ class DatabaseViewModel: ObservableObject {
     @Published var cacheDiskUsage: String = ""
     @Published var totalCacheSize: String = ""
     
-    private var databasePath: String {
-        let path = NSSearchPathForDirectoriesInDomains(.documentDirectory, .userDomainMask, true).first!
+    private var databasePath: String? {
+        guard let path = NSSearchPathForDirectoriesInDomains(.documentDirectory, .userDomainMask, true).first else {
+            return nil
+        }
         return "\(path)/BearReader.sqlite3"
     }
-    
+
     func loadStorageInfo() async {
-        self.databaseSize = getDatabaseSize(at: databasePath)
+        if let path = databasePath {
+            self.databaseSize = getDatabaseSize(at: path)
+        } else {
+            self.databaseSize = "Unknown"
+        }
 
         do {
             let readPostsData = try await DatabaseManager.shared.getReadPosts()
@@ -55,7 +61,8 @@ class DatabaseViewModel: ObservableObject {
     }
     
     func getDatabaseURL() -> URL? {
-        return URL(fileURLWithPath: databasePath)
+        guard let path = databasePath else { return nil }
+        return URL(fileURLWithPath: path)
     }
     
     private func getDatabaseSize(at path: String) -> String {

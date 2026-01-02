@@ -316,10 +316,10 @@ final class BearBlogService: BearBlogServiceProtocol, Sendable {
     
     private func extractStandaloneImage(from child: Element, into elements: inout [ContentElement]) throws {
         // Standalone images require padding
-        if let images = try? child.select("img").compactMap({ img in
-            let src = try? img.attr("src")
+        if let images = try? child.select("img").compactMap({ img -> PostImage? in
+            guard let src = try? img.attr("src"), !src.isEmpty else { return nil }
             let alt = try? img.attr("alt")
-            return (src != nil && !src!.isEmpty) ? PostImage(url: src!, altText: alt ?? "", needsPadding: true) : nil
+            return PostImage(url: src, altText: alt ?? "", needsPadding: true)
         }) {
             images.forEach { elements.append(.image($0)) }
         }
@@ -351,15 +351,15 @@ final class BearBlogService: BearBlogServiceProtocol, Sendable {
     }
     
     private func extractContentWithInlineImages(from child: Element, into elements: inout [ContentElement]) throws {
-        if let images = try? child.select("img").compactMap({ img in
-            let src = try? img.attr("src")
+        if let images = try? child.select("img").compactMap({ img -> PostImage? in
+            guard let src = try? img.attr("src"), !src.isEmpty else { return nil }
             let alt = try? img.attr("alt")
-            return (src != nil && !src!.isEmpty) ? PostImage(url: src!, altText: alt ?? "", needsPadding: false) : nil
+            return PostImage(url: src, altText: alt ?? "", needsPadding: false)
         }) {
             images.forEach { elements.append(.image($0)) }
             try child.select("img").remove()
         }
-        
+
         try extractAttributedText(from: child, into: &elements)
     }
     

@@ -12,6 +12,10 @@ import Foundation
 import SQLite
 import os.log
 
+enum DatabaseError: Error {
+    case documentsDirectoryNotFound
+}
+
 actor DatabaseManager {
     static let shared = DatabaseManager()
     
@@ -52,9 +56,11 @@ actor DatabaseManager {
                 return db
             }
             
-            let path = NSSearchPathForDirectoriesInDomains(
+            guard let path = NSSearchPathForDirectoriesInDomains(
                 .documentDirectory, .userDomainMask, true
-            ).first!
+            ).first else {
+                throw DatabaseError.documentsDirectoryNotFound
+            }
             
             let dbPath = "\(path)/BearReader.sqlite3"
             
@@ -495,10 +501,42 @@ actor DatabaseManager {
             results.append(subscription)
         }
         logger.debug("Retrieved \(results.count) entries in browsing history")
-        
+
         return results
     }
-    
+
+    func getPostStatusAndRecordHistory(
+        postUrl: String,
+        postTitle: String,
+        blogDomain: String
+    ) throws -> PostViewStatus {
+        let conn = try connection
+
+        let post = trackedPosts.filter(trackedPostsURL == postUrl)
+        let isBookmarked: Bool
+        if let row = try conn.pluck(post.select(trackedPostsIsBookmarked)) {
+            isBookmarked = row[trackedPostsIsBookmarked]
+        } else {
+            isBookmarked = false
+        }
+
+        let subscriptionQuery = subscribedBlogs.filter(subscribedBlogsDomain == blogDomain).limit(1)
+        let isSubscribed = try conn.scalar(subscriptionQuery.count) > 0
+
+        let insert = browsingHistoryTable.insert(or: .ignore,
+                                                 browsingHistoryURL <- postUrl,
+                                                 browsingHistoryTitle <- postTitle,
+                                                 browsingHistoryDate <- Date.now)
+        try conn.run(insert)
+
+        return PostViewStatus(isBookmarked: isBookmarked, isSubscribed: isSubscribed)
+    }
+
+}
+
+struct PostViewStatus {
+    let isBookmarked: Bool
+    let isSubscribed: Bool
 }
 
 struct TrackedPostData {
