@@ -86,7 +86,7 @@ struct ContentView: View {
             }
             .tag(4)
         }
-        .onReceive(Just(selectedTab)) {
+        .onReceive(Just(router.selectedTab)) {
             if $0 == 0 {
                 self.selectedFeedType = .trending
             }
