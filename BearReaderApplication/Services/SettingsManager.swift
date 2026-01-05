@@ -23,6 +23,7 @@ class SettingsManager: ObservableObject {
     @AppStorage("cssMainContent") var cssMainContent: String = SettingsModel.defaults.cssSelectors.mainContent
     @AppStorage("memoryCacheMB") var memoryCacheMB: Int = CacheSettings.defaults.memoryCacheMB
     @AppStorage("diskCacheMB") var diskCacheMB: Int = CacheSettings.defaults.diskCacheMB
+    @AppStorage("hasSeenOnboarding") var hasSeenOnboarding: Bool = false
 
     var currentSettings: SettingsModel {
         SettingsModel(

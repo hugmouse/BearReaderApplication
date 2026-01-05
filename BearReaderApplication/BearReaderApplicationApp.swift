@@ -15,6 +15,7 @@ import os.log
 @main
 struct BearReaderApplicationApp: App {
     @StateObject private var notificationManager = NotificationManager.shared
+    @StateObject private var settingsManager = SettingsManager.shared
     @Environment(\.scenePhase) private var phase
 
     private let logger = Logger(subsystem: "BearReader", category: "BackgroundRefresh")
@@ -27,7 +28,11 @@ struct BearReaderApplicationApp: App {
 
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            if settingsManager.hasSeenOnboarding {
+                ContentView()
+            } else {
+                OnboardingView(settingsManager: settingsManager)
+            }
         }
         .backgroundTask(.appRefresh(backgroundTaskIdentifier)) {
             await fetchBlogsData()

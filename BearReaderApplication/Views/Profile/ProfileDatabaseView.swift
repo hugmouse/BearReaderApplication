@@ -85,6 +85,18 @@ struct SettingsView: View {
                 
                 Section {
                     Button(action: {
+                        settingsManager.hasSeenOnboarding = false
+                    }) {
+                        HStack(spacing: 16) {
+                            Image(systemName: "hand.wave")
+                            Text("Show Onboarding")
+                            Spacer()
+                        }
+                    }
+                }
+
+                Section {
+                    Button(action: {
                         showingResetAlert = true
                     }) {
                         HStack(spacing: 16) {
