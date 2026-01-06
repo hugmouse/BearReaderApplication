@@ -114,7 +114,7 @@ struct PostsView: View {
                     }
                     // Can't put this inside of List for whatever reason
                     .navigationDestination(for: PostItem.self) { post in
-                        PostView(post: post, vis: .constant(.visible))
+                        PostView(post: post, vis: $tabBarVisibility)
                     }
                     .mask {
                         VStack(spacing: 0) {
