@@ -161,14 +161,17 @@ final class BearBlogService: BearBlogServiceProtocol, Sendable {
         let settings = await getCurrentSettings()
         let document = try parse(html)
         let posts = try document.select(settings.cssSelectors.postsList)
-        
+
         var _posts = [PostItem]()
         for post in posts {
             let title = try post.select(settings.cssSelectors.postTitle).text()
             let url = try post.select(settings.cssSelectors.postTitle).attr("href")
-            let age = try post.select(settings.cssSelectors.postAge).text()
+            let ageElement = try post.select(settings.cssSelectors.postAge).first()
+            let age = try ageElement?.text() ?? ""
+            let publishedDateString = try ageElement?.attr("title")
             let rating = try post.select(settings.cssSelectors.postRating).text()
-            _posts.append(PostItem(title: title, url: url, age: age, rating: rating))
+            
+            _posts.append(PostItem(title: title, url: url, age: age, rating: rating, publishedDateString: publishedDateString))
         }
         
         // We dont really care if we don't save some posts into database,

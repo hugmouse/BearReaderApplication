@@ -150,16 +150,32 @@ struct PostsView: View {
 
 struct PostRowView: View {
     let post: PostItem
-    
+
     var body: some View {
         VStack(alignment: .leading, spacing: 4) {
             TitleWithDomainView(post: post)
-            
+
             HStack {
-                Text(post.age)
-                    .font(.caption)
-                    .foregroundColor(.secondary)
+                if let publishedAt = post.publishedAt {
+                    TimelineView(.everyMinute) { _ in
+                        Text(formatRelativeTime(from: publishedAt))
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+                    }
+                } else {
+                    Text(post.age)
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                }
             }
         }
+    }
+
+    private func formatRelativeTime(from date: Date) -> String {
+        let formatter = RelativeDateTimeFormatter()
+        formatter.unitsStyle = .full
+        
+        let relativeString = formatter.localizedString(for: date, relativeTo: Date())
+        return "Published \(relativeString)"
     }
 }

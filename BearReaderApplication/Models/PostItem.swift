@@ -16,13 +16,26 @@ struct PostItem {
     let age: String
     let rating: String
     let domain: String
-    
-    init(title: String, url: String, age: String, rating: String) {
+    let publishedAt: Date?
+
+    init(title: String, url: String, age: String, rating: String, publishedDateString: String? = nil) {
         self.title = title
         self.url = url
         self.age = age
         self.rating = rating
         self.domain = Self.extractDomain(from: url)
+        self.publishedAt = Self.parseISO8601(publishedDateString)
+    }
+
+    private static func parseISO8601(_ dateString: String?) -> Date? {
+        guard let dateString else { return nil }
+
+        // bearblog.dev uses format without seconds: "2026-01-04T19:37Z"
+        let formatter = DateFormatter()
+        formatter.dateFormat = "yyyy-MM-dd'T'HH:mmX"
+        formatter.locale = Locale(identifier: "en_US_POSIX")
+        formatter.timeZone = TimeZone(secondsFromGMT: 0)
+        return formatter.date(from: dateString)
     }
     
     static func extractDomain(from url: String) -> String {
