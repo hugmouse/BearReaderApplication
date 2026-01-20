@@ -43,6 +43,7 @@ struct BlogFeedView: View {
         }
         .task(id: blog.domain) {
             await viewModel.loadFeed()
+            await viewModel.markAsRead()
         }
     }
     

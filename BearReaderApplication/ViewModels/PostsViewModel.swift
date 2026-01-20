@@ -44,7 +44,21 @@ class PostsViewModel: ObservableObject {
         hasMorePages = true
 
         do {
-            let result = try await fetchPosts(page: currentPage, refresh: refresh)
+            // Refresh is requested upon navigating to Recent tab
+            if refresh {
+                do {
+                    let result = try await fetchPosts(page: currentPage, refresh: true)
+                    posts = result
+                    hasMorePages = !result.isEmpty
+                    isLoading = false
+                    return
+                } catch {
+                    print("Refresh failed, falling back to cache if available. Error: \(error)")
+                }
+            }
+            
+            // Default load (uses cache if available from URLSession config)
+            let result = try await fetchPosts(page: currentPage, refresh: false)
             posts = result
             hasMorePages = !result.isEmpty
             isLoading = false

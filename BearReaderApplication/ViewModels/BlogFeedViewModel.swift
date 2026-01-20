@@ -47,6 +47,14 @@ class BlogFeedViewModel: ObservableObject {
         await loadFeed(refresh: true)
     }
 
+    func markAsRead() async {
+        do {
+            try await DatabaseManager.shared.resetNewPostsCount(domain: domain)
+        } catch {
+            print("Failed to mark blog as read: \(error)")
+        }
+    }
+
     private func handleError(_ error: Error) {
         isLoading = false
 
