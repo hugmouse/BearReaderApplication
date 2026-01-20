@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		C410DC002EB136B80057A863 /* DTCoreText in Frameworks */ = {isa = PBXBuildFile; productRef = C410DBFF2EB136B80057A863 /* DTCoreText */; };
+		C41BCD912F1FD9FF001ADEF0 /* SQLiteMigrationManager in Frameworks */ = {isa = PBXBuildFile; productRef = C41BCD902F1FD9FF001ADEF0 /* SQLiteMigrationManager */; };
 		C421F07C2E698C3B0014612D /* SwiftSoup in Frameworks */ = {isa = PBXBuildFile; productRef = C421F07B2E698C3B0014612D /* SwiftSoup */; };
 		C421F07F2E698C490014612D /* SelectableText in Frameworks */ = {isa = PBXBuildFile; productRef = C421F07E2E698C490014612D /* SelectableText */; };
 		C421F0822E698C5D0014612D /* SQLite in Frameworks */ = {isa = PBXBuildFile; productRef = C421F0812E698C5D0014612D /* SQLite */; };
@@ -77,6 +78,7 @@
 				C4D35E922E881B2100A39EC4 /* Kingfisher in Frameworks */,
 				C421F0822E698C5D0014612D /* SQLite in Frameworks */,
 				C410DC002EB136B80057A863 /* DTCoreText in Frameworks */,
+				C41BCD912F1FD9FF001ADEF0 /* SQLiteMigrationManager in Frameworks */,
 				C421F07C2E698C3B0014612D /* SwiftSoup in Frameworks */,
 				C421F07F2E698C490014612D /* SelectableText in Frameworks */,
 			);
@@ -145,6 +147,7 @@
 				C421F0812E698C5D0014612D /* SQLite */,
 				C4D35E912E881B2100A39EC4 /* Kingfisher */,
 				C410DBFF2EB136B80057A863 /* DTCoreText */,
+				C41BCD902F1FD9FF001ADEF0 /* SQLiteMigrationManager */,
 			);
 			productName = BearReaderApplication;
 			productReference = C4F581E22E65A57900A9B0B9 /* BearReaderApplication.app */;
@@ -234,6 +237,7 @@
 				C421F0802E698C5D0014612D /* XCRemoteSwiftPackageReference "SQLite.swift" */,
 				C4D35E902E881B2100A39EC4 /* XCRemoteSwiftPackageReference "Kingfisher" */,
 				C410DBFE2EB136B80057A863 /* XCRemoteSwiftPackageReference "DTCoreText" */,
+				C41BCD8F2F1FD9FF001ADEF0 /* XCRemoteSwiftPackageReference "SQLiteMigrationManager.swift" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = C4F581E32E65A57900A9B0B9 /* Products */;
@@ -642,6 +646,14 @@
 				minimumVersion = 1.6.28;
 			};
 		};
+		C41BCD8F2F1FD9FF001ADEF0 /* XCRemoteSwiftPackageReference "SQLiteMigrationManager.swift" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/garriguv/SQLiteMigrationManager.swift.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 0.8.3;
+			};
+		};
 		C421F07A2E698C3B0014612D /* XCRemoteSwiftPackageReference "SwiftSoup" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/scinfu/SwiftSoup.git";
@@ -681,6 +693,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = C410DBFE2EB136B80057A863 /* XCRemoteSwiftPackageReference "DTCoreText" */;
 			productName = DTCoreText;
+		};
+		C41BCD902F1FD9FF001ADEF0 /* SQLiteMigrationManager */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = C41BCD8F2F1FD9FF001ADEF0 /* XCRemoteSwiftPackageReference "SQLiteMigrationManager.swift" */;
+			productName = SQLiteMigrationManager;
 		};
 		C421F07B2E698C3B0014612D /* SwiftSoup */ = {
 			isa = XCSwiftPackageProductDependency;

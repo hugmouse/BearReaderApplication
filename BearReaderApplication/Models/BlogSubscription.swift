@@ -17,8 +17,9 @@ struct BlogSubscription: Identifiable, Hashable, Equatable {
     let subscribedAt: Date
     let lastFetchedAt: Date?
     let newPostsCount: Int
+    let isNotificationsMuted: Bool
 
-    init(id: Int64 = 0, domain: String, feedUrl: String, blogTitle: String, subscribedAt: Date = Date(), lastFetchedAt: Date? = nil, newPostsCount: Int = 0) {
+    init(id: Int64 = 0, domain: String, feedUrl: String, blogTitle: String, subscribedAt: Date = Date(), lastFetchedAt: Date? = nil, newPostsCount: Int = 0, isNotificationsMuted: Bool = false) {
         self.id = id
         self.domain = domain
         self.feedUrl = feedUrl
@@ -26,6 +27,7 @@ struct BlogSubscription: Identifiable, Hashable, Equatable {
         self.subscribedAt = subscribedAt
         self.lastFetchedAt = lastFetchedAt
         self.newPostsCount = newPostsCount
+        self.isNotificationsMuted = isNotificationsMuted
     }
     
     func hash(into hasher: inout Hasher) {

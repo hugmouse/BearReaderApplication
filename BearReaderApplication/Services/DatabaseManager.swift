@@ -10,6 +10,7 @@
 
 import Foundation
 import SQLite
+import SQLiteMigrationManager
 import os.log
 
 enum DatabaseError: Error {
@@ -43,6 +44,7 @@ actor DatabaseManager {
     private let subscribedBlogsSubscribedAt = Expression<Date>("subscribed_at")
     private let subscribedBlogsLastFetchAt = Expression<Date?>("last_fetched_at")
     private let subscribedBlogsNewPostsCount = Expression<Int>("new_posts_count")
+    private let subscribedBlogsIsNotificationsMuted = Expression<Bool>("is_notifications_muted")
     
     private let browsingHistoryTable = Table("visit_history")
     private let browsingHistoryID = Expression<Int64>("id")
@@ -66,7 +68,7 @@ actor DatabaseManager {
             
             logger.debug("Initializing database at path: \(dbPath)")
             let newConnection = try Connection(dbPath)
-            try createTable(using: newConnection)
+            try migrate(using: newConnection)
             logger.debug("Database initialized successfully")
             
             db = newConnection
@@ -79,49 +81,26 @@ actor DatabaseManager {
         return try body(conn)
     }
     
-    private func createTable(using connection: Connection) throws {
-        logger.debug("Creating tracked_posts table")
-        try connection.run(trackedPosts.create(ifNotExists: true) { t in
-            t.column(trackedPostsID, primaryKey: .autoincrement)
-            t.column(trackedPostsURL, unique: true)
-            t.column(trackedPostsTitle)
-            t.column(trackedPostsAge)
-            t.column(trackedPostsRating)
-            t.column(trackedPostsDomain)
-            t.column(trackedPostsWasLoaded, defaultValue: false)
-            t.column(trackedPostsViewID)
-            t.column(trackedPostsEncounteredAt)
-            t.column(trackedPostsLastAccessedAt)
-            t.column(trackedPostsIsBookmarked, defaultValue: false)
-        })
-        logger.debug("tracked_posts table created successfully")
+    private func migrate(using connection: Connection) throws {
+        logger.debug("Starting database migration")
         
-        logger.debug("Creating subscribed_blogs table")
-        try connection.run(subscribedBlogs.create(ifNotExists: true) { t in
-            t.column(subscribedBlogsID, primaryKey: .autoincrement)
-            t.column(subscribedBlogsDomain, unique: true)
-            t.column(subscribedBlogsFeedURL)
-            t.column(subscribedBlogsTitle)
-            t.column(subscribedBlogsSubscribedAt)
-            t.column(subscribedBlogsLastFetchAt)
-            t.column(subscribedBlogsNewPostsCount, defaultValue: 0)
-        })
-        logger.debug("subscribed_blogs table created successfully")
+        let manager = SQLiteMigrationManager(
+            db: connection,
+            migrations: [InitialSchemaMigration()],
+            bundle: Bundle.main
+        )
         
-        logger.debug("Creating visit_history table")
-        try connection.run(browsingHistoryTable.create(ifNotExists: true) { t in
-            t.column(browsingHistoryID, primaryKey: .autoincrement)
-            t.column(browsingHistoryURL)
-            t.column(browsingHistoryTitle)
-            t.column(browsingHistoryDate)
-        })
-        logger.debug("visit_history table created successfully")
+        if !manager.hasMigrationsTable() {
+            logger.debug("Creating migrations table")
+            try manager.createMigrationsTable()
+        }
         
-        do {
-            try connection.run(subscribedBlogs.addColumn(subscribedBlogsNewPostsCount, defaultValue: 0))
-            logger.debug("Added newPostsCount column to existing table")
-        } catch {
-            logger.debug("newPostsCount column already exists")
+        if manager.needsMigration() {
+            logger.debug("Pending migrations: \(manager.pendingMigrations())")
+            try manager.migrateDatabase()
+            logger.debug("Database migration completed successfully")
+        } else {
+            logger.debug("No migrations needed")
         }
     }
     
@@ -383,6 +362,22 @@ actor DatabaseManager {
         try conn.run(insert)
         logger.debug("Subscribed to blog: \(domain)")
     }
+
+    func restoreBlog(_ blog: BlogSubscription) throws {
+        let conn = try connection
+        logger.debug("Restoring blog: \(blog.domain)")
+        let insert = subscribedBlogs.insert(or: .replace,
+                                            subscribedBlogsDomain <- blog.domain,
+                                            subscribedBlogsFeedURL <- blog.feedUrl,
+                                            subscribedBlogsTitle <- blog.blogTitle,
+                                            subscribedBlogsSubscribedAt <- blog.subscribedAt,
+                                            subscribedBlogsLastFetchAt <- blog.lastFetchedAt,
+                                            subscribedBlogsNewPostsCount <- blog.newPostsCount,
+                                            subscribedBlogsIsNotificationsMuted <- blog.isNotificationsMuted
+        )
+        try conn.run(insert)
+        logger.debug("Restored blog: \(blog.domain)")
+    }
     
     func unsubscribeFromBlog(domain: String) throws {
         let conn = try connection
@@ -416,7 +411,8 @@ actor DatabaseManager {
                 blogTitle: row[subscribedBlogsTitle],
                 subscribedAt: row[subscribedBlogsSubscribedAt],
                 lastFetchedAt: row[subscribedBlogsLastFetchAt],
-                newPostsCount: row[subscribedBlogsNewPostsCount]
+                newPostsCount: row[subscribedBlogsNewPostsCount],
+                isNotificationsMuted: row[subscribedBlogsIsNotificationsMuted]
             )
             results.append(subscription)
         }
@@ -462,6 +458,37 @@ actor DatabaseManager {
             return row[subscribedBlogsNewPostsCount]
         }
         return 0
+    }
+
+    func toggleNotificationsMuted(domain: String) throws {
+        let conn = try connection
+        logger.debug("Toggling notifications muted for blog: \(domain)")
+        let blog = subscribedBlogs.filter(subscribedBlogsDomain == domain)
+        
+        if let currentRow = try conn.pluck(blog) {
+            let currentMuted = currentRow[subscribedBlogsIsNotificationsMuted]
+            try conn.run(blog.update(subscribedBlogsIsNotificationsMuted <- !currentMuted))
+            logger.debug("Notifications muted toggled for \(domain): \(!currentMuted)")
+        }
+    }
+    
+    func setNotificationsMuted(domain: String, muted: Bool) throws {
+        let conn = try connection
+        logger.debug("Setting notifications muted for blog: \(domain) to \(muted)")
+        let blog = subscribedBlogs.filter(subscribedBlogsDomain == domain)
+        try conn.run(blog.update(subscribedBlogsIsNotificationsMuted <- muted))
+        logger.debug("Notifications muted set for \(domain): \(muted)")
+    }
+    
+    func isNotificationsMuted(domain: String) throws -> Bool {
+        let conn = try connection
+        logger.debug("Checking if notifications muted for blog: \(domain)")
+        let blog = subscribedBlogs.filter(subscribedBlogsDomain == domain)
+        
+        if let row = try conn.pluck(blog) {
+            return row[subscribedBlogsIsNotificationsMuted]
+        }
+        return false
     }
     
     // MARK: - Browsing history related things

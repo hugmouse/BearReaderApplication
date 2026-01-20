@@ -87,7 +87,7 @@ struct BearReaderApplicationApp: App {
                     if newPosts.count > 0 {
                         logger.info("Found \(newPosts.count) new posts for \(blog.domain)")
                         
-                        if UIApplication.shared.applicationState == .background {
+                        if UIApplication.shared.applicationState == .background && !blog.isNotificationsMuted {
                             for newPost in newPosts {
                                 let content = UNMutableNotificationContent()
                                 content.title = "New post from \(blog.blogTitle)"

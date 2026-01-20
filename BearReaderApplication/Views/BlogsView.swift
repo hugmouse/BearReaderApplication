@@ -45,9 +45,17 @@ struct BlogsView: View {
                             NavigationLink(destination: BlogFeedView(blog: blog, vis: $tabBarVisibility)) {
                                 HStack {
                                     VStack(alignment: .leading, spacing: 4) {
-                                        Text(blog.blogTitle)
-                                            .font(.headline)
-                                            .lineLimit(1)
+                                        HStack {
+                                            Text(blog.blogTitle)
+                                                .font(.headline)
+                                                .lineLimit(1)
+                                            
+                                            if blog.isNotificationsMuted {
+                                                Image(systemName: "bell.slash.fill")
+                                                    .font(.caption)
+                                                    .foregroundColor(.secondary)
+                                            }
+                                        }
 
                                         Text(blog.domain)
                                             .font(.caption)
@@ -87,13 +95,23 @@ struct BlogsView: View {
                                     await viewModel.markBlogAsViewed(domain: blog.domain)
                                 }
                             })
-                        }
-                        .onDelete { indexSet in
-                            Task {
-                                for index in indexSet {
-                                    await viewModel.unsubscribe(from: viewModel.subscribedBlogs[index])
+                            .swipeActions(edge: .trailing, allowsFullSwipe: false) {
+                                Button(role: .destructive) {
+                                    Task {
+                                        await viewModel.unsubscribe(from: blog)
+                                    }
+                                } label: {
+                                    Label("Delete", systemImage: "trash")
                                 }
-                            }
+
+                                Button {
+                                     Task { await viewModel.toggleNotificationsMuted(for: blog) }
+                                 } label: {
+                                     Label(blog.isNotificationsMuted ? "Unmute" : "Mute",
+                                           systemImage: blog.isNotificationsMuted ? "bell.fill" : "bell.slash.fill")
+                                 }
+                                 .tint(blog.isNotificationsMuted ? .green : .orange)
+                             }
                         }
                         .listSectionSeparator(.hidden, edges: .top)
                     }
@@ -108,6 +126,27 @@ struct BlogsView: View {
                     await viewModel.loadSubscribedBlogs()
                     await viewModel.checkAndRefreshIfNeeded()
                     loadLastBackgroundRefresh()
+                }
+            }
+            .overlay(alignment: .bottom) {
+                if viewModel.showUndoToast {
+                    HStack {
+                        Text("Unsubscribed")
+                            .foregroundColor(.primary)
+                        Spacer()
+                        Button("Undo") {
+                            Task {
+                                await viewModel.undoDelete()
+                            }
+                        }
+                        .bold()
+                    }
+                    .padding()
+                    .background(.thinMaterial)
+                    .clipShape(RoundedRectangle(cornerRadius: 12))
+                    .shadow(radius: 4)
+                    .padding()
+                    .transition(.move(edge: .bottom).combined(with: .opacity))
                 }
             }
             .onReceive(NotificationCenter.default.publisher(for: UIApplication.willEnterForegroundNotification)) { _ in

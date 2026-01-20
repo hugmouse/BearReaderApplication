@@ -14,6 +14,8 @@ class BlogsViewModel: ObservableObject {
     @Published var subscribedBlogs: [BlogSubscription] = []
     @Published var isLoading = false
     @Published var errorMessage: String?
+    @Published var showUndoToast = false
+    @Published var recentlyDeletedBlog: BlogSubscription?
 
     private let backgroundRefreshInterval: TimeInterval = 3600
 
@@ -32,10 +34,41 @@ class BlogsViewModel: ObservableObject {
 
     func unsubscribe(from blog: BlogSubscription) async {
         do {
+            recentlyDeletedBlog = blog
+            showUndoToast = true
+            
             try await DatabaseManager.shared.unsubscribeFromBlog(domain: blog.domain)
             await loadSubscribedBlogs()
+            
+            // Auto hide toast after 5 seconds
+            try? await Task.sleep(nanoseconds: 5 * 1_000_000_000)
+            if recentlyDeletedBlog?.domain == blog.domain {
+                withAnimation {
+                    showUndoToast = false
+                }
+                // Clear the reference after the toast is gone
+                try? await Task.sleep(nanoseconds: 1 * 500_000_000) // Small buffer
+                if !showUndoToast {
+                    recentlyDeletedBlog = nil
+                }
+            }
         } catch {
             errorMessage = "Failed to unsubscribe: \(error.localizedDescription)"
+        }
+    }
+
+    func undoDelete() async {
+        guard let blog = recentlyDeletedBlog else { return }
+        
+        do {
+            try await DatabaseManager.shared.restoreBlog(blog)
+            await loadSubscribedBlogs()
+            withAnimation {
+                showUndoToast = false
+            }
+            recentlyDeletedBlog = nil
+        } catch {
+            errorMessage = "Failed to restore blog: \(error.localizedDescription)"
         }
     }
 
@@ -79,6 +112,15 @@ class BlogsViewModel: ObservableObject {
             await loadSubscribedBlogs()
         } catch {
             errorMessage = "Failed to update blog: \(error.localizedDescription)"
+        }
+    }
+
+    func toggleNotificationsMuted(for blog: BlogSubscription) async {
+        do {
+            try await DatabaseManager.shared.toggleNotificationsMuted(domain: blog.domain)
+            await loadSubscribedBlogs()
+        } catch {
+            errorMessage = "Failed to toggle notifications: \(error.localizedDescription)"
         }
     }
 }

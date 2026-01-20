@@ -1,5 +1,5 @@
 {
-  "originHash" : "3b2d20dac18d5fbaf083a9c86f70a4a9bb87e8c14603a195c5831e29d55329f4",
+  "originHash" : "8184102453bcc2bdc54e3699be50d9143997d30273f8635c1e80373a61a0ee8e",
   "pins" : [
     {
       "identity" : "dtcoretext",
@@ -53,6 +53,15 @@
       "state" : {
         "revision" : "392dd6058624d9f6c5b4c769d165ddd8c7293394",
         "version" : "0.15.4"
+      }
+    },
+    {
+      "identity" : "sqlitemigrationmanager.swift",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/garriguv/SQLiteMigrationManager.swift.git",
+      "state" : {
+        "revision" : "42281bf1111a4bba144c5ba138724514383ff3ab",
+        "version" : "0.8.3"
       }
     },
     {
