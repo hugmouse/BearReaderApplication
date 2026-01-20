@@ -90,11 +90,6 @@ struct BlogsView: View {
                             .onAppear {
                                 tabBarVisibility = .visible
                             }
-                            .simultaneousGesture(TapGesture().onEnded {
-                                Task {
-                                    await viewModel.markBlogAsViewed(domain: blog.domain)
-                                }
-                            })
                             .swipeActions(edge: .trailing, allowsFullSwipe: false) {
                                 Button(role: .destructive) {
                                     Task {

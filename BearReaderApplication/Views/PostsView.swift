@@ -82,6 +82,7 @@ struct PostsView: View {
                                 NavigationLink(value: post) {
                                     PostRowView(post: post)
                                 }
+                                .accessibilityIdentifier("PostRow")
                                 .onAppear {
                                     tabBarVisibility = .visible
                                     if currentViewModel.shouldLoadMore(currentItem: post) {
@@ -137,12 +138,12 @@ struct PostsView: View {
         .toolbar(tabBarVisibility, for: .tabBar)
         .onAppear {
             Task {
-                await currentViewModel.loadInitialPosts()
+                await currentViewModel.loadInitialPosts(refresh: selectedFeedType == .recent)
             }
         }
         .onChange(of: selectedFeedType) {
             Task {
-                await currentViewModel.loadInitialPosts()
+                await currentViewModel.loadInitialPosts(refresh: selectedFeedType == .recent)
             }
         }
     }

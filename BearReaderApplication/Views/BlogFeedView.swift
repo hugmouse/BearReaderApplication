@@ -60,6 +60,7 @@ struct BlogFeedView: View {
                 NavigationLink(destination: PostView(post: post, vis: $tabBarVisibility)) {
                     PostRowView(post: post)
                 }
+                .accessibilityIdentifier("PostRow")
                 .onAppear { tabBarVisibility = .visible }
             }
             .listStyle(.inset)

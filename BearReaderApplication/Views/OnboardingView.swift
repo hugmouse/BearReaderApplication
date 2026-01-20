@@ -85,6 +85,7 @@ struct OnboardingView: View {
                     .font(.subheadline)
                     .foregroundColor(.secondary)
                     .padding(.bottom, 24)
+                    .accessibilityIdentifier("OnboardingSkipButton")
                 } else {
                     Color.clear
                         .frame(height: 44)

@@ -185,6 +185,7 @@ struct PostView: View {
                 } label: {
                     Image(systemName: "line.3.horizontal")
                 }
+                .accessibilityIdentifier("PostMenuButton")
             }
         }
         .sheet(isPresented: $showingShareSheet) {
