@@ -9,8 +9,8 @@
 
 
 import SwiftUI
-import Combine
 import SwiftSoup
+import Observation
 
 struct ProfileView: View {  
     var body: some View {
@@ -166,12 +166,9 @@ struct HistoryPostView: View {
 
 
 @MainActor
-class ProfileViewModel: ObservableObject {
-    @Published var historyPosts: [BrowsingHistory] = []
-    @Published var bookmarkedPosts: [TrackedPostData] = []
-
-
-    private var cancellables = Set<AnyCancellable>()
+@Observable class ProfileViewModel {
+    var historyPosts: [BrowsingHistory] = []
+    var bookmarkedPosts: [TrackedPostData] = []
 
     func loadPosts() async {
         do {

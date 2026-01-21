@@ -14,7 +14,7 @@ import os.log
 
 @main
 struct BearReaderApplicationApp: App {
-    @StateObject private var notificationManager = NotificationManager.shared
+    @State private var notificationManager = NotificationManager.shared
     @StateObject private var settingsManager = SettingsManager.shared
     @Environment(\.scenePhase) private var phase
 

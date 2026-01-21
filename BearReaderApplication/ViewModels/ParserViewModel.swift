@@ -10,15 +10,16 @@
 
 import SwiftUI
 import SwiftSoup
+import Observation
 
 @MainActor
-class ParserPreviewSelectorViewModel: ObservableObject {
+@Observable class ParserPreviewSelectorViewModel {
     static let shared = ParserPreviewSelectorViewModel()
     
-    @Published var isLoading = false
-    @Published var cachedHTML: String?
-    @Published var lastFetchURL: String?
-    @Published var errorMessage: String?
+    var isLoading = false
+    var cachedHTML: String?
+    var lastFetchURL: String?
+    var errorMessage: String?
     
     private let urlSession: URLSession
     private let maxPreviewElements = 5

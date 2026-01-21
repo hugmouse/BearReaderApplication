@@ -9,13 +9,14 @@
 
 import Foundation
 import SwiftUI
+import Observation
 
 @MainActor
-class BlogFeedViewModel: ObservableObject {
-    @Published var posts: [PostItem] = []
-    @Published var isLoading = false
-    @Published var errorMessage: String?
-    @Published var isOffline = false
+@Observable class BlogFeedViewModel {
+    var posts: [PostItem] = []
+    var isLoading = false
+    var errorMessage: String?
+    var isOffline = false
 
     private let domain: String
     private let bearBlogService: BearBlogServiceProtocol

@@ -23,7 +23,7 @@ struct ParserDetailView: View {
     let description: String
     let icon: String
     
-    @StateObject private var previewManager = ParserPreviewSelectorViewModel.shared
+    @State private var previewManager = ParserPreviewSelectorViewModel.shared
     @State private var previewResult: ParserPreviewResult?
     
     var body: some View {

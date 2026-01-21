@@ -13,14 +13,14 @@ struct BlogFeedView: View {
     let blog: BlogSubscription
     @Binding var tabBarVisibility: Visibility
     
-    @StateObject private var viewModel: BlogFeedViewModel
+    @State private var viewModel: BlogFeedViewModel
     @State private var showingUnsubscribeAlert = false
     @Environment(\.dismiss) private var dismiss
     
     init(blog: BlogSubscription, vis: Binding<Visibility>) {
         self.blog = blog
         self._tabBarVisibility = vis
-        self._viewModel = StateObject(wrappedValue: BlogFeedViewModel(domain: blog.domain))
+        self._viewModel = State(initialValue: BlogFeedViewModel(domain: blog.domain))
     }
     
     var body: some View {

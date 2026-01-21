@@ -7,15 +7,16 @@
 //  Copyright 2025 Iaroslav Angliuster
 //
 
-import Foundation
+import Observation
 import SwiftUI
 
-class BlogsViewModel: ObservableObject {
-    @Published var subscribedBlogs: [BlogSubscription] = []
-    @Published var isLoading = false
-    @Published var errorMessage: String?
-    @Published var showUndoToast = false
-    @Published var recentlyDeletedBlog: BlogSubscription?
+@MainActor
+@Observable class BlogsViewModel {
+    var subscribedBlogs: [BlogSubscription] = []
+    var isLoading = false
+    var errorMessage: String?
+    var showUndoToast = false
+    var recentlyDeletedBlog: BlogSubscription?
 
     private let backgroundRefreshInterval: TimeInterval = 3600
 

@@ -9,16 +9,17 @@
 
 
 import SwiftUI
+import Observation
 
 @MainActor
-class DatabaseViewModel: ObservableObject {
-    @Published var databaseSize: String = ""
-    @Published var totalPosts: Int = 0
-    @Published var readPosts: Int = 0
-    @Published var encounteredPosts: Int = 0
-    @Published var cacheMemoryUsage: String = ""
-    @Published var cacheDiskUsage: String = ""
-    @Published var totalCacheSize: String = ""
+@Observable class DatabaseViewModel {
+    var databaseSize: String = ""
+    var totalPosts: Int = 0
+    var readPosts: Int = 0
+    var encounteredPosts: Int = 0
+    var cacheMemoryUsage: String = ""
+    var cacheDiskUsage: String = ""
+    var totalCacheSize: String = ""
     
     private var databasePath: String? {
         guard let path = NSSearchPathForDirectoriesInDomains(.documentDirectory, .userDomainMask, true).first else {

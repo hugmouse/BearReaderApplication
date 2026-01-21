@@ -44,7 +44,7 @@ struct ContentView: View {
     @State var selectedFeedType: FeedType
     @State private var selectedTab = 0
     @State private var shouldFocusSearch = false
-    @StateObject private var router = Router.shared
+    @State private var router = Router.shared
 
     init() {
         let appearance = UITabBarAppearance()

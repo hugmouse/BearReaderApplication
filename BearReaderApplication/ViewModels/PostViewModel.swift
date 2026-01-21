@@ -10,13 +10,14 @@
 
 import Foundation
 import SwiftUI
+import Observation
 
 @MainActor
-class PostDetailViewModel: ObservableObject {
-    @Published var content: PostContent?
-    @Published var isLoading = false
-    @Published var errorMessage: String?
-    @Published var isLoadingFromCache = false
+@Observable class PostDetailViewModel {
+    var content: PostContent?
+    var isLoading = false
+    var errorMessage: String?
+    var isLoadingFromCache = false
 
     private let bearBlogService: BearBlogServiceProtocol
     

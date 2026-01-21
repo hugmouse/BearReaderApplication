@@ -13,7 +13,7 @@ import Kingfisher
 
 struct PostImageView: View {
     let postImage: PostImage
-    @StateObject private var networkMonitor = NetworkMonitor.shared
+    @State private var networkMonitor = NetworkMonitor.shared
     @State private var loadFailed = false
     @State private var loadedUIImage: UIImage?
 

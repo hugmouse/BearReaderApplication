@@ -12,7 +12,7 @@ import SwiftUI
 
 struct SettingsView: View {
     @StateObject private var settingsManager = SettingsManager.shared
-    @StateObject private var previewManager = ParserPreviewSelectorViewModel.shared
+    @State private var previewManager = ParserPreviewSelectorViewModel.shared
     @State private var showingResetAlert = false
     @State private var path = [Int]()
 
@@ -148,7 +148,7 @@ struct EditableSettingsRowView: View {
 }
 
 struct StorageView: View {
-    @StateObject private var viewModel = DatabaseViewModel()
+    @State private var viewModel = DatabaseViewModel()
     @StateObject private var settingsManager = SettingsManager.shared
     @State private var showingDeleteAlert = false
     @State private var showingClearCacheAlert = false

@@ -11,7 +11,7 @@
 import SwiftUI
 
 struct HistoryView: View {
-    @StateObject private var viewModel = ProfileViewModel()
+    @State private var viewModel = ProfileViewModel()
     @State private var tabBarVisibility: Visibility = .visible
 
     var body: some View {

@@ -13,9 +13,9 @@ import UIKit
 
 struct PostsView: View {
     @Binding var selectedFeedType: FeedType
-    @StateObject private var trendingViewModel = PostsViewModel(feedType: .trending)
-    @StateObject private var recentViewModel = PostsViewModel(feedType: .recent)
-    @StateObject private var router = Router.shared
+    @State private var trendingViewModel = PostsViewModel(feedType: .trending)
+    @State private var recentViewModel = PostsViewModel(feedType: .recent)
+    @State private var router = Router.shared
     @State private var tabBarVisibility: Visibility = .visible
     
     private var currentViewModel: PostsViewModel {

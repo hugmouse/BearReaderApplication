@@ -11,13 +11,14 @@
 import Foundation
 import Network
 import SwiftUI
+import Observation
 
 @MainActor
-class NetworkMonitor: ObservableObject {
+@Observable class NetworkMonitor {
     static let shared = NetworkMonitor()
 
-    @Published var isConnected = true
-    @Published var connectionType: NWInterface.InterfaceType?
+    var isConnected = true
+    var connectionType: NWInterface.InterfaceType?
 
     private let monitor = NWPathMonitor()
     private let queue = DispatchQueue(label: "NetworkMonitor")

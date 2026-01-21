@@ -9,25 +9,20 @@
 
 
 import SwiftUI
-import Combine
+import Observation
 
 @MainActor
-class SearchViewModel: ObservableObject {
-    @Published var searchText = ""
-    @Published var filteredPosts: [TrackedPostData] = []
-    
+@Observable class SearchViewModel {
+    var searchText = "" {
+        didSet {
+            performSearch(query: searchText)
+        }
+    }
+    var filteredPosts: [TrackedPostData] = []
     
     private var searchTask: Task<Void, Never>?
-    private var cancellables = Set<AnyCancellable>()
     
-    init() {
-        $searchText
-            .debounce(for: .milliseconds(300), scheduler: RunLoop.main)
-            .sink(receiveValue: { [weak self] searchText in
-                self?.performSearch(query: searchText)
-            })
-            .store(in: &cancellables)
-    }
+    init() {}
     
     func loadAllPosts() {
         performSearch(query: searchText)
@@ -42,6 +37,10 @@ class SearchViewModel: ObservableObject {
         } else {
             // Create a new task and store it
             searchTask = Task {
+                // Debounce
+                try? await Task.sleep(nanoseconds: 300_000_000)
+                if Task.isCancelled { return }
+                
                 do {
                     let results = try await DatabaseManager.shared.searchPosts(query)
                     // Check if the task hasn't been cancelled and the search text is still valid

@@ -10,10 +10,10 @@
 import SwiftUI
 
 struct BlogsView: View {
-    @StateObject private var viewModel = BlogsViewModel()
+    @State private var viewModel = BlogsViewModel()
     @State private var tabBarVisibility: Visibility = .visible
     @State private var lastBackgroundRefresh: Date?
-    @StateObject private var permissionManager = NotificationPermissionManager()
+    @State private var permissionManager = NotificationPermissionManager()
 
     var body: some View {
         NavigationStack {
@@ -153,9 +153,6 @@ struct BlogsView: View {
     private func loadLastBackgroundRefresh() {
         lastBackgroundRefresh = UserDefaults.standard.object(forKey: "lastBackgroundRefresh") as? Date
     }
-}
-
-
 
     private func formatLastFetched(_ date: Date) -> String {
         let timeInterval = Date().timeIntervalSince(date)
@@ -175,3 +172,5 @@ struct BlogsView: View {
             return formatter.string(from: date)
         }
     }
+
+}

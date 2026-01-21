@@ -10,6 +10,7 @@
 
 import Foundation
 import SwiftUI
+import Observation
 
 enum FeedType {
     case trending
@@ -17,13 +18,13 @@ enum FeedType {
 }
 
 @MainActor
-class PostsViewModel: ObservableObject {
-    @Published var posts: [PostItem] = []
-    @Published var isLoading = false
-    @Published var isLoadingMore = false
-    @Published var errorMessage: String?
-    @Published var isOffline = false
-    @Published var isBlinking = false
+@Observable class PostsViewModel {
+    var posts: [PostItem] = []
+    var isLoading = false
+    var isLoadingMore = false
+    var errorMessage: String?
+    var isOffline = false
+    var isBlinking = false
 
     private let feedType: FeedType
     private let bearBlogService: BearBlogServiceProtocol

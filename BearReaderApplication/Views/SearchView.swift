@@ -12,7 +12,7 @@ import SwiftUI
 import Combine
 
 struct SearchView: View {
-    @StateObject private var viewModel = SearchViewModel()
+    @State private var viewModel = SearchViewModel()
     @FocusState private var isSearchFocused: Bool
     
     @State private var tabBarVisibility: Visibility = .visible

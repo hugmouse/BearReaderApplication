@@ -12,7 +12,7 @@ import SwiftUI
 
 struct PostView: View {
     let post: PostItem
-    @StateObject private var viewModel = PostDetailViewModel()
+    @State private var viewModel = PostDetailViewModel()
     @State var scrolledID: Int? = 1
     @State private var hasRestoredScroll = false
     @State private var contentOpacity: Double = 0

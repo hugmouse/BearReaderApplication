@@ -8,10 +8,11 @@
 import UserNotifications
 import SwiftUI
 import Combine
+import Observation
 
 @MainActor
-class NotificationPermissionManager: ObservableObject {
-    @Published var authorizationStatus: UNAuthorizationStatus = .notDetermined
+@Observable class NotificationPermissionManager {
+    var authorizationStatus: UNAuthorizationStatus = .notDetermined
     
     init() {
         checkStatus()
