@@ -115,7 +115,7 @@ struct BearReaderApplicationApp: App {
                                         do {
                                             try await UNUserNotificationCenter.current().add(request)
                                         } catch {
-                                            self.logger.error("Failed to add notification request upon recieving a new post from subscribed blog \(blog.domain): \(error.localizedDescription)")
+                                            self.logger.error("Failed to add notification request upon receiving a new post from subscribed blog \(blog.domain): \(error.localizedDescription)")
                                         }
                                     }
                                 }
