@@ -163,6 +163,7 @@ final class BearBlogService: BearBlogServiceProtocol, Sendable {
         let posts = try document.select(settings.cssSelectors.postsList)
 
         var _posts = [PostItem]()
+        _posts.reserveCapacity(posts.count)
         for post in posts {
             let title = try post.select(settings.cssSelectors.postTitle).text()
             let url = try post.select(settings.cssSelectors.postTitle).attr("href")
@@ -235,6 +236,7 @@ final class BearBlogService: BearBlogServiceProtocol, Sendable {
         let postListItems = try document.select("ul.blog-posts li")
         
         var posts: [PostItem] = []
+        posts.reserveCapacity(postListItems.count)
         
         for listItem in postListItems {
             let timeElement = try listItem.select("span i time").first()
