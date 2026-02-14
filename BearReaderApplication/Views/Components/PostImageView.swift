@@ -13,7 +13,7 @@ import Kingfisher
 
 struct PostImageView: View {
     let postImage: PostImage
-    @StateObject private var networkMonitor = NetworkMonitor.shared
+    @ObservedObject private var networkMonitor = NetworkMonitor.shared
     @State private var loadFailed = false
     @State private var loadedUIImage: UIImage?
 
@@ -25,15 +25,13 @@ struct PostImageView: View {
             Menu {
                 if let imageToSave = loadedUIImage {
                     Button(action: {
-                        let imageSaver = ImageSaver()
-                        imageSaver.writeToPhotoAlbum(image: imageToSave)
+                        ImageSaver.shared.writeToPhotoAlbum(image: imageToSave)
                     }) {
                         Label("Save to Photos", systemImage: "square.and.arrow.down")
                     }
 
                     Button(action: {
-                        let imageSaver = ImageSaver()
-                        imageSaver.copyToClipboard(image: imageToSave)
+                        ImageSaver.shared.copyToClipboard(image: imageToSave)
                     }) {
                         Label("Copy Image", systemImage: "doc.on.clipboard")
                     }
@@ -58,7 +56,7 @@ struct PostImageView: View {
                     .fade(duration: 0.25)
                     .cacheOriginalImage()
                     .diskCacheExpiration(.days(7))
-                    .memoryCacheExpiration(.seconds(300))
+                    .memoryCacheExpiration(.seconds(1800))  // 30 minutes instead of 5
                     .resizable()
                     .cornerRadius(8)
                     .aspectRatio(contentMode: .fit)

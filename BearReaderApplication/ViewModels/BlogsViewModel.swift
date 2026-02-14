@@ -40,16 +40,24 @@ class BlogsViewModel: ObservableObject {
             try await DatabaseManager.shared.unsubscribeFromBlog(domain: blog.domain)
             await loadSubscribedBlogs()
             
-            // Auto hide toast after 5 seconds
-            try? await Task.sleep(nanoseconds: 5 * 1_000_000_000)
-            if recentlyDeletedBlog?.domain == blog.domain {
-                withAnimation {
-                    showUndoToast = false
-                }
-                // Clear the reference after the toast is gone
-                try? await Task.sleep(nanoseconds: 1 * 500_000_000) // Small buffer
-                if !showUndoToast {
-                    recentlyDeletedBlog = nil
+            // Auto hide toast after 5 seconds using Task with cancellation support
+            Task {
+                try? await Task.sleep(nanoseconds: 5 * 1_000_000_000)
+                await MainActor.run {
+                    if recentlyDeletedBlog?.domain == blog.domain {
+                        withAnimation {
+                            showUndoToast = false
+                        }
+                        // Clear the reference after animation completes
+                        Task {
+                            try? await Task.sleep(nanoseconds: 300_000_000) // 0.3s for animation
+                            await MainActor.run {
+                                if !showUndoToast {
+                                    recentlyDeletedBlog = nil
+                                }
+                            }
+                        }
+                    }
                 }
             }
         } catch {
@@ -78,12 +86,24 @@ class BlogsViewModel: ObservableObject {
 
         let bearBlogService = BearBlogService()
 
-        for blog in subscribedBlogs {
-            do {
-                _ = try await bearBlogService.getBlogFeed(domain: blog.domain)
-                try await DatabaseManager.shared.updateBlogLastFetched(domain: blog.domain)
-            } catch {
-                print("[warning] Failed to refresh blog \(blog.domain): \(error)")
+        // Use concurrent requests instead of sequential loop
+        await withTaskGroup(of: (String, Error?).self) { group in
+            for blog in subscribedBlogs {
+                group.addTask {
+                    do {
+                        _ = try await bearBlogService.getBlogFeed(domain: blog.domain)
+                        try await DatabaseManager.shared.updateBlogLastFetched(domain: blog.domain)
+                        return (blog.domain, nil)
+                    } catch {
+                        print("[warning] Failed to refresh blog \(blog.domain): \(error)")
+                        return (blog.domain, error)
+                    }
+                }
+            }
+            
+            // Collect results
+            for await _ in group {
+                // Results are already logged above
             }
         }
 

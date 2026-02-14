@@ -12,6 +12,8 @@ import SwiftUI
 
 // Thanks to: https://www.hackingwithswift.com/books/ios-swiftui/how-to-save-images-to-the-users-photo-library
 class ImageSaver: NSObject {
+    static let shared = ImageSaver()
+    
     func writeToPhotoAlbum(image: UIImage) {
         UIImageWriteToSavedPhotosAlbum(image, self, #selector(saveCompleted), nil)
     }

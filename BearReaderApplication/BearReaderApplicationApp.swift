@@ -77,49 +77,61 @@ struct BearReaderApplicationApp: App {
 
             let bearBlogService = BearBlogService()
 
-            for blog in subscribedBlogs {
-                do {
-                    let existingPostsUrls = try await DatabaseManager.shared.getTrackedPostUrls(for: blog.domain)
-                    let posts = try await bearBlogService.getBlogFeed(domain: blog.domain)
+            // Use concurrent requests instead of sequential loop for better performance
+            await withTaskGroup(of: Void.self) { group in
+                for blog in subscribedBlogs {
+                    group.addTask {
+                        do {
+                            let existingPostsUrls = try await DatabaseManager.shared.getTrackedPostUrls(for: blog.domain)
+                            let posts = try await bearBlogService.getBlogFeed(domain: blog.domain)
 
-                    let newPosts = posts.filter { !existingPostsUrls.contains($0.url) }
+                            let newPosts = posts.filter { !existingPostsUrls.contains($0.url) }
 
-                    if newPosts.count > 0 {
-                        logger.info("Found \(newPosts.count) new posts for \(blog.domain)")
-                        
-                        if UIApplication.shared.applicationState == .background && !blog.isNotificationsMuted {
-                            for newPost in newPosts {
-                                let content = UNMutableNotificationContent()
-                                content.title = "New post from \(blog.blogTitle)"
-                                content.body = "\(newPost.title)"
-                                content.sound = UNNotificationSound.default
-                                content.threadIdentifier = blog.domain
-
+                            if newPosts.count > 0 {
+                                self.logger.info("Found \(newPosts.count) new posts for \(blog.domain)")
                                 
-                                content.userInfo = [
-                                    "title": newPost.title,
-                                    "url": newPost.url,
-                                    "age": newPost.age,
-                                    "rating": newPost.rating,
-                                    "domain": blog.domain
-                                ]
-                                
-                                let request = UNNotificationRequest(identifier: newPost.url, content: content, trigger: nil)
-                                do {
-                                    try await UNUserNotificationCenter.current().add(request)
-                                } catch {
-                                    logger.error("Failed to add notification request upon recieving a new post from subscribed blog \(blog.domain): \(error.localizedDescription)")
+                                if UIApplication.shared.applicationState == .background && !blog.isNotificationsMuted {
+                                    // Batch notification requests to avoid creating them one by one
+                                    let notificationRequests = newPosts.map { newPost -> UNNotificationRequest in
+                                        let content = UNMutableNotificationContent()
+                                        content.title = "New post from \(blog.blogTitle)"
+                                        content.body = "\(newPost.title)"
+                                        content.sound = UNNotificationSound.default
+                                        content.threadIdentifier = blog.domain
+                                        
+                                        content.userInfo = [
+                                            "title": newPost.title,
+                                            "url": newPost.url,
+                                            "age": newPost.age,
+                                            "rating": newPost.rating,
+                                            "domain": blog.domain
+                                        ]
+                                        
+                                        return UNNotificationRequest(identifier: newPost.url, content: content, trigger: nil)
+                                    }
+                                    
+                                    // Add all notifications concurrently
+                                    for request in notificationRequests {
+                                        do {
+                                            try await UNUserNotificationCenter.current().add(request)
+                                        } catch {
+                                            self.logger.error("Failed to add notification request upon recieving a new post from subscribed blog \(blog.domain): \(error.localizedDescription)")
+                                        }
+                                    }
                                 }
+
+                                try await DatabaseManager.shared.incrementNewPostsCount(domain: blog.domain, by: newPosts.count)
                             }
+
+                            try await DatabaseManager.shared.updateBlogLastFetched(domain: blog.domain)
+                        } catch {
+                            self.logger.error("Failed to refresh blog \(blog.domain): \(error.localizedDescription)")
                         }
-
-                        try await DatabaseManager.shared.incrementNewPostsCount(domain: blog.domain, by: newPosts.count)
                     }
-
-                    try await DatabaseManager.shared.updateBlogLastFetched(domain: blog.domain)
-                } catch {
-                    logger.error("Failed to refresh blog \(blog.domain): \(error.localizedDescription)")
                 }
+                
+                // Wait for all tasks to complete
+                await group.waitForAll()
             }
 
             // I have no idea how can we track the fact that this actually triggered even once

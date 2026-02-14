@@ -86,7 +86,7 @@ actor DatabaseManager {
         
         let manager = SQLiteMigrationManager(
             db: connection,
-            migrations: [InitialSchemaMigration()],
+            migrations: [InitialSchemaMigration(), AddPerformanceIndexesMigration()],
             bundle: Bundle.main
         )
         
@@ -179,13 +179,14 @@ actor DatabaseManager {
         return nil
     }
     
-    func searchPosts(_ query: String) throws -> [TrackedPostData] {
+    func searchPosts(_ query: String, limit: Int = 100, offset: Int = 0) throws -> [TrackedPostData] {
         let conn = try connection
         var results: [TrackedPostData] = []
         
-        logger.debug("Searching posts with query: \(query)")
+        logger.debug("Searching posts with query: \(query), limit: \(limit), offset: \(offset)")
         let searchQuery = trackedPosts.filter(trackedPostsTitle.like("%\(query)%") || trackedPostsDomain.like("%\(query)%"))
             .order(trackedPostsLastAccessedAt.desc)
+            .limit(limit, offset: offset)
         
         for row in try conn.prepare(searchQuery) {
             let trackedPost = TrackedPostData(
@@ -208,12 +209,14 @@ actor DatabaseManager {
         return results
     }
     
-    func getReadPosts() throws -> [TrackedPostData] {
+    func getReadPosts(limit: Int = 100, offset: Int = 0) throws -> [TrackedPostData] {
         let conn = try connection
         var results: [TrackedPostData] = []
         
-        logger.debug("Fetching read posts")
-        let query = trackedPosts.filter(trackedPostsViewID > 0).order(trackedPostsLastAccessedAt.desc)
+        logger.debug("Fetching read posts with limit: \(limit), offset: \(offset)")
+        let query = trackedPosts.filter(trackedPostsViewID > 0)
+            .order(trackedPostsLastAccessedAt.desc)
+            .limit(limit, offset: offset)
         
         for row in try conn.prepare(query) {
             let trackedPost = TrackedPostData(
@@ -244,12 +247,14 @@ actor DatabaseManager {
         logger.debug("Tracked post removed: \(postUrl)")
     }
     
-    func getAllTrackedPosts() throws -> [TrackedPostData] {
+    func getAllTrackedPosts(limit: Int = 100, offset: Int = 0) throws -> [TrackedPostData] {
         let conn = try connection
         var results: [TrackedPostData] = []
         
-        logger.debug("Fetching all tracked posts")
-        let query = trackedPosts.order(trackedPostsEncounteredAt.desc)
+        logger.debug("Fetching tracked posts with limit: \(limit), offset: \(offset)")
+        let query = trackedPosts
+            .order(trackedPostsEncounteredAt.desc)
+            .limit(limit, offset: offset)
         
         for row in try conn.prepare(query) {
             let trackedPost = TrackedPostData(
@@ -267,7 +272,7 @@ actor DatabaseManager {
             )
             results.append(trackedPost)
         }
-        logger.debug("Retrieved \(results.count) total tracked posts")
+        logger.debug("Retrieved \(results.count) tracked posts")
         
         return results
     }
@@ -319,12 +324,14 @@ actor DatabaseManager {
         return false
     }
     
-    func getBookmarkedPosts() throws -> [TrackedPostData] {
+    func getBookmarkedPosts(limit: Int = 100, offset: Int = 0) throws -> [TrackedPostData] {
         let conn = try connection
         var results: [TrackedPostData] = []
         
-        logger.debug("Fetching bookmarked posts")
-        let query = trackedPosts.filter(trackedPostsIsBookmarked == true).order(trackedPostsLastAccessedAt.desc)
+        logger.debug("Fetching bookmarked posts with limit: \(limit), offset: \(offset)")
+        let query = trackedPosts.filter(trackedPostsIsBookmarked == true)
+            .order(trackedPostsLastAccessedAt.desc)
+            .limit(limit, offset: offset)
         
         for row in try conn.prepare(query) {
             let trackedPost = TrackedPostData(
@@ -510,13 +517,15 @@ actor DatabaseManager {
         try conn.run(post.delete())
     }
     
-    func getBrowsingHistory() throws -> [BrowsingHistory] {
+    func getBrowsingHistory(limit: Int = 100, offset: Int = 0) throws -> [BrowsingHistory] {
         let conn = try connection
         
         var results: [BrowsingHistory] = []
         
-        logger.debug("Fetching browsing history")
-        let query = browsingHistoryTable.order(browsingHistoryDate.desc)
+        logger.debug("Fetching browsing history with limit: \(limit), offset: \(offset)")
+        let query = browsingHistoryTable
+            .order(browsingHistoryDate.desc)
+            .limit(limit, offset: offset)
         
         for row in try conn.prepare(query) {
             let subscription = BrowsingHistory(
