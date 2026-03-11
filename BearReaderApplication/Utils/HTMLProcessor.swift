@@ -28,7 +28,7 @@ struct HTMLProcessor {
             DTDefaultLinkDecoration: false
         ]
 
-        guard let builder = DTHTMLAttributedStringBuilder(html: data, options: parsingOptions, documentAttributes: nil) else {
+        guard let builder = unsafe DTHTMLAttributedStringBuilder(html: data, options: parsingOptions, documentAttributes: nil) else {
             return AttributedString()
         }
 

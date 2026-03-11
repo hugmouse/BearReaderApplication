@@ -13,7 +13,7 @@ import SwiftUI
 // Thanks to: https://www.hackingwithswift.com/books/ios-swiftui/how-to-save-images-to-the-users-photo-library
 class ImageSaver: NSObject {
     func writeToPhotoAlbum(image: UIImage) {
-        UIImageWriteToSavedPhotosAlbum(image, self, #selector(saveCompleted), nil)
+        unsafe UIImageWriteToSavedPhotosAlbum(image, self, #selector(saveCompleted), nil)
     }
 
     func copyToClipboard(image: UIImage) {
