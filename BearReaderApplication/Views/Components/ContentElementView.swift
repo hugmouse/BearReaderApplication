@@ -66,6 +66,12 @@ struct ContentElementView: View {
                 .onAppear {
                     onElementRendered()
                 }
+        case .blockquote(let elements):
+            BlockquoteView(elements: elements)
+                .padding(.bottom, 16.0)
+                .onAppear {
+                    onElementRendered()
+                }
         }
     }
 }

@@ -42,6 +42,7 @@ enum ContentElement {
     case upvote(PostUpvote)
     case tags([PostTag])
     case video(PostVideo)
+    indirect case blockquote([ContentElement])
 }
 
 struct PostContent {
