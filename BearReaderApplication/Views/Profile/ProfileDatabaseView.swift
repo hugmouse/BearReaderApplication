@@ -9,6 +9,7 @@
 
 
 import SwiftUI
+import UniformTypeIdentifiers
 
 struct SettingsView: View {
     @StateObject private var settingsManager = SettingsManager.shared
@@ -153,6 +154,10 @@ struct StorageView: View {
     @State private var showingDeleteAlert = false
     @State private var showingClearCacheAlert = false
     @State private var showingActivitySheet = false
+    @State private var showingImportConfirmation = false
+    @State private var showingFileImporter = false
+    @State private var importResultMessage: String?
+    @State private var showingImportResult = false
 
     var body: some View {
         List {
@@ -236,6 +241,18 @@ struct StorageView: View {
                 }
 
                 Button(action: {
+                    showingImportConfirmation = true
+                }) {
+                    HStack(spacing: 16) {
+                        Image(systemName: "square.and.arrow.down")
+                            .foregroundColor(.blue)
+                        Text("Import Database")
+                            .foregroundColor(.blue)
+                        Spacer()
+                    }
+                }
+
+                Button(action: {
                     showingClearCacheAlert = true
                 }) {
                     HStack(spacing: 16) {
@@ -284,6 +301,47 @@ struct StorageView: View {
             }
         } message: {
             Text("This will clear all cached post content. You'll need to reload posts from the network next time you view them.")
+        }
+        .alert("Import Database", isPresented: $showingImportConfirmation) {
+            Button("Cancel", role: .cancel) { }
+            Button("Continue", role: .destructive) {
+                showingFileImporter = true
+            }
+        } message: {
+            Text("This will replace all your current data with the imported database. This action cannot be undone.")
+        }
+        .alert("Import Result", isPresented: $showingImportResult) {
+            Button("OK", role: .cancel) { }
+        } message: {
+            Text(importResultMessage ?? "")
+        }
+        .fileImporter(
+            isPresented: $showingFileImporter,
+            allowedContentTypes: [UTType.database, .init(filenameExtension: "sqlite3")].compactMap { $0 },
+            allowsMultipleSelection: false
+        ) { result in
+            switch result {
+            case .success(let urls):
+                guard let url = urls.first else { return }
+                let accessed = url.startAccessingSecurityScopedResource()
+                Task {
+                    defer {
+                        if accessed { url.stopAccessingSecurityScopedResource() }
+                    }
+                    do {
+                        try await viewModel.importDatabase(from: url)
+                        importResultMessage = "Database imported successfully."
+                    } catch DatabaseError.invalidDatabaseFile {
+                        importResultMessage = "The selected file is not a valid Bear Reader database."
+                    } catch {
+                        importResultMessage = "Import failed: \(error.localizedDescription)"
+                    }
+                    showingImportResult = true
+                }
+            case .failure(let error):
+                importResultMessage = "Could not select file: \(error.localizedDescription)"
+                showingImportResult = true
+            }
         }
         .sheet(isPresented: $showingActivitySheet) {
             if let databaseURL = viewModel.getDatabaseURL() {

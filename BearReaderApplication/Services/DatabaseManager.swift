@@ -15,6 +15,7 @@ import os.log
 
 enum DatabaseError: Error {
     case documentsDirectoryNotFound
+    case invalidDatabaseFile
 }
 
 actor DatabaseManager {
@@ -491,6 +492,50 @@ actor DatabaseManager {
         return false
     }
     
+    // MARK: - Database Import
+
+    func replaceDatabase(with sourceURL: URL) throws {
+        guard let documentsPath = NSSearchPathForDirectoriesInDomains(
+            .documentDirectory, .userDomainMask, true
+        ).first else {
+            throw DatabaseError.documentsDirectoryNotFound
+        }
+
+        let dbPath = "\(documentsPath)/BearReader.sqlite3"
+
+        // Validate the imported file has expected tables
+        let importedConnection = try Connection(sourceURL.path)
+        let tables = try importedConnection.prepare("SELECT name FROM sqlite_master WHERE type='table'")
+        var tableNames = Set<String>()
+        for row in tables {
+            if let name = row[0] as? String {
+                tableNames.insert(name)
+            }
+        }
+
+        let requiredTables: Set<String> = ["tracked_posts", "subscribed_blogs", "visit_history"]
+        guard requiredTables.isSubset(of: tableNames) else {
+            logger.error("Imported database missing required tables. Found: \(tableNames)")
+            throw DatabaseError.invalidDatabaseFile
+        }
+
+        // Close current connection
+        db = nil
+        logger.debug("Closed current database connection for import")
+
+        // Replace the database file
+        let fileManager = FileManager.default
+        if fileManager.fileExists(atPath: dbPath) {
+            try fileManager.removeItem(atPath: dbPath)
+        }
+        try fileManager.copyItem(atPath: sourceURL.path, toPath: dbPath)
+
+        logger.debug("Database replaced successfully from: \(sourceURL.path)")
+
+        // Force reconnection (will run migrations on next access)
+        db = nil
+    }
+
     // MARK: - Browsing history related things
     
     func addToBrowsingHistory(_url: String, _title: String) throws {

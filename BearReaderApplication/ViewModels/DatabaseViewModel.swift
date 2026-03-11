@@ -90,6 +90,11 @@ import Observation
         self.totalCacheSize = ByteCountFormatter.string(fromByteCount: Int64(totalUsage), countStyle: .file)
     }
 
+    func importDatabase(from url: URL) async throws {
+        try await DatabaseManager.shared.replaceDatabase(with: url)
+        await loadStorageInfo()
+    }
+
     func clearCache() {
         URLCache.shared.removeAllCachedResponses()
         loadCacheInfo()
