@@ -301,6 +301,13 @@ final class BearBlogService: BearBlogServiceProtocol, Sendable {
                     elements.append(.codeBlock(preText))
                 }
                 
+            case "blockquote":
+                var blockquoteElements: [ContentElement] = []
+                try await parseElements(from: child, into: &blockquoteElements, settings: settings)
+                if !blockquoteElements.isEmpty {
+                    elements.append(.blockquote(blockquoteElements))
+                }
+
             case "div", "center", "section", "article":
                 // Generic container - recursively parse its children
                 try await parseElements(from: child, into: &elements, settings: settings)
