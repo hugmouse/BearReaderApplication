@@ -72,6 +72,12 @@ struct ContentElementView: View {
                 .onAppear {
                     onElementRendered()
                 }
+        case .table(let table):
+            TableView(table: table)
+                .padding(.bottom, 16.0)
+                .onAppear {
+                    onElementRendered()
+                }
         }
     }
 }

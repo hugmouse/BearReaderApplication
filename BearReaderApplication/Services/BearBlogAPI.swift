@@ -308,6 +308,25 @@ final class BearBlogService: BearBlogServiceProtocol, Sendable {
                     elements.append(.blockquote(blockquoteElements))
                 }
 
+            case "table":
+                let headers: [String] = (try? child.select("thead tr").first()?.select("th, td").compactMap { try? $0.text() }) ?? []
+                var rows: [[String]] = []
+                let bodyRows = try {
+                    let tbodyRows = try child.select("tbody tr")
+                    return tbodyRows.isEmpty() ? try child.select("tr") : tbodyRows
+                }()
+                for row in bodyRows {
+                    let cells = try row.select("td, th").compactMap { try? $0.text() }
+                    if !cells.isEmpty {
+                        // Skip header row if it duplicates thead content
+                        if cells == headers { continue }
+                        rows.append(cells)
+                    }
+                }
+                if !rows.isEmpty || !headers.isEmpty {
+                    elements.append(.table(PostTable(headers: headers, rows: rows)))
+                }
+
             case "div", "center", "section", "article":
                 // Generic container - recursively parse its children
                 try await parseElements(from: child, into: &elements, settings: settings)

@@ -33,6 +33,11 @@ struct PostVideo {
     let platform: String
 }
 
+struct PostTable {
+    let headers: [String]
+    let rows: [[String]]
+}
+
 enum ContentElement {
     case text(AttributedString)
     case image(PostImage)
@@ -42,6 +47,7 @@ enum ContentElement {
     case upvote(PostUpvote)
     case tags([PostTag])
     case video(PostVideo)
+    case table(PostTable)
     indirect case blockquote([ContentElement])
 }
 
