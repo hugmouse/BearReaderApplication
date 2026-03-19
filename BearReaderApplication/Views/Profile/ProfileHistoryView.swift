@@ -59,14 +59,20 @@ struct HistoryEmptyView: View {
             Spacer()
             Image(systemName: "clock")
                 .font(.system(size: 50))
-                .foregroundColor(.gray)
+                .foregroundStyle(.secondary)
+                .accessibilityHidden(true)
             Text("No reading history")
                 .font(.title2)
-                .foregroundColor(.gray)
+                .foregroundStyle(.secondary)
                 .padding(.top)
             Text("Posts you've read will appear here")
                 .font(.caption)
                 .foregroundColor(.secondary)
+            Button("Browse Posts") {
+                Router.shared.selectedTab = 0
+            }
+            .buttonStyle(.bordered)
+            .padding(.top, 8)
             Spacer()
         }
     }

@@ -24,6 +24,7 @@ struct HeaderView: View {
             .font(font)
             .foregroundStyle(.primary)
             .padding([.bottom], 16.0)
+            .accessibilityAddTraits(.isHeader)
     }
     
     private var font: Font {

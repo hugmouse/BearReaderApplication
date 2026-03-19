@@ -27,6 +27,7 @@ struct PostImageView: View {
                     Button(action: {
                         let imageSaver = ImageSaver()
                         imageSaver.writeToPhotoAlbum(image: imageToSave)
+                        HapticManager.success()
                     }) {
                         Label("Save to Photos", systemImage: "square.and.arrow.down")
                     }
@@ -34,6 +35,7 @@ struct PostImageView: View {
                     Button(action: {
                         let imageSaver = ImageSaver()
                         imageSaver.copyToClipboard(image: imageToSave)
+                        HapticManager.success()
                     }) {
                         Label("Copy Image", systemImage: "doc.on.clipboard")
                     }
@@ -85,6 +87,7 @@ struct ImagePlaceholderView: View {
                     ProgressView()
                         .progressViewStyle(CircularProgressViewStyle(tint: .gray))
                         .scaleEffect(0.8)
+                        .accessibilityHidden(true)
                     Text("Loading image...")
                         .font(.caption2)
                         .foregroundColor(.secondary)
@@ -104,6 +107,7 @@ struct ImageOfflineView: View {
                     Image(systemName: "wifi.slash")
                         .font(.title2)
                         .foregroundColor(.gray)
+                        .accessibilityHidden(true)
                     Text("Image unavailable offline")
                         .font(.caption2)
                         .foregroundColor(.secondary)

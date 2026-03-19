@@ -37,7 +37,14 @@ struct BlogFeedView: View {
         .navigationBarTitleDisplayMode(.inline)
         .toolbar { trailingToolbar }
         .alert("Unsubscribe", isPresented: $showingUnsubscribeAlert) {
-            alertButtons
+            Button("Cancel", role: .cancel) { }
+            Button("Unsubscribe", role: .destructive) {
+                Task {
+                    try? await DatabaseManager.shared.unsubscribeFromBlog(domain: blog.domain)
+                    HapticManager.warning()
+                    dismiss()
+                }
+            }
         } message: {
             Text("Are you sure you want to unsubscribe from \(blog.blogTitle)?")
         }
@@ -58,7 +65,7 @@ struct BlogFeedView: View {
             
             List(viewModel.posts, id: \.url) { post in
                 NavigationLink(destination: PostView(post: post, vis: $tabBarVisibility)) {
-                    PostRowView(post: post)
+                    PostRowView(post: post, showDomain: false)
                 }
                 .accessibilityIdentifier("PostRow")
                 .onAppear { tabBarVisibility = .visible }
@@ -100,18 +107,9 @@ struct BlogFeedView: View {
         ToolbarItem(placement: .topBarTrailing) {
             Button { showingUnsubscribeAlert = true } label: {
                 Image(systemName: "star.slash")
+                    .accessibilityLabel("Unsubscribe from \(blog.blogTitle)")
             }
         }
     }
     
-    @ViewBuilder
-    private var alertButtons: some View {
-        Button("Cancel", role: .cancel) { }
-        Button("Unsubscribe", role: .destructive) {
-            Task {
-                try? await DatabaseManager.shared.unsubscribeFromBlog(domain: blog.domain)
-                dismiss()
-            }
-        }
-    }
 }

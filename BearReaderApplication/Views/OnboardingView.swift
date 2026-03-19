@@ -109,7 +109,7 @@ private struct WelcomePage: View {
                 .padding(.bottom, 8)
 
             Text("Welcome to\nBear Reader")
-                .font(.system(size: 36, weight: .bold, design: .default))
+                .font(.largeTitle.bold())
                 .multilineTextAlignment(.center)
 
             Text("A minimal reader for Bear Blog")
@@ -140,7 +140,7 @@ private struct FeaturePage: View {
                 .padding(.bottom, 8)
 
             Text(title)
-                .font(.system(size: 32, weight: .bold))
+                .font(.title.bold())
                 .multilineTextAlignment(.center)
 
             Text(subtitle)
@@ -165,7 +165,7 @@ private struct PageIndicator: View {
         HStack(spacing: 8) {
             ForEach(0..<totalPages, id: \.self) { index in
                 Circle()
-                    .fill(index == currentPage ? Color.primary : Color.secondary.opacity(0.3))
+                    .fill(index == currentPage ? Color.primary : Color.secondary.opacity(0.6))
                     .frame(width: 8, height: 8)
                     .scaleEffect(index == currentPage ? 1.2 : 1.0)
                     .animation(.easeInOut(duration: 0.2), value: currentPage)

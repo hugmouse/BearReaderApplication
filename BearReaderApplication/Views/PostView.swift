@@ -132,6 +132,7 @@ struct PostView: View {
                     Button(action: {
                         let fullURL = post.url.hasPrefix("//") ? "https:" + post.url : post.url
                         UIPasteboard.general.string = fullURL
+                        HapticManager.success()
                     }) {
                         Label("Copy URL", systemImage: "doc.on.doc")
                     }
@@ -142,6 +143,7 @@ struct PostView: View {
                                 try await DatabaseManager.shared.toggleBookmark(post.url)
                                 await MainActor.run {
                                     bookmarked = !bookmarked
+                                    HapticManager.success()
                                 }
                             } catch {
                                 // Silent fail for bookmark toggle
@@ -163,6 +165,7 @@ struct PostView: View {
                                     try await DatabaseManager.shared.unsubscribeFromBlog(domain: post.domain)
                                     await MainActor.run {
                                         isSubscribed = false
+                                        HapticManager.success()
                                     }
                                 } else {
                                     let blogTitle = post.domain.components(separatedBy: ".").first?.capitalized ?? post.domain
@@ -170,6 +173,7 @@ struct PostView: View {
                                     try await DatabaseManager.shared.subscribeToBlog(domain: post.domain, feedUrl: blogUrl, blogTitle: blogTitle)
                                     await MainActor.run {
                                         isSubscribed = true
+                                        HapticManager.success()
                                     }
                                 }
                             } catch {
@@ -184,6 +188,7 @@ struct PostView: View {
                     }
                 } label: {
                     Image(systemName: "line.3.horizontal")
+                        .accessibilityLabel("Post actions")
                 }
                 .accessibilityIdentifier("PostMenuButton")
             }

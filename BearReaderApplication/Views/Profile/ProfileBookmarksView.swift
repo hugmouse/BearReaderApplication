@@ -49,14 +49,20 @@ struct BookmarksEmptyView: View {
             Spacer()
             Image(systemName: "bookmark")
                 .font(.system(size: 50))
-                .foregroundColor(.gray)
+                .foregroundStyle(.secondary)
+                .accessibilityHidden(true)
             Text("No bookmarks")
                 .font(.title2)
-                .foregroundColor(.gray)
+                .foregroundStyle(.secondary)
                 .padding(.top)
             Text("Posts you bookmark will appear here")
                 .font(.caption)
                 .foregroundColor(.secondary)
+            Button("Browse Posts") {
+                Router.shared.selectedTab = 0
+            }
+            .buttonStyle(.bordered)
+            .padding(.top, 8)
             Spacer()
         }
     }

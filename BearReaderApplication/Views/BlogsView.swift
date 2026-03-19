@@ -14,6 +14,7 @@ struct BlogsView: View {
     @State private var tabBarVisibility: Visibility = .visible
     @State private var lastBackgroundRefresh: Date?
     @State private var permissionManager = NotificationPermissionManager()
+    @State private var router = Router.shared
 
     var body: some View {
         NavigationStack {
@@ -27,6 +28,7 @@ struct BlogsView: View {
                         Image(systemName: "book.closed")
                             .font(.system(size: 60))
                             .foregroundColor(.secondary)
+                            .accessibilityHidden(true)
 
                         Text("No Subscribed Blogs")
                             .font(.headline)
@@ -37,6 +39,11 @@ struct BlogsView: View {
                             .foregroundColor(.secondary)
                             .multilineTextAlignment(.center)
                             .padding(.horizontal, 40)
+                        Button("Discover Blogs") {
+                            router.selectedTab = 0
+                        }
+                        .buttonStyle(.bordered)
+                        .padding(.top, 8)
                     }
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
                 } else {
@@ -54,6 +61,7 @@ struct BlogsView: View {
                                                 Image(systemName: "bell.slash.fill")
                                                     .font(.caption)
                                                     .foregroundColor(.secondary)
+                                                    .accessibilityLabel("Notifications muted")
                                             }
                                         }
 
@@ -94,13 +102,17 @@ struct BlogsView: View {
                                 Button(role: .destructive) {
                                     Task {
                                         await viewModel.unsubscribe(from: blog)
+                                        HapticManager.warning()
                                     }
                                 } label: {
                                     Label("Delete", systemImage: "trash")
                                 }
 
                                 Button {
-                                     Task { await viewModel.toggleNotificationsMuted(for: blog) }
+                                     Task {
+                                         await viewModel.toggleNotificationsMuted(for: blog)
+                                         HapticManager.success()
+                                     }
                                  } label: {
                                      Label(blog.isNotificationsMuted ? "Unmute" : "Mute",
                                            systemImage: blog.isNotificationsMuted ? "bell.fill" : "bell.slash.fill")
@@ -134,6 +146,7 @@ struct BlogsView: View {
                                 await viewModel.undoDelete()
                             }
                         }
+                        .accessibilityLabel("Undo unsubscribe")
                         .bold()
                     }
                     .padding()

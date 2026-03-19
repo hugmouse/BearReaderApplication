@@ -32,6 +32,7 @@ struct VideoView: View {
                                 Image(systemName: "video")
                                     .font(.system(size: 40))
                                     .foregroundColor(.secondary)
+                                    .accessibilityHidden(true)
                                 Text(video.platform)
                                     .font(.caption)
                                     .foregroundColor(.secondary)
@@ -50,6 +51,7 @@ struct VideoView: View {
                             .font(.system(size: 24))
                             .foregroundColor(.white)
                             .offset(x: 2)
+                            .accessibilityHidden(true)
                     )
 
                 // Platform badge
@@ -75,6 +77,8 @@ struct VideoView: View {
             }
         }
         .buttonStyle(PlainButtonStyle())
+        .accessibilityLabel("Play \(video.platform) video")
+        .accessibilityHint("Opens video in \(video.platform)")
         .overlay(
             RoundedRectangle(cornerRadius: 8)
                 .stroke(Color(UIColor.systemGray4), lineWidth: 1)

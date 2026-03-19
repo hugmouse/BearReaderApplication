@@ -55,7 +55,9 @@ struct SearchView: View {
                         .toolbar(tabBarVisibility, for: .tabBar)
                         .listStyle(.plain)
                     } else {
-                        SearchNoResultsState(query: viewModel.searchText)
+                        SearchNoResultsState(query: viewModel.searchText) {
+                            viewModel.searchText = ""
+                        }
                     }
                 }
             }
@@ -89,10 +91,12 @@ struct SearchBar: View {
         HStack {
             Image(systemName: "magnifyingglass")
                 .foregroundColor(.secondary)
-            
+                .accessibilityHidden(true)
+
             TextField("Search posts...", text: $searchText)
                 .textFieldStyle(.plain)
                 .focused(isFocused)
+                .submitLabel(.search)
             
             if !searchText.isEmpty {
                 Button("Clear") {
@@ -115,10 +119,11 @@ struct SearchEmptyState: View {
             Spacer()
             Image(systemName: "magnifyingglass")
                 .font(.system(size: 50))
-                .foregroundColor(.gray)
+                .foregroundStyle(.secondary)
+                .accessibilityHidden(true)
             Text("Search your posts")
                 .font(.title2)
-                .foregroundColor(.gray)
+                .foregroundStyle(.secondary)
             Text("Enter a search term to find posts you've encountered")
                 .font(.caption)
                 .foregroundColor(.secondary)
@@ -130,21 +135,28 @@ struct SearchEmptyState: View {
 
 struct SearchNoResultsState: View {
     let query: String
-    
+    var onClearSearch: (() -> Void)?
+
     var body: some View {
         VStack {
             Spacer()
             Image(systemName: "doc.text.magnifyingglass")
                 .font(.system(size: 50))
-                .foregroundColor(.gray)
+                .foregroundStyle(.secondary)
+                .accessibilityHidden(true)
             Text("No posts found")
                 .font(.title2)
-                .foregroundColor(.gray)
+                .foregroundStyle(.secondary)
                 .padding(.top)
             Text("No posts match \"\(query)\"")
                 .font(.caption)
                 .foregroundColor(.secondary)
                 .multilineTextAlignment(.center)
+            if let onClearSearch {
+                Button("Clear Search", action: onClearSearch)
+                    .buttonStyle(.bordered)
+                    .padding(.top, 8)
+            }
             Spacer()
         }
     }

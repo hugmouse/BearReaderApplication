@@ -12,13 +12,14 @@ import SwiftUI
 
 struct TitleWithDomainView: View {
     let post: PostItem
-    
+    var showDomain: Bool = true
+
     var body: some View {
         Group {
             Text(post.title)
                 .font(.headline)
             +
-            Text(" (\(post.domain))").font(.caption).foregroundColor(.secondary)
+            Text(showDomain ? " (\(post.domain))" : "").font(.caption).foregroundColor(.secondary)
         }.lineLimit(3)
     }
 }

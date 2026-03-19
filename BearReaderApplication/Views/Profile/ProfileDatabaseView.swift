@@ -90,6 +90,7 @@ struct SettingsView: View {
                     }) {
                         HStack(spacing: 16) {
                             Image(systemName: "hand.wave")
+                                .accessibilityHidden(true)
                             Text("Show Onboarding")
                             Spacer()
                         }
@@ -103,6 +104,7 @@ struct SettingsView: View {
                         HStack(spacing: 16) {
                             Image(systemName: "arrow.counterclockwise")
                                 .foregroundColor(.red)
+                                .accessibilityHidden(true)
                             Text("Reset to Defaults")
                                 .foregroundColor(.red)
                             Spacer()
@@ -116,6 +118,7 @@ struct SettingsView: View {
             Button("Cancel", role: .cancel) { }
             Button("Reset", role: .destructive) {
                 settingsManager.resetToDefaults()
+                HapticManager.warning()
             }
         } message: {
             Text("This will reset all settings to their default values. This action cannot be undone.")
@@ -136,12 +139,14 @@ struct EditableSettingsRowView: View {
     var body: some View {
         HStack(spacing: 16) {
             Image(systemName: icon)
+                .accessibilityHidden(true)
             VStack(alignment: .leading, spacing: 8) {
                 Text(title)
                     .font(.body)
                 TextField(placeholder, text: $value)
                     .textFieldStyle(.roundedBorder)
                     .font(.caption)
+                    .submitLabel(.done)
             }
         }
         .padding(.vertical, 4)
@@ -176,6 +181,7 @@ struct StorageView: View {
                     HStack {
                         Image(systemName: "cpu")
                             .frame(width: 16)
+                            .accessibilityHidden(true)
                         Text("Memory Cache Limit")
                         Spacer()
                         Text("\(settingsManager.memoryCacheMB) MB")
@@ -200,6 +206,7 @@ struct StorageView: View {
                     HStack {
                         Image(systemName: "internaldrive")
                             .frame(width: 16)
+                            .accessibilityHidden(true)
                         Text("Disk Cache Limit")
                         Spacer()
                         Text(diskCacheLimitText)
@@ -234,6 +241,7 @@ struct StorageView: View {
                     HStack(spacing: 16) {
                         Image(systemName: "square.and.arrow.up")
                             .foregroundColor(.blue)
+                            .accessibilityHidden(true)
                         Text("Export Database")
                             .foregroundColor(.blue)
                         Spacer()
@@ -246,6 +254,7 @@ struct StorageView: View {
                     HStack(spacing: 16) {
                         Image(systemName: "square.and.arrow.down")
                             .foregroundColor(.blue)
+                            .accessibilityHidden(true)
                         Text("Import Database")
                             .foregroundColor(.blue)
                         Spacer()
@@ -258,6 +267,7 @@ struct StorageView: View {
                     HStack(spacing: 16) {
                         Image(systemName: "trash.circle")
                             .foregroundColor(.orange)
+                            .accessibilityHidden(true)
                         Text("Clear Cache")
                             .foregroundColor(.orange)
                         Spacer()
@@ -270,6 +280,7 @@ struct StorageView: View {
                     HStack(spacing: 16) {
                         Image(systemName: "trash")
                             .foregroundColor(.red)
+                            .accessibilityHidden(true)
                         Text("Delete All Data")
                             .foregroundColor(.red)
                         Spacer()
@@ -289,6 +300,7 @@ struct StorageView: View {
             Button("Delete", role: .destructive) {
                 Task {
                     await viewModel.deleteAllData()
+                    HapticManager.warning()
                 }
             }
         } message: {
@@ -298,13 +310,14 @@ struct StorageView: View {
             Button("Cancel", role: .cancel) { }
             Button("Clear", role: .destructive) {
                 viewModel.clearCache()
+                HapticManager.warning()
             }
         } message: {
             Text("This will clear all cached post content. You'll need to reload posts from the network next time you view them.")
         }
         .alert("Import Database", isPresented: $showingImportConfirmation) {
             Button("Cancel", role: .cancel) { }
-            Button("Continue", role: .destructive) {
+            Button("Continue") {
                 showingFileImporter = true
             }
         } message: {

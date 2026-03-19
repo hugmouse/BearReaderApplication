@@ -18,6 +18,7 @@ struct ErrorView: View {
             Image(systemName: "exclamationmark.triangle")
                 .font(.largeTitle)
                 .foregroundColor(.orange)
+                .accessibilityHidden(true)
             Text(message)
                 .foregroundColor(.secondary)
                 .multilineTextAlignment(.center)

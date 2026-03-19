@@ -17,7 +17,8 @@ struct PostsView: View {
     @State private var recentViewModel = PostsViewModel(feedType: .recent)
     @State private var router = Router.shared
     @State private var tabBarVisibility: Visibility = .visible
-    
+    @State private var hasPlayedErrorHaptic = false
+
     private var currentViewModel: PostsViewModel {
         switch selectedFeedType {
         case .trending:
@@ -35,6 +36,7 @@ struct PostsView: View {
                         Image(systemName: currentViewModel.isOffline ? "wifi.slash" : "exclamationmark.triangle")
                             .font(.largeTitle)
                             .foregroundColor(currentViewModel.isOffline ? .red : .orange)
+                            .accessibilityHidden(true)
                         Text(errorMessage)
                             .foregroundColor(.secondary)
                             .multilineTextAlignment(.center)
@@ -43,16 +45,31 @@ struct PostsView: View {
                                 await currentViewModel.loadInitialPosts()
                             }
                         }
+                        .accessibilityLabel("Retry loading posts")
                         .padding(.top)
                     }
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    .onAppear {
+                        if !hasPlayedErrorHaptic {
+                            HapticManager.error()
+                            hasPlayedErrorHaptic = true
+                        }
+                    }
                 } else if currentViewModel.isLoading && currentViewModel.posts.isEmpty {
                     ProgressView("Loading posts...")
                         .frame(maxWidth: .infinity, maxHeight: .infinity)
                 } else if currentViewModel.posts.isEmpty && !currentViewModel.isLoading {
-                    Text("No posts found")
-                        .foregroundColor(.gray)
-                        .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    VStack(spacing: 12) {
+                        Text("No posts found")
+                            .foregroundStyle(.secondary)
+                        Button("Refresh") {
+                            Task {
+                                await currentViewModel.refresh()
+                            }
+                        }
+                        .buttonStyle(.bordered)
+                    }
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
                 } else {
                     VStack(spacing: 0) {
                         // Offline banner
@@ -60,6 +77,7 @@ struct PostsView: View {
                             HStack {
                                 Image(systemName: "wifi.slash")
                                     .foregroundColor(.white)
+                                    .accessibilityHidden(true)
                                 Text(errorMessage)
                                     .foregroundColor(.white)
                                     .font(.caption)
@@ -69,6 +87,7 @@ struct PostsView: View {
                                         await currentViewModel.refresh()
                                     }
                                 }
+                                .accessibilityLabel("Retry loading posts")
                                 .foregroundColor(.white)
                                 .font(.caption)
                             }
@@ -100,6 +119,7 @@ struct PostsView: View {
                                     Spacer()
                                     ProgressView()
                                         .scaleEffect(0.8)
+                                        .accessibilityHidden(true)
                                     Text("Loading more...")
                                         .font(.caption)
                                         .foregroundColor(.secondary)
@@ -139,6 +159,9 @@ struct PostsView: View {
         .onAppear {
             Task {
                 await currentViewModel.loadInitialPosts(refresh: selectedFeedType == .recent)
+                if !currentViewModel.posts.isEmpty {
+                    hasPlayedErrorHaptic = false
+                }
             }
         }
         .onChange(of: selectedFeedType) {
@@ -151,10 +174,11 @@ struct PostsView: View {
 
 struct PostRowView: View {
     let post: PostItem
+    var showDomain: Bool = true
 
     var body: some View {
         VStack(alignment: .leading, spacing: 4) {
-            TitleWithDomainView(post: post)
+            TitleWithDomainView(post: post, showDomain: showDomain)
 
             HStack {
                 if let publishedAt = post.publishedAt {

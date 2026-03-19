@@ -33,6 +33,7 @@ struct ParserDetailView: View {
                     HStack(spacing: 16) {
                         Image(systemName: icon)
                             .foregroundColor(.blue)
+                            .accessibilityHidden(true)
                         VStack(alignment: .leading, spacing: 8) {
                             Text(title)
                                 .font(.headline)
@@ -45,6 +46,7 @@ struct ParserDetailView: View {
                     TextField("Enter CSS selector...", text: $selector, axis: .vertical)
                         .textFieldStyle(.roundedBorder)
                         .font(.system(.body, design: .monospaced))
+                        .submitLabel(.done)
                 }
             }
             
@@ -52,7 +54,7 @@ struct ParserDetailView: View {
                 Text("Preview")
                 Spacer()
                 if previewManager.isLoading {
-                    ProgressView()
+                    ProgressView("Loading preview...")
                         .scaleEffect(0.7)
                 } else {
                     Button("Refresh HTML") {
@@ -105,6 +107,7 @@ struct ParserPreviewView: View {
                         HStack {
                             Image(systemName: "checkmark.circle.fill")
                                 .foregroundColor(.green)
+                                .accessibilityLabel("Valid selector")
                             Text("Found \(result.matchCount) matches")
                                 .font(.subheadline)
                                 .fontWeight(.medium)
@@ -139,6 +142,7 @@ struct ParserPreviewView: View {
                     HStack {
                         Image(systemName: "xmark.circle.fill")
                             .foregroundColor(.red)
+                            .accessibilityLabel("Invalid selector")
                         VStack(alignment: .leading) {
                             Text("Invalid selector")
                                 .font(.subheadline)
@@ -156,6 +160,7 @@ struct ParserPreviewView: View {
                 HStack {
                     Image(systemName: "doc.text.magnifyingglass")
                         .foregroundColor(.secondary)
+                        .accessibilityHidden(true)
                     Text("Enter a CSS selector to see preview")
                         .font(.caption)
                         .foregroundColor(.secondary)

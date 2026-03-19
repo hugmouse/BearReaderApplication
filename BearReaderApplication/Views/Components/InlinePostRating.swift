@@ -17,12 +17,15 @@ struct InlinePostRating: View {
                 Image(systemName: "chevron.up.2")
                     .font(.caption2)
                     .foregroundColor(.secondary)
+                    .accessibilityHidden(true)
                 Text(rating)
                     .font(.caption)
                     .foregroundColor(.secondary)
                     .frame(width: 30.0, alignment: .leading)
             }
-            
+            .accessibilityElement(children: .combine)
+            .accessibilityLabel("\(rating) upvotes")
+
             Spacer()
         }
     }

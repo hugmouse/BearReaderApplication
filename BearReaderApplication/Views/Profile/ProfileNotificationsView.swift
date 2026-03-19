@@ -26,6 +26,7 @@ struct ProfileNotificationsView: View {
                 )) {
                     HStack(spacing: 16) {
                         Image(systemName: "bell.badge")
+                            .accessibilityHidden(true)
                         Text("Enable Notifications")
                     }
                 }
@@ -34,6 +35,7 @@ struct ProfileNotificationsView: View {
                     HStack(spacing: 16) {
                         Image(systemName: "gear")
                             .foregroundStyle(.gray)
+                            .accessibilityHidden(true)
                         Text("Open System Settings")
                     }
                 }
@@ -51,6 +53,7 @@ struct ProfileNotificationsView: View {
                 Button(action: scheduleTestNotifications) {
                     HStack(spacing: 16) {
                         Image(systemName: "bell.and.waves.left.and.right")
+                            .accessibilityHidden(true)
                         Text("Test Grouped Notifications")
                     }
                 }
