@@ -24,13 +24,11 @@ enum FeedType {
     var isLoadingMore = false
     var errorMessage: String?
     var isOffline = false
-    var isBlinking = false
 
     private let feedType: FeedType
     private let bearBlogService: BearBlogServiceProtocol
     private var currentPage = 0
     private var hasMorePages = true
-    private var blinkTimer: Timer?
 
     init(feedType: FeedType, bearBlogService: BearBlogServiceProtocol = BearBlogService()) {
         self.feedType = feedType

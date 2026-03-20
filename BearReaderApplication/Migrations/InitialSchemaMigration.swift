@@ -17,34 +17,34 @@ struct InitialSchemaMigration: Migration {
     
     private let logger = Logger(subsystem: "BearReader", category: "InitialSchemaMigration")
 
-    private let trackedPosts = Table("tracked_posts")
-    private let trackedPostsID = Expression<Int64>("id")
-    private let trackedPostsURL = Expression<String>("url")
-    private let trackedPostsTitle = Expression<String>("title")
-    private let trackedPostsAge = Expression<String>("age")
-    private let trackedPostsRating = Expression<String>("rating")
-    private let trackedPostsDomain = Expression<String>("domain")
-    private let trackedPostsWasLoaded = Expression<Bool>("was_loaded")
-    private let trackedPostsViewID = Expression<Int>("view_id") // used to restore scrolling position
-    private let trackedPostsEncounteredAt = Expression<Date>("encountered_at")
-    private let trackedPostsLastAccessedAt = Expression<Date?>("last_accessed_at")
-    private let trackedPostsIsBookmarked = Expression<Bool>("is_bookmarked")
-    
-    private let subscribedBlogs = Table("subscribed_blogs")
-    private let subscribedBlogsID = Expression<Int64>("id")
-    private let subscribedBlogsDomain = Expression<String>("domain")
-    private let subscribedBlogsFeedURL = Expression<String>("feed_url")
-    private let subscribedBlogsTitle = Expression<String>("blog_title")
-    private let subscribedBlogsSubscribedAt = Expression<Date>("subscribed_at")
-    private let subscribedBlogsLastFetchAt = Expression<Date?>("last_fetched_at")
-    private let subscribedBlogsNewPostsCount = Expression<Int>("new_posts_count")
-    private let subscribedBlogsIsNotificationsMuted = Expression<Bool>("is_notifications_muted")
-    
-    private let browsingHistoryTable = Table("visit_history")
-    private let browsingHistoryID = Expression<Int64>("id")
-    private let browsingHistoryURL = Expression<String>("url")
-    private let browsingHistoryTitle = Expression<String>("title")
-    private let browsingHistoryDate = Expression<Date>("date")
+    private var trackedPosts: SQLite.Table { DatabaseSchema.trackedPosts }
+    private var trackedPostsID: SQLite.Expression<Int64> { DatabaseSchema.trackedPostsID }
+    private var trackedPostsURL: SQLite.Expression<String> { DatabaseSchema.trackedPostsURL }
+    private var trackedPostsTitle: SQLite.Expression<String> { DatabaseSchema.trackedPostsTitle }
+    private var trackedPostsAge: SQLite.Expression<String> { DatabaseSchema.trackedPostsAge }
+    private var trackedPostsRating: SQLite.Expression<String> { DatabaseSchema.trackedPostsRating }
+    private var trackedPostsDomain: SQLite.Expression<String> { DatabaseSchema.trackedPostsDomain }
+    private var trackedPostsWasLoaded: SQLite.Expression<Bool> { DatabaseSchema.trackedPostsWasLoaded }
+    private var trackedPostsViewID: SQLite.Expression<Int> { DatabaseSchema.trackedPostsViewID }
+    private var trackedPostsEncounteredAt: SQLite.Expression<Date> { DatabaseSchema.trackedPostsEncounteredAt }
+    private var trackedPostsLastAccessedAt: SQLite.Expression<Date?> { DatabaseSchema.trackedPostsLastAccessedAt }
+    private var trackedPostsIsBookmarked: SQLite.Expression<Bool> { DatabaseSchema.trackedPostsIsBookmarked }
+
+    private var subscribedBlogs: SQLite.Table { DatabaseSchema.subscribedBlogs }
+    private var subscribedBlogsID: SQLite.Expression<Int64> { DatabaseSchema.subscribedBlogsID }
+    private var subscribedBlogsDomain: SQLite.Expression<String> { DatabaseSchema.subscribedBlogsDomain }
+    private var subscribedBlogsFeedURL: SQLite.Expression<String> { DatabaseSchema.subscribedBlogsFeedURL }
+    private var subscribedBlogsTitle: SQLite.Expression<String> { DatabaseSchema.subscribedBlogsTitle }
+    private var subscribedBlogsSubscribedAt: SQLite.Expression<Date> { DatabaseSchema.subscribedBlogsSubscribedAt }
+    private var subscribedBlogsLastFetchAt: SQLite.Expression<Date?> { DatabaseSchema.subscribedBlogsLastFetchAt }
+    private var subscribedBlogsNewPostsCount: SQLite.Expression<Int> { DatabaseSchema.subscribedBlogsNewPostsCount }
+    private var subscribedBlogsIsNotificationsMuted: SQLite.Expression<Bool> { DatabaseSchema.subscribedBlogsIsNotificationsMuted }
+
+    private var browsingHistoryTable: SQLite.Table { DatabaseSchema.browsingHistoryTable }
+    private var browsingHistoryID: SQLite.Expression<Int64> { DatabaseSchema.browsingHistoryID }
+    private var browsingHistoryURL: SQLite.Expression<String> { DatabaseSchema.browsingHistoryURL }
+    private var browsingHistoryTitle: SQLite.Expression<String> { DatabaseSchema.browsingHistoryTitle }
+    private var browsingHistoryDate: SQLite.Expression<Date> { DatabaseSchema.browsingHistoryDate }
     
     func migrateDatabase(_ db: Connection) throws {
         logger.debug("Starting initial schema migration")

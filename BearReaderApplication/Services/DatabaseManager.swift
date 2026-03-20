@@ -20,38 +20,46 @@ enum DatabaseError: Error {
 
 actor DatabaseManager {
     static let shared = DatabaseManager()
-    
+
+    /// Creates a DatabaseManager with a pre-configured connection (for testing).
+    init() {}
+
+    init(connection: Connection) {
+        self.db = connection
+    }
+
     private let logger = Logger(subsystem: "BearReader", category: "DatabaseManager")
     private var db: Connection?
     
-    private let trackedPosts = Table("tracked_posts")
-    private let trackedPostsID = Expression<Int64>("id")
-    private let trackedPostsURL = Expression<String>("url")
-    private let trackedPostsTitle = Expression<String>("title")
-    private let trackedPostsAge = Expression<String>("age")
-    private let trackedPostsRating = Expression<String>("rating")
-    private let trackedPostsDomain = Expression<String>("domain")
-    private let trackedPostsWasLoaded = Expression<Bool>("was_loaded")
-    private let trackedPostsViewID = Expression<Int>("view_id") // used to restore scrolling position
-    private let trackedPostsEncounteredAt = Expression<Date>("encountered_at")
-    private let trackedPostsLastAccessedAt = Expression<Date?>("last_accessed_at")
-    private let trackedPostsIsBookmarked = Expression<Bool>("is_bookmarked")
-    
-    private let subscribedBlogs = Table("subscribed_blogs")
-    private let subscribedBlogsID = Expression<Int64>("id")
-    private let subscribedBlogsDomain = Expression<String>("domain")
-    private let subscribedBlogsFeedURL = Expression<String>("feed_url")
-    private let subscribedBlogsTitle = Expression<String>("blog_title")
-    private let subscribedBlogsSubscribedAt = Expression<Date>("subscribed_at")
-    private let subscribedBlogsLastFetchAt = Expression<Date?>("last_fetched_at")
-    private let subscribedBlogsNewPostsCount = Expression<Int>("new_posts_count")
-    private let subscribedBlogsIsNotificationsMuted = Expression<Bool>("is_notifications_muted")
-    
-    private let browsingHistoryTable = Table("visit_history")
-    private let browsingHistoryID = Expression<Int64>("id")
-    private let browsingHistoryURL = Expression<String>("url")
-    private let browsingHistoryTitle = Expression<String>("title")
-    private let browsingHistoryDate = Expression<Date>("date")
+    // Schema aliases for brevity
+    private var trackedPosts: SQLite.Table { DatabaseSchema.trackedPosts }
+    private var trackedPostsID: SQLite.Expression<Int64> { DatabaseSchema.trackedPostsID }
+    private var trackedPostsURL: SQLite.Expression<String> { DatabaseSchema.trackedPostsURL }
+    private var trackedPostsTitle: SQLite.Expression<String> { DatabaseSchema.trackedPostsTitle }
+    private var trackedPostsAge: SQLite.Expression<String> { DatabaseSchema.trackedPostsAge }
+    private var trackedPostsRating: SQLite.Expression<String> { DatabaseSchema.trackedPostsRating }
+    private var trackedPostsDomain: SQLite.Expression<String> { DatabaseSchema.trackedPostsDomain }
+    private var trackedPostsWasLoaded: SQLite.Expression<Bool> { DatabaseSchema.trackedPostsWasLoaded }
+    private var trackedPostsViewID: SQLite.Expression<Int> { DatabaseSchema.trackedPostsViewID }
+    private var trackedPostsEncounteredAt: SQLite.Expression<Date> { DatabaseSchema.trackedPostsEncounteredAt }
+    private var trackedPostsLastAccessedAt: SQLite.Expression<Date?> { DatabaseSchema.trackedPostsLastAccessedAt }
+    private var trackedPostsIsBookmarked: SQLite.Expression<Bool> { DatabaseSchema.trackedPostsIsBookmarked }
+
+    private var subscribedBlogs: SQLite.Table { DatabaseSchema.subscribedBlogs }
+    private var subscribedBlogsID: SQLite.Expression<Int64> { DatabaseSchema.subscribedBlogsID }
+    private var subscribedBlogsDomain: SQLite.Expression<String> { DatabaseSchema.subscribedBlogsDomain }
+    private var subscribedBlogsFeedURL: SQLite.Expression<String> { DatabaseSchema.subscribedBlogsFeedURL }
+    private var subscribedBlogsTitle: SQLite.Expression<String> { DatabaseSchema.subscribedBlogsTitle }
+    private var subscribedBlogsSubscribedAt: SQLite.Expression<Date> { DatabaseSchema.subscribedBlogsSubscribedAt }
+    private var subscribedBlogsLastFetchAt: SQLite.Expression<Date?> { DatabaseSchema.subscribedBlogsLastFetchAt }
+    private var subscribedBlogsNewPostsCount: SQLite.Expression<Int> { DatabaseSchema.subscribedBlogsNewPostsCount }
+    private var subscribedBlogsIsNotificationsMuted: SQLite.Expression<Bool> { DatabaseSchema.subscribedBlogsIsNotificationsMuted }
+
+    private var browsingHistoryTable: SQLite.Table { DatabaseSchema.browsingHistoryTable }
+    private var browsingHistoryID: SQLite.Expression<Int64> { DatabaseSchema.browsingHistoryID }
+    private var browsingHistoryURL: SQLite.Expression<String> { DatabaseSchema.browsingHistoryURL }
+    private var browsingHistoryTitle: SQLite.Expression<String> { DatabaseSchema.browsingHistoryTitle }
+    private var browsingHistoryDate: SQLite.Expression<Date> { DatabaseSchema.browsingHistoryDate }
     
     private var connection: Connection {
         get throws {
@@ -81,7 +89,23 @@ actor DatabaseManager {
         let conn = try connection
         return try body(conn)
     }
-    
+
+    private func trackedPostData(from row: Row) -> TrackedPostData {
+        TrackedPostData(
+            id: row[trackedPostsID],
+            url: row[trackedPostsURL],
+            title: row[trackedPostsTitle],
+            age: row[trackedPostsAge],
+            rating: row[trackedPostsRating],
+            domain: row[trackedPostsDomain],
+            wasLoaded: row[trackedPostsWasLoaded],
+            viewID: row[trackedPostsViewID],
+            encounteredAt: row[trackedPostsEncounteredAt],
+            lastAccessedAt: row[trackedPostsLastAccessedAt],
+            isBookmarked: row[trackedPostsIsBookmarked]
+        )
+    }
+
     private func migrate(using connection: Connection) throws {
         logger.debug("Starting database migration")
         
@@ -189,20 +213,7 @@ actor DatabaseManager {
             .order(trackedPostsLastAccessedAt.desc)
         
         for row in try conn.prepare(searchQuery) {
-            let trackedPost = TrackedPostData(
-                id: row[trackedPostsID],
-                url: row[trackedPostsURL],
-                title: row[trackedPostsTitle],
-                age: row[trackedPostsAge],
-                rating: row[trackedPostsRating],
-                domain: row[trackedPostsDomain],
-                wasLoaded: row[trackedPostsWasLoaded],
-                viewID: row[trackedPostsViewID],
-                encounteredAt: row[trackedPostsEncounteredAt],
-                lastAccessedAt: row[trackedPostsLastAccessedAt],
-                isBookmarked: row[trackedPostsIsBookmarked]
-            )
-            results.append(trackedPost)
+            results.append(trackedPostData(from: row))
         }
         logger.debug("Search completed. Found \(results.count) posts for query: \(query)")
         
@@ -217,20 +228,7 @@ actor DatabaseManager {
         let query = trackedPosts.filter(trackedPostsViewID > 0).order(trackedPostsLastAccessedAt.desc)
         
         for row in try conn.prepare(query) {
-            let trackedPost = TrackedPostData(
-                id: row[trackedPostsID],
-                url: row[trackedPostsURL],
-                title: row[trackedPostsTitle],
-                age: row[trackedPostsAge],
-                rating: row[trackedPostsRating],
-                domain: row[trackedPostsDomain],
-                wasLoaded: row[trackedPostsWasLoaded],
-                viewID: row[trackedPostsViewID],
-                encounteredAt: row[trackedPostsEncounteredAt],
-                lastAccessedAt: row[trackedPostsLastAccessedAt],
-                isBookmarked: row[trackedPostsIsBookmarked]
-            )
-            results.append(trackedPost)
+            results.append(trackedPostData(from: row))
         }
         logger.debug("Retrieved \(results.count) read posts")
         
@@ -253,20 +251,7 @@ actor DatabaseManager {
         let query = trackedPosts.order(trackedPostsEncounteredAt.desc)
         
         for row in try conn.prepare(query) {
-            let trackedPost = TrackedPostData(
-                id: row[trackedPostsID],
-                url: row[trackedPostsURL],
-                title: row[trackedPostsTitle],
-                age: row[trackedPostsAge],
-                rating: row[trackedPostsRating],
-                domain: row[trackedPostsDomain],
-                wasLoaded: row[trackedPostsWasLoaded],
-                viewID: row[trackedPostsViewID],
-                encounteredAt: row[trackedPostsEncounteredAt],
-                lastAccessedAt: row[trackedPostsLastAccessedAt],
-                isBookmarked: row[trackedPostsIsBookmarked]
-            )
-            results.append(trackedPost)
+            results.append(trackedPostData(from: row))
         }
         logger.debug("Retrieved \(results.count) total tracked posts")
         
@@ -328,20 +313,7 @@ actor DatabaseManager {
         let query = trackedPosts.filter(trackedPostsIsBookmarked == true).order(trackedPostsLastAccessedAt.desc)
         
         for row in try conn.prepare(query) {
-            let trackedPost = TrackedPostData(
-                id: row[trackedPostsID],
-                url: row[trackedPostsURL],
-                title: row[trackedPostsTitle],
-                age: row[trackedPostsAge],
-                rating: row[trackedPostsRating],
-                domain: row[trackedPostsDomain],
-                wasLoaded: row[trackedPostsWasLoaded],
-                viewID: row[trackedPostsViewID],
-                encounteredAt: row[trackedPostsEncounteredAt],
-                lastAccessedAt: row[trackedPostsLastAccessedAt],
-                isBookmarked: row[trackedPostsIsBookmarked]
-            )
-            results.append(trackedPost)
+            results.append(trackedPostData(from: row))
         }
         logger.debug("Retrieved \(results.count) bookmarked posts")
         

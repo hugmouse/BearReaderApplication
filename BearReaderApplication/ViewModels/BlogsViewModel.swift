@@ -18,7 +18,9 @@ import SwiftUI
     var showUndoToast = false
     var recentlyDeletedBlog: BlogSubscription?
 
-    private let backgroundRefreshInterval: TimeInterval = 3600
+    private let backgroundRefreshInterval: TimeInterval = AppConstants.backgroundRefreshInterval
+    private let undoToastDuration: UInt64 = 5_000_000_000
+    private let undoToastDismissBuffer: UInt64 = 500_000_000
 
     func loadSubscribedBlogs() async {
         isLoading = true
@@ -42,13 +44,13 @@ import SwiftUI
             await loadSubscribedBlogs()
             
             // Auto hide toast after 5 seconds
-            try? await Task.sleep(nanoseconds: 5 * 1_000_000_000)
+            try? await Task.sleep(nanoseconds: undoToastDuration)
             if recentlyDeletedBlog?.domain == blog.domain {
                 withAnimation {
                     showUndoToast = false
                 }
                 // Clear the reference after the toast is gone
-                try? await Task.sleep(nanoseconds: 1 * 500_000_000) // Small buffer
+                try? await Task.sleep(nanoseconds: undoToastDismissBuffer)
                 if !showUndoToast {
                     recentlyDeletedBlog = nil
                 }

@@ -10,6 +10,7 @@
 
 import Foundation
 import SwiftSoup
+import os.log
 
 enum BearBlogError: Error {
     case invalidURL
@@ -26,6 +27,7 @@ protocol BearBlogServiceProtocol {
 }
 
 final class BearBlogService: BearBlogServiceProtocol, Sendable {
+    private let logger = Logger(subsystem: "BearReader", category: "BearBlogService")
     private let urlSession: URLSession
     private let settingsProvider: SendableSettingsProvider
     private let customSettings: SettingsModel?
@@ -176,10 +178,14 @@ final class BearBlogService: BearBlogServiceProtocol, Sendable {
         
         // We dont really care if we don't save some posts into database,
         // what matters more is that we at least display it in the moment
-        Task {
-            try await DatabaseManager.shared.saveEncounteredPosts(_posts)
+        Task { [logger] in
+            do {
+                try await DatabaseManager.shared.saveEncounteredPosts(_posts)
+            } catch {
+                logger.warning("Failed to save encountered posts: \(error.localizedDescription)")
+            }
         }
-        
+
         return _posts
     }
     
@@ -273,10 +279,14 @@ final class BearBlogService: BearBlogServiceProtocol, Sendable {
         
         // We dont really care if we don't save some posts into database,
         // what matters more is that we at least display it in the moment
-        Task {
-            try await DatabaseManager.shared.saveEncounteredPosts(posts)
+        Task { [logger] in
+            do {
+                try await DatabaseManager.shared.saveEncounteredPosts(posts)
+            } catch {
+                logger.warning("Failed to save encountered posts: \(error.localizedDescription)")
+            }
         }
-        
+
         return posts
     }
 

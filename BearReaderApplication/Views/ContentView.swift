@@ -32,7 +32,7 @@ struct TabBarAccessor: UIViewControllerRepresentable {
         
         func tabBarController(_ tbc: UITabBarController, shouldSelect vc: UIViewController) -> Bool {
             // Check if the user is tapping the already active tab and check for "Search"
-            if unsafe vc == tbc.selectedViewController && tbc.selectedIndex == 4 {
+            if unsafe vc == tbc.selectedViewController && tbc.selectedIndex == Tab.search.rawValue {
                 onReselect?()
             }
             return true
@@ -42,7 +42,6 @@ struct TabBarAccessor: UIViewControllerRepresentable {
 
 struct ContentView: View {
     @State var selectedFeedType: FeedType
-    @State private var selectedTab = 0
     @State private var shouldFocusSearch = false
     @State private var router = Router.shared
 
@@ -60,37 +59,37 @@ struct ContentView: View {
             .tabItem {
                 Label("Trending", systemImage: "house.fill")
             }
-            .tag(0)
+            .tag(Tab.trending)
 
             PostsView(selectedFeedType: $selectedFeedType)
                 .tabItem {
                     Label("Recent", systemImage: "clock.fill")
                 }
-                .tag(1)
+                .tag(Tab.recent)
 
                 BlogsView()
             .tabItem {
                 Label("Blogs", systemImage: "book.fill")
             }
-            .tag(2)
+            .tag(Tab.blogs)
 
                 ProfileView()
             .tabItem {
                 Label("Profile", systemImage: "person.crop.circle")
             }
-            .tag(3)
+            .tag(Tab.profile)
 
                 SearchView()
             .tabItem {
                 Label("Search", systemImage: "magnifyingglass")
             }
-            .tag(4)
+            .tag(Tab.search)
         }
         .onReceive(Just(router.selectedTab)) {
-            if $0 == 0 {
+            if $0 == .trending {
                 self.selectedFeedType = .trending
             }
-            if $0 == 1 {
+            if $0 == .recent {
                 self.selectedFeedType = .recent
             }
         }

@@ -59,7 +59,7 @@ struct BookmarksEmptyView: View {
                 .font(.caption)
                 .foregroundColor(.secondary)
             Button("Browse Posts") {
-                Router.shared.selectedTab = 0
+                Router.shared.selectedTab = .trending
             }
             .buttonStyle(.bordered)
             .padding(.top, 8)

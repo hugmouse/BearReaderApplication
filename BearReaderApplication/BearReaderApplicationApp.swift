@@ -58,7 +58,7 @@ struct BearReaderApplicationApp: App {
 
     private func scheduleAppRefresh() {
         let request = BGAppRefreshTaskRequest(identifier: backgroundTaskIdentifier)
-        request.earliestBeginDate = request.earliestBeginDate
+        request.earliestBeginDate = Date(timeIntervalSinceNow: AppConstants.backgroundRefreshInterval)
         do {
             try BGTaskScheduler.shared.submit(request)
             logger.info("Scheduled next background refresh")

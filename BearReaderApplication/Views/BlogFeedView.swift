@@ -8,8 +8,10 @@
 //
 
 import SwiftUI
+import os.log
 
 struct BlogFeedView: View {
+    private let logger = Logger(subsystem: "BearReader", category: "BlogFeedView")
     let blog: BlogSubscription
     @Binding var tabBarVisibility: Visibility
     
@@ -40,7 +42,11 @@ struct BlogFeedView: View {
             Button("Cancel", role: .cancel) { }
             Button("Unsubscribe", role: .destructive) {
                 Task {
-                    try? await DatabaseManager.shared.unsubscribeFromBlog(domain: blog.domain)
+                    do {
+                        try await DatabaseManager.shared.unsubscribeFromBlog(domain: blog.domain)
+                    } catch {
+                        logger.error("Failed to unsubscribe from \(blog.domain): \(error.localizedDescription)")
+                    }
                     HapticManager.warning()
                     dismiss()
                 }

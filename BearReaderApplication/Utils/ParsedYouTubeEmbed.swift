@@ -49,7 +49,7 @@ func parseYouTubeEmbed(from rawURL: String, title rawTitle: String?) -> ParsedYo
 
     let videoID = String(pathComponents[1])
 
-    if videoID.isEmpty || videoID.rangeOfCharacter(from: WhitelistYoutubeChars) != nil {
+    if videoID.isEmpty || videoID.rangeOfCharacter(from: WhitelistYoutubeChars.inverted) != nil {
         return nil
     }
 

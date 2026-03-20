@@ -23,6 +23,8 @@ class ImageSaver: NSObject {
 
     // Wowie
     @objc func saveCompleted(_ image: UIImage, didFinishSavingWithError error: Error?, contextInfo: UnsafeRawPointer) {
-        print("Save finished!")
+        if let error = error {
+            print("Save failed: \(error.localizedDescription)")
+        }
     }
 }

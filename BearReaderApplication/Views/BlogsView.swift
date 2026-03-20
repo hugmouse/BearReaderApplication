@@ -40,7 +40,7 @@ struct BlogsView: View {
                             .multilineTextAlignment(.center)
                             .padding(.horizontal, 40)
                         Button("Discover Blogs") {
-                            router.selectedTab = 0
+                            router.selectedTab = .trending
                         }
                         .buttonStyle(.bordered)
                         .padding(.top, 8)
