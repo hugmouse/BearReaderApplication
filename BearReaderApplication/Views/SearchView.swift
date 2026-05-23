@@ -68,21 +68,11 @@ struct SearchView: View {
         .onAppear {
             viewModel.loadAllPosts()
         }
-        .background(
-            TabBarAccessor {
-                // TODO: this doesn't work – you have to tap tab "Search" 3 times for this state to change its value.
-                // But if we wait ~500ms after we received a signal (which is happening upon tapping on ACTIVE tab), then it works as expected. Why?
-                // Here I'm constantly trying to set focus to true with hope that we can focus it SOMETIMES faster than 500ms.
-                for i in 1...15 {
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.034 * Double(i)) {
-                        self.isSearchFocused = true
-                    }
-                }
-            }
-        )
     }
 }
 
+// TODO: Figure out a way to focus it upon double-tapping on "Search" tab
+// (this is how Apple Music worked on iOS 17)
 struct SearchBar: View {
     @Binding var searchText: String
     var isFocused: FocusState<Bool>.Binding

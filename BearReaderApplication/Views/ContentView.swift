@@ -11,35 +11,6 @@
 import SwiftUI
 import Combine
 
-struct TabBarAccessor: UIViewControllerRepresentable {
-    var onReselect: () -> Void
-    
-    func makeUIViewController(context: Context) -> TabObserver {
-        TabObserver()
-    }
-    
-    func updateUIViewController(_ uiViewController: TabObserver, context: Context) {
-        uiViewController.onReselect = onReselect
-    }
-    
-    class TabObserver: UIViewController, UITabBarControllerDelegate {
-        var onReselect: (() -> Void)?
-        
-        override func viewDidAppear(_ animated: Bool) {
-            super.viewDidAppear(animated)
-            tabBarController?.delegate = self
-        }
-        
-        func tabBarController(_ tbc: UITabBarController, shouldSelect vc: UIViewController) -> Bool {
-            // Check if the user is tapping the already active tab and check for "Search"
-            if unsafe vc == tbc.selectedViewController && tbc.selectedIndex == Tab.search.rawValue {
-                onReselect?()
-            }
-            return true
-        }
-    }
-}
-
 struct ContentView: View {
     @State var selectedFeedType: FeedType
     @State private var shouldFocusSearch = false
