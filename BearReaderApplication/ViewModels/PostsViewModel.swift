@@ -96,6 +96,7 @@ enum FeedType {
             return false
         }
 
+        guard posts.count >= 5 else { return false }
         let thresholdIndex = posts.index(posts.endIndex, offsetBy: -5)
         return itemIndex >= thresholdIndex
     }
