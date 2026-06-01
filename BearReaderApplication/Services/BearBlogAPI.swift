@@ -203,6 +203,10 @@ final class BearBlogService: BearBlogServiceProtocol, Sendable {
 
         return PostContent(elements: elements)
     }
+
+    func parseMainContentForTesting(html: String) async throws -> PostContent? {
+        try await parseMainContentToStructured(from: html)
+    }
     
     // I truly hope that they will never change URL, otherwise this will completely destroy itself
     func getBlogFeed(domain: String) async throws -> [PostItem] {
@@ -290,6 +294,15 @@ final class BearBlogService: BearBlogServiceProtocol, Sendable {
         return posts
     }
 
+    private func isTextLikeTag(_ tagName: String) -> Bool {
+        switch tagName {
+        case "p", "a", "small", "span", "em", "strong", "i", "b", "u", "s", "mark", "time":
+            return true
+        default:
+            return false
+        }
+    }
+
     private func parseElements(from container: Element, into elements: inout [ContentElement], settings: SettingsModel) async throws {
         let children = try container.select("> *")
         
@@ -300,7 +313,7 @@ final class BearBlogService: BearBlogServiceProtocol, Sendable {
             case "img":
                 try extractStandaloneImage(from: child, into: &elements)
                 
-            case "p", "a":
+            case let tagName where isTextLikeTag(tagName):
                 try extractParagraphOrLink(from: child, into: &elements)
                 
             case "iframe":
@@ -312,11 +325,7 @@ final class BearBlogService: BearBlogServiceProtocol, Sendable {
                 }
                 
             case "blockquote":
-                var blockquoteElements: [ContentElement] = []
-                try await parseElements(from: child, into: &blockquoteElements, settings: settings)
-                if !blockquoteElements.isEmpty {
-                    elements.append(.blockquote(blockquoteElements))
-                }
+                try await extractBlockquote(from: child, into: &elements, settings: settings)
 
             case "table":
                 let headers: [String] = (try? child.select("thead tr").first()?.select("th, td").compactMap { try? $0.text() }) ?? []
@@ -353,6 +362,25 @@ final class BearBlogService: BearBlogServiceProtocol, Sendable {
         }
     }
     
+    private func extractBlockquote(from child: Element, into elements: inout [ContentElement], settings: SettingsModel) async throws {
+        var blockquoteElements: [ContentElement] = []
+        let hasDirectText = !child.ownText().trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+
+        if hasDirectText {
+            try extractAttributedText(from: child, into: &blockquoteElements)
+        } else {
+            try await parseElements(from: child, into: &blockquoteElements, settings: settings)
+
+            if blockquoteElements.isEmpty {
+                try extractAttributedText(from: child, into: &blockquoteElements)
+            }
+        }
+
+        if !blockquoteElements.isEmpty {
+            elements.append(.blockquote(blockquoteElements))
+        }
+    }
+
     private func extractStandaloneImage(from child: Element, into elements: inout [ContentElement]) throws {
         // Standalone images require padding
         if let images = try? child.select("img").compactMap({ img -> PostImage? in

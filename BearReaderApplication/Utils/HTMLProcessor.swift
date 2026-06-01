@@ -54,7 +54,7 @@ struct HTMLProcessor {
             margin: 0;
             padding: 0;
         }
-        p,i,a,b,h1,h2,h3,h4,h5,h6,span {
+        p,a,small,span,em,strong,i,b,u,s,mark,time,h1,h2,h3,h4,h5,h6 {
             margin: 0;
             padding: 0;
         }
