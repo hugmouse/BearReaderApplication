@@ -54,6 +54,7 @@ To view images in full resolution, open them in a new tab.
 - Notification: subscribe to your favourite authors to receive notifications about their latest posts
 - Export your data: everything – besides images cache and post cache – is stored in one SQLite3 file that you can easily export in Profile tab
 - Accessible: every view is tested manually with VoiceOver and custom font size; every view is designed with high contrast in mind
+- Offline translation: uses [Translation framework](https://developer.apple.com/documentation/translation/), so you can use it to translate blog posts fully on your device
 
 And many small features like history, bookmarks, cache settings, custom parsing (using CSS selectors), various sharing options and more.
 
@@ -61,8 +62,6 @@ And many small features like history, bookmarks, cache settings, custom parsing 
 
 I work on this in my free time – there will be no concrete timing on when those features will be implemented.
 
-- Add view for viewing someone's blog: users can browse someone's blog to see their posts
-- Add view for subscribing to blogs: so the one can read their favorite author
 - Add ability to search for text inside of a post
 - Reimplement menu that opens on long-tap on an image inside of a post for iOS 26 - currently it fully hides the image
 
@@ -74,12 +73,10 @@ There are no strict guidelines, but make sure to follow these when:
 
 ### Adding anything
 
-- Release build uses `-Ofast` flag, which means "Fastest, aggressive optimizations". Check if your code still works with this flag being set. If not, document the behavior and open PR anyway.
 - Make sure that your code compiles with Swift 6.0: https://www.swift.org/migration/documentation/migrationguide
-- Warnings are treated as errors, so make sure not to have any warnings (like usage of deprecated functions)
+- Warnings are treated as errors, so make sure not to have any warnings
 - If possible, avoid creating code that requires being run on a main thread
-- Write code that is concurrency-safe
-- Use of `nonisolated(unsafe)` is discouraged
+- Check that your code that is concurrency-safe and do not use `nonisolated(unsafe)`
 
 ### Adding a new view
 
