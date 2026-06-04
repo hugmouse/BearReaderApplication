@@ -9,6 +9,7 @@
 
 
 import SwiftUI
+import Translation
 
 struct PostView: View {
     let post: PostItem
@@ -19,6 +20,7 @@ struct PostView: View {
     @Binding var tabBarVisibility: Visibility
     @Environment(\.openURL) private var openURL
     @State private var showingShareSheet = false
+    @State private var translationRequestID = 0
 
 
     init(post: PostItem, vis: Binding<Visibility>) {
@@ -35,8 +37,8 @@ struct PostView: View {
                 ErrorView(message: errorMessage)
             } else {
                 PostContentView(
-                    post: post,
-                    content: viewModel.content,
+                    post: displayedPost,
+                    content: displayedContent,
                     contentOpacity: contentOpacity,
                     onContentRendered: {
                         print("Content rendered, checking for scroll restoration")
@@ -59,7 +61,7 @@ struct PostView: View {
             
         }
         .scrollPosition(id: $scrolledID)
-        .navigationTitle(post.title)
+        .navigationTitle(displayedPost.title)
         .navigationBarTitleDisplayMode(.automatic)
         .onAppear {
             tabBarVisibility = .hidden
@@ -85,7 +87,6 @@ struct PostView: View {
             ToolbarItem(placement: .navigationBarTrailing) {
                 Menu {
                     Button(action: {
-                        let fullURL = post.url.hasPrefix("//") ? "https:" + post.url : post.url
                         if let url = URL(string: fullURL) {
                             openURL(url)
                         }
@@ -100,7 +101,6 @@ struct PostView: View {
                     }
 
                     Button(action: {
-                        let fullURL = post.url.hasPrefix("//") ? "https:" + post.url : post.url
                         UIPasteboard.general.string = fullURL
                         HapticManager.success()
                     }) {
@@ -117,6 +117,20 @@ struct PostView: View {
                             systemImage: viewModel.isBookmarked ? "bookmark.fill" : "bookmark"
                         )
                     }
+
+                    Button(action: {
+                        toggleTranslation()
+                    }) {
+                        if viewModel.isTranslating {
+                            Label("Translating…", systemImage: "translate")
+                        } else {
+                            Label(
+                                viewModel.isTranslated ? "Show Original" : "Translate",
+                                systemImage: viewModel.isTranslated ? "textformat" : "translate"
+                            )
+                        }
+                    }
+                    .disabled(viewModel.content == nil || viewModel.isTranslating)
 
                     Divider()
 
@@ -141,9 +155,91 @@ struct PostView: View {
             }
         }
         .sheet(isPresented: $showingShareSheet) {
-            let fullURL = post.url.hasPrefix("//") ? "https:" + post.url : post.url
-            ActivityViewController(activityItems: [post.title, fullURL])
+            ActivityViewController(activityItems: [displayedPost.title, fullURL])
+        }
+        .modifier(
+            PostTranslationTaskModifier(
+                requestID: translationRequestID,
+                makeRequests: { [post] in
+                    await MainActor.run {
+                        viewModel.translationRequests(forTitle: post.title)
+                    }
+                },
+                applyTranslations: { translations in
+                    await MainActor.run {
+                        viewModel.applyTranslations(translations)
+                        viewModel.finishTranslation()
+                        HapticManager.success()
+                    }
+                },
+                finishTranslation: {
+                    await MainActor.run {
+                        viewModel.finishTranslation()
+                    }
+                },
+                failTranslation: { error in
+                    await MainActor.run {
+                        viewModel.failTranslation(error)
+                    }
+                }
+            )
+        )
+        .alert("Translation Failed", isPresented: translationErrorBinding) {
+            Button("OK", role: .cancel) {
+                viewModel.translationErrorMessage = nil
+            }
+        } message: {
+            Text(viewModel.translationErrorMessage ?? "Unable to translate this post.")
         }
     }
+
+    private var displayedPost: PostItem {
+        PostItem(
+            title: viewModel.isTranslated ? (viewModel.translatedTitle ?? post.title) : post.title,
+            url: post.url,
+            age: post.age,
+            rating: post.rating
+        )
+    }
+
+    private var displayedContent: PostContent? {
+        viewModel.isTranslated ? (viewModel.translatedContent ?? viewModel.content) : viewModel.content
+    }
+
+    private var fullURL: String {
+        post.url.hasPrefix("//") ? "https:" + post.url : post.url
+    }
+
+    private var translationErrorBinding: Binding<Bool> {
+        Binding(
+            get: { viewModel.translationErrorMessage != nil },
+            set: { isPresented in
+                if !isPresented {
+                    viewModel.translationErrorMessage = nil
+                }
+            }
+        )
+    }
+
+    private func toggleTranslation() {
+        if viewModel.isTranslated {
+            viewModel.showOriginalContent()
+            return
+        }
+
+        if viewModel.translatedContent != nil {
+            viewModel.isTranslated = true
+            return
+        }
+
+        viewModel.beginTranslation()
+        if #available(iOS 18.0, *) {
+            translationRequestID += 1
+        } else {
+            viewModel.isTranslating = false
+            viewModel.translationErrorMessage = "Translation requires iOS 18 or later."
+        }
+    }
+
     
 }

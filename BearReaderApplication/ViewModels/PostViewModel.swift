@@ -21,6 +21,11 @@ import os.log
     var isLoadingFromCache = false
     var isBookmarked = false
     var isSubscribed = false
+    var translatedTitle: String?
+    var translatedContent: PostContent?
+    var isTranslated = false
+    var isTranslating = false
+    var translationErrorMessage: String?
 
     private let logger = Logger(subsystem: "BearReader", category: "PostDetailViewModel")
 
@@ -116,6 +121,123 @@ import os.log
         }
     }
 
+    func translationRequests(forTitle title: String) -> [PostTranslationRequest] {
+        guard let content else { return [] }
+
+        var requests = [PostTranslationRequest(id: PostTranslationRequest.titleID, text: title)]
+        requests.append(contentsOf: translationRequests(for: content.elements, prefix: "element"))
+        return requests.filter { !$0.text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty }
+    }
+
+    func applyTranslations(_ translations: [String: String]) {
+        guard let content else { return }
+
+        translatedTitle = translations[PostTranslationRequest.titleID]
+        translatedContent = PostContent(elements: translatedElements(from: content.elements, translations: translations, prefix: "element"))
+        isTranslated = true
+        translationErrorMessage = nil
+    }
+
+    func showOriginalContent() {
+        isTranslated = false
+        translationErrorMessage = nil
+    }
+
+    func beginTranslation() {
+        isTranslating = true
+        translationErrorMessage = nil
+    }
+
+    func finishTranslation() {
+        isTranslating = false
+    }
+
+    func failTranslation(_ error: Error) {
+        isTranslating = false
+        translationErrorMessage = ErrorHandler.message(for: error)
+        HapticManager.error()
+    }
+
+    private func translationRequests(for elements: [ContentElement], prefix: String) -> [PostTranslationRequest] {
+        elements.enumerated().flatMap { index, element -> [PostTranslationRequest] in
+            let id = "\(prefix).\(index)"
+
+            switch element {
+            case .text(let attributedString):
+                return [PostTranslationRequest(id: id, text: String(attributedString.characters))]
+            case .header2(let text), .header3(let text):
+                return [PostTranslationRequest(id: id, text: text)]
+            case .tags(let tags):
+                return tags.enumerated().map { tagIndex, tag in
+                    PostTranslationRequest(id: "\(id).tag.\(tagIndex)", text: tag.text)
+                }
+            case .table(let table):
+                var tableRequests: [PostTranslationRequest] = table.headers.enumerated().map { headerIndex, header in
+                    PostTranslationRequest(id: "\(id).header.\(headerIndex)", text: header)
+                }
+                for (rowIndex, row) in table.rows.enumerated() {
+                    tableRequests.append(contentsOf: row.enumerated().map { cellIndex, cell in
+                        PostTranslationRequest(id: "\(id).row.\(rowIndex).cell.\(cellIndex)", text: cell)
+                    })
+                }
+                return tableRequests
+            case .blockquote(let elements):
+                return translationRequests(for: elements, prefix: "\(id).blockquote")
+            case .image, .codeBlock, .upvote, .video:
+                return []
+            }
+        }
+    }
+
+    private func translatedElements(from elements: [ContentElement], translations: [String: String], prefix: String) -> [ContentElement] {
+        elements.enumerated().map { index, element in
+            let id = "\(prefix).\(index)"
+
+            switch element {
+            case .text(let attributedString):
+                if let translatedText = translations[id] {
+                    return .text(translatedAttributedString(from: attributedString, translatedText: translatedText))
+                }
+                return element
+            case .header2(let text):
+                return .header2(translations[id] ?? text)
+            case .header3(let text):
+                return .header3(translations[id] ?? text)
+            case .tags(let tags):
+                let translatedTags = tags.enumerated().map { tagIndex, tag in
+                    PostTag(text: translations["\(id).tag.\(tagIndex)"] ?? tag.text, query: tag.query)
+                }
+                return .tags(translatedTags)
+            case .table(let table):
+                let translatedHeaders = table.headers.enumerated().map { headerIndex, header in
+                    translations["\(id).header.\(headerIndex)"] ?? header
+                }
+                let translatedRows = table.rows.enumerated().map { rowIndex, row in
+                    row.enumerated().map { cellIndex, cell in
+                        translations["\(id).row.\(rowIndex).cell.\(cellIndex)"] ?? cell
+                    }
+                }
+                return .table(PostTable(headers: translatedHeaders, rows: translatedRows))
+            case .blockquote(let elements):
+                return .blockquote(translatedElements(from: elements, translations: translations, prefix: "\(id).blockquote"))
+            case .image, .codeBlock, .upvote, .video:
+                return element
+            }
+        }
+    }
+
+    private func translatedAttributedString(from original: AttributedString, translatedText: String) -> AttributedString {
+        let originalText = String(original.characters)
+        let replacementText = translatedText.preservingBoundaryWhitespace(from: originalText)
+        var translated = original
+        translated.characters.replaceSubrange(
+            translated.characters.startIndex..<translated.characters.endIndex,
+            with: replacementText
+        )
+        return translated
+    }
+
+
     private func checkIfCached(urlPath: String) -> Bool {
         guard let url = URL(string: urlPath.hasPrefix("//") ? "https:" + urlPath : urlPath) else {
             return false
@@ -129,5 +251,19 @@ import os.log
         isLoading = false
         isLoadingFromCache = false
         errorMessage = ErrorHandler.message(for: error)
+    }
+}
+
+private extension String {
+    func preservingBoundaryWhitespace(from original: String) -> String {
+        original.leadingWhitespace + trimmingCharacters(in: .whitespacesAndNewlines) + original.trailingWhitespace
+    }
+
+    private var leadingWhitespace: String {
+        String(prefix { $0.isWhitespace })
+    }
+
+    private var trailingWhitespace: String {
+        String(reversed().prefix { $0.isWhitespace }.reversed())
     }
 }
