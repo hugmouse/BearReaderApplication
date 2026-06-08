@@ -66,7 +66,7 @@ struct PostView: View {
         .onAppear {
             tabBarVisibility = .hidden
             Task {
-                contentOpacity = 0
+                contentOpacity = viewModel.content == nil ? 0 : 1
                 async let statusLoad: Void = viewModel.loadPostStatus(
                     url: post.url,
                     title: post.title,
@@ -133,6 +133,10 @@ struct PostView: View {
                     .disabled(viewModel.content == nil || viewModel.isTranslating)
 
                     Divider()
+
+                    NavigationLink(destination: BlogFeedView(blog: previewBlog, vis: $tabBarVisibility, isPreview: true)) {
+                        Label("Preview \(post.domain)", systemImage: "book")
+                    }
 
                     Button(action: {
                         Task {
@@ -208,6 +212,14 @@ struct PostView: View {
 
     private var fullURL: String {
         post.url.hasPrefix("//") ? "https:" + post.url : post.url
+    }
+
+    private var previewBlog: BlogSubscription {
+        BlogSubscription(
+            domain: post.domain,
+            feedUrl: "https://\(post.domain)/blog/",
+            blogTitle: post.domain
+        )
     }
 
     private var translationErrorBinding: Binding<Bool> {

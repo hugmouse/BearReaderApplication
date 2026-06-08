@@ -26,7 +26,7 @@ import Observation
         self.bearBlogService = bearBlogService
     }
 
-    func loadFeed(refresh: Bool = false) async {
+    func loadFeed(refresh: Bool = false, updateLastFetched: Bool = true) async {
         isLoading = true
         errorMessage = nil
         isOffline = false
@@ -35,8 +35,9 @@ import Observation
             let feedPosts = try await bearBlogService.getBlogFeed(domain: domain)
             posts = feedPosts
 
-            // Update last fetched timestamp
-            try await DatabaseManager.shared.updateBlogLastFetched(domain: domain)
+            if updateLastFetched {
+                try await DatabaseManager.shared.updateBlogLastFetched(domain: domain)
+            }
 
             isLoading = false
         } catch {
@@ -44,8 +45,8 @@ import Observation
         }
     }
 
-    func refresh() async {
-        await loadFeed(refresh: true)
+    func refresh(updateLastFetched: Bool = true) async {
+        await loadFeed(refresh: true, updateLastFetched: updateLastFetched)
     }
 
     func markAsRead() async {

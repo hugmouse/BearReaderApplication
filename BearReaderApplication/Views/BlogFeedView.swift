@@ -18,11 +18,13 @@ struct BlogFeedView: View {
     @State private var viewModel: BlogFeedViewModel
     @State private var showingUnsubscribeAlert = false
     @Environment(\.dismiss) private var dismiss
+    private let isPreview: Bool
     
-    init(blog: BlogSubscription, vis: Binding<Visibility>) {
+    init(blog: BlogSubscription, vis: Binding<Visibility>, isPreview: Bool = false) {
         self.blog = blog
         self._tabBarVisibility = vis
         self._viewModel = State(initialValue: BlogFeedViewModel(domain: blog.domain))
+        self.isPreview = isPreview
     }
     
     var body: some View {
@@ -37,7 +39,11 @@ struct BlogFeedView: View {
         }
         .navigationTitle(blog.blogTitle)
         .navigationBarTitleDisplayMode(.inline)
-        .toolbar { trailingToolbar }
+        .toolbar {
+            if !isPreview {
+                trailingToolbar
+            }
+        }
         .alert("Unsubscribe", isPresented: $showingUnsubscribeAlert) {
             Button("Cancel", role: .cancel) { }
             Button("Unsubscribe", role: .destructive) {
@@ -55,8 +61,10 @@ struct BlogFeedView: View {
             Text("Are you sure you want to unsubscribe from \(blog.blogTitle)?")
         }
         .task(id: blog.domain) {
-            await viewModel.loadFeed()
-            await viewModel.markAsRead()
+            await viewModel.loadFeed(updateLastFetched: !isPreview)
+            if !isPreview {
+                await viewModel.markAsRead()
+            }
         }
     }
     
@@ -77,7 +85,7 @@ struct BlogFeedView: View {
                 .onAppear { tabBarVisibility = .visible }
             }
             .listStyle(.inset)
-            .refreshable { await viewModel.refresh() }
+            .refreshable { await viewModel.refresh(updateLastFetched: !isPreview) }
         }
     }
     
@@ -86,7 +94,7 @@ struct BlogFeedView: View {
             Label(message, systemImage: "wifi.slash")
                 .font(.caption)
             Spacer()
-            Button("Retry") { Task { await viewModel.refresh() } }
+            Button("Retry") { Task { await viewModel.refresh(updateLastFetched: !isPreview) } }
                 .font(.caption).bold()
         }
         .padding()
@@ -100,7 +108,7 @@ struct BlogFeedView: View {
             ContentUnavailableView {
                 Label(error, systemImage: viewModel.isOffline ? "wifi.slash" : "exclamationmark.triangle")
             } actions: {
-                Button("Retry") { Task { await viewModel.loadFeed() } }
+                Button("Retry") { Task { await viewModel.loadFeed(updateLastFetched: !isPreview) } }
             }
         } else {
             ContentUnavailableView("No Posts", systemImage: "tray", description: Text("This blog is currently empty."))
