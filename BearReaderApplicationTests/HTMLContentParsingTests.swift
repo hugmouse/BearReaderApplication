@@ -74,4 +74,59 @@ struct HTMLContentParsingTests {
         #expect(renderedText.contains("quoted"))
         #expect(renderedText.contains("text"))
     }
+
+    @Test func k10sFigureBodyImageParsesAsImageElement() async throws {
+        let service = BearBlogService(settings: SettingsHelper.getDefaultSettings())
+        let content = try #require(await service.parseMainContentForTesting(html: """
+        <html>
+            <body>
+                <main>
+                    <p>Humans intervention is still needed as of 10/05/2026.</p>
+                    <figure style="text-align: center; margin: 2em 0;">
+                        <img
+                            src="https://bear-images.sfo2.cdn.digitaloceanspaces.com/k10s/cat-illustration3.webp"
+                            style="border-radius: 6px; box-shadow: 0 8px 32px rgba(0,0,0,0.6);"
+                        />
+                        <figcaption>
+                            Art by human: <a href="https://www.instagram.com/yogyata.aj/" target="_blank">Yogyata A Joshi</a>
+                        </figcaption>
+                    </figure>
+                    <p>Here is k10s.</p>
+                </main>
+            </body>
+        </html>
+        """))
+
+        guard let imageElement = content.elements.first(where: { element in
+            if case .image = element { return true }
+            return false
+        }) else {
+            Issue.record("Expected the k10s body image inside <figure> to parse as an image element")
+            return
+        }
+
+        guard case .image(let image) = imageElement else {
+            Issue.record("Expected matched element to be an image")
+            return
+        }
+        #expect(image.url == "https://bear-images.sfo2.cdn.digitaloceanspaces.com/k10s/cat-illustration3.webp")
+        #expect(image.altText.isEmpty)
+        #expect(image.needsPadding)
+
+        guard let figcaptionElement = content.elements.first(where: { element in
+            if case .figcaption = element { return true }
+            return false
+        }) else {
+            Issue.record("Expected the k10s figure caption to parse as a figcaption element")
+            return
+        }
+
+        guard case .figcaption(let caption) = figcaptionElement else {
+            Issue.record("Expected matched element to be a figcaption")
+            return
+        }
+        let captionText = String(caption.characters)
+        #expect(captionText.contains("Art by human:"))
+        #expect(captionText.contains("Yogyata A Joshi"))
+    }
 }

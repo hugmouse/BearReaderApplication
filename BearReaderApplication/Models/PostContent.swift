@@ -40,6 +40,7 @@ struct PostTable {
 
 enum ContentElement {
     case text(AttributedString)
+    case figcaption(AttributedString)
     case image(PostImage)
     case codeBlock(String)
     case header2(String)

@@ -163,7 +163,7 @@ import os.log
             let id = "\(prefix).\(index)"
 
             switch element {
-            case .text(let attributedString):
+            case .text(let attributedString), .figcaption(let attributedString):
                 return [PostTranslationRequest(id: id, text: String(attributedString.characters))]
             case .header2(let text), .header3(let text):
                 return [PostTranslationRequest(id: id, text: text)]
@@ -197,6 +197,11 @@ import os.log
             case .text(let attributedString):
                 if let translatedText = translations[id] {
                     return .text(translatedAttributedString(from: attributedString, translatedText: translatedText))
+                }
+                return element
+            case .figcaption(let attributedString):
+                if let translatedText = translations[id] {
+                    return .figcaption(translatedAttributedString(from: attributedString, translatedText: translatedText))
                 }
                 return element
             case .header2(let text):

@@ -346,9 +346,12 @@ final class BearBlogService: BearBlogServiceProtocol, Sendable {
                     elements.append(.table(PostTable(headers: headers, rows: rows)))
                 }
 
-            case "div", "center", "section", "article":
+            case "div", "center", "section", "article", "figure", "aside", "header", "footer", "nav":
                 // Generic container - recursively parse its children
                 try await parseElements(from: child, into: &elements, settings: settings)
+
+            case "figcaption":
+                try extractFigcaption(from: child, into: &elements)
                 
             case "h1":
                 continue
@@ -383,12 +386,16 @@ final class BearBlogService: BearBlogServiceProtocol, Sendable {
 
     private func extractStandaloneImage(from child: Element, into elements: inout [ContentElement]) throws {
         // Standalone images require padding
-        if let images = try? child.select("img").compactMap({ img -> PostImage? in
+        if let images = extractImages(from: child, needsPadding: true) {
+            images.forEach { elements.append(.image($0)) }
+        }
+    }
+
+    private func extractImages(from child: Element, needsPadding: Bool) -> [PostImage]? {
+        try? child.select("img").compactMap { img -> PostImage? in
             guard let src = try? img.attr("src"), !src.isEmpty else { return nil }
             let alt = try? img.attr("alt")
-            return PostImage(url: src, altText: alt ?? "", needsPadding: true)
-        }) {
-            images.forEach { elements.append(.image($0)) }
+            return PostImage(url: src, altText: alt ?? "", needsPadding: needsPadding)
         }
     }
     
@@ -418,11 +425,7 @@ final class BearBlogService: BearBlogServiceProtocol, Sendable {
     }
     
     private func extractContentWithInlineImages(from child: Element, into elements: inout [ContentElement]) throws {
-        if let images = try? child.select("img").compactMap({ img -> PostImage? in
-            guard let src = try? img.attr("src"), !src.isEmpty else { return nil }
-            let alt = try? img.attr("alt")
-            return PostImage(url: src, altText: alt ?? "", needsPadding: false)
-        }) {
+        if let images = extractImages(from: child, needsPadding: false) {
             images.forEach { elements.append(.image($0)) }
             try child.select("img").remove()
         }
@@ -471,6 +474,13 @@ final class BearBlogService: BearBlogServiceProtocol, Sendable {
         }
     }
     
+    private func extractFigcaption(from child: Element, into elements: inout [ContentElement]) throws {
+        let htmlContent = try child.outerHtml()
+        if !htmlContent.isEmpty, let attributedText = try? HTMLProcessor.htmlToAttributedString(html: htmlContent) {
+            elements.append(.figcaption(attributedText))
+        }
+    }
+
     private func extractAttributedText(from child: Element, into elements: inout [ContentElement]) throws {
         let htmlContent = try child.outerHtml()
         if !htmlContent.isEmpty, let attributedText = try? HTMLProcessor.htmlToAttributedString(html: htmlContent) {

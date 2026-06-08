@@ -28,6 +28,17 @@ struct ContentElementView: View {
                 onElementRendered()
             }
 
+        case .figcaption(let attributedString):
+            SelectableText(attributedString)
+                .font(.caption)
+                .foregroundStyle(.secondary)
+                .multilineTextAlignment(.center)
+                .frame(maxWidth: .infinity, alignment: .center)
+                .padding(.bottom, 16.0)
+                .onAppear {
+                    onElementRendered()
+                }
+
         case .image(let postImage):
             PostImageView(postImage: postImage)
                 .padding([.bottom], 16.0)
