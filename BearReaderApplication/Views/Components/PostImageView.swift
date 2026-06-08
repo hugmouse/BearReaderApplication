@@ -16,6 +16,7 @@ struct PostImageView: View {
     @State private var networkMonitor = NetworkMonitor.shared
     @State private var loadFailed = false
     @State private var loadedUIImage: UIImage?
+    @State private var isPreviewPresented = false
 
     var body: some View {
         if loadFailed && !networkMonitor.isConnected {
@@ -25,17 +26,13 @@ struct PostImageView: View {
             Menu {
                 if let imageToSave = loadedUIImage {
                     Button(action: {
-                        let imageSaver = ImageSaver()
-                        imageSaver.writeToPhotoAlbum(image: imageToSave)
-                        HapticManager.success()
+                        saveToPhotos(imageToSave)
                     }) {
                         Label("Save to Photos", systemImage: "square.and.arrow.down")
                     }
 
                     Button(action: {
-                        let imageSaver = ImageSaver()
-                        imageSaver.copyToClipboard(image: imageToSave)
-                        HapticManager.success()
+                        copyImage(imageToSave)
                     }) {
                         Label("Copy Image", systemImage: "doc.on.clipboard")
                     }
@@ -71,7 +68,182 @@ struct PostImageView: View {
                         }
                     }
             } primaryAction: {
-                // Empty - tap does nothing
+                if loadedUIImage != nil {
+                    isPreviewPresented = true
+                }
+            }
+            .fullScreenCover(isPresented: $isPreviewPresented) {
+                if let loadedUIImage {
+                    FullscreenImagePreview(image: loadedUIImage, altText: postImage.altText)
+                }
+            }
+        }
+    }
+
+    private func saveToPhotos(_ image: UIImage) {
+        let imageSaver = ImageSaver()
+        imageSaver.writeToPhotoAlbum(image: image)
+        HapticManager.success()
+    }
+
+    private func copyImage(_ image: UIImage) {
+        let imageSaver = ImageSaver()
+        imageSaver.copyToClipboard(image: image)
+        HapticManager.success()
+    }
+}
+
+private enum ImagePreviewConstants {
+    static let minimumZoomScale: CGFloat = 1.0
+    static let maximumZoomScale: CGFloat = 5.0
+    static let zoomStep: CGFloat = 1.5
+    static let zoomScaleTolerance: CGFloat = 0.01
+}
+
+private struct FullscreenImagePreview: View {
+    let image: UIImage
+    let altText: String
+    @Environment(\.dismiss) private var dismiss
+    @State private var zoomScale = ImagePreviewConstants.minimumZoomScale
+    @State private var controlsVisible = true
+
+    var body: some View {
+        ZStack(alignment: .bottom) {
+            Color.black
+                .ignoresSafeArea()
+
+            ZoomableImageView(image: image, zoomScale: $zoomScale) {
+                withAnimation(.easeInOut(duration: 0.2)) {
+                    controlsVisible.toggle()
+                }
+            }
+            .accessibilityLabel(altText)
+            .ignoresSafeArea()
+
+            if controlsVisible {
+                previewControls
+                    .transition(.opacity)
+            }
+        }
+    }
+
+    private var previewControls: some View {
+        HStack(spacing: 16) {
+            Button {
+                zoomScale = max(ImagePreviewConstants.minimumZoomScale, zoomScale / ImagePreviewConstants.zoomStep)
+            } label: {
+                Image(systemName: "minus.magnifyingglass")
+                    .font(.title2)
+            }
+            .accessibilityLabel("Zoom out")
+            .disabled(zoomScale <= ImagePreviewConstants.minimumZoomScale)
+
+            Button {
+                zoomScale = min(ImagePreviewConstants.maximumZoomScale, zoomScale * ImagePreviewConstants.zoomStep)
+            } label: {
+                Image(systemName: "plus.magnifyingglass")
+                    .font(.title2)
+            }
+            .accessibilityLabel("Zoom in")
+            .disabled(zoomScale >= ImagePreviewConstants.maximumZoomScale)
+
+            Button {
+                dismiss()
+            } label: {
+                Image(systemName: "xmark.circle.fill")
+                    .font(.title2)
+            }
+            .accessibilityLabel("Close image preview")
+        }
+        .foregroundStyle(.white)
+        .padding(16)
+        .background(.black.opacity(0.6), in: Capsule())
+        .padding()
+    }
+}
+
+private struct ZoomableImageView: UIViewRepresentable {
+    let image: UIImage
+    @Binding var zoomScale: CGFloat
+    let onTap: () -> Void
+
+    func makeCoordinator() -> Coordinator {
+        Coordinator(zoomScale: $zoomScale, onTap: onTap)
+    }
+
+    func makeUIView(context: Context) -> UIScrollView {
+        let scrollView = UIScrollView()
+        scrollView.delegate = context.coordinator
+        scrollView.minimumZoomScale = ImagePreviewConstants.minimumZoomScale
+        scrollView.maximumZoomScale = ImagePreviewConstants.maximumZoomScale
+        scrollView.bouncesZoom = true
+        scrollView.showsVerticalScrollIndicator = false
+        scrollView.showsHorizontalScrollIndicator = false
+        scrollView.backgroundColor = .black
+
+        let tapRecognizer = UITapGestureRecognizer(target: context.coordinator, action: #selector(Coordinator.handleTap))
+        tapRecognizer.cancelsTouchesInView = false
+        scrollView.addGestureRecognizer(tapRecognizer)
+
+        let imageView = UIImageView(image: image)
+        imageView.contentMode = .scaleAspectFit
+        imageView.translatesAutoresizingMaskIntoConstraints = false
+        scrollView.addSubview(imageView)
+
+        NSLayoutConstraint.activate([
+            imageView.leadingAnchor.constraint(equalTo: scrollView.contentLayoutGuide.leadingAnchor),
+            imageView.trailingAnchor.constraint(equalTo: scrollView.contentLayoutGuide.trailingAnchor),
+            imageView.topAnchor.constraint(equalTo: scrollView.contentLayoutGuide.topAnchor),
+            imageView.bottomAnchor.constraint(equalTo: scrollView.contentLayoutGuide.bottomAnchor),
+            imageView.widthAnchor.constraint(equalTo: scrollView.frameLayoutGuide.widthAnchor),
+            imageView.heightAnchor.constraint(equalTo: scrollView.frameLayoutGuide.heightAnchor)
+        ])
+
+        context.coordinator.imageView = imageView
+        return scrollView
+    }
+
+    func updateUIView(_ scrollView: UIScrollView, context: Context) {
+        context.coordinator.zoomScale = $zoomScale
+        context.coordinator.onTap = onTap
+
+        if context.coordinator.imageView?.image !== image {
+            context.coordinator.imageView?.image = image
+        }
+
+        if abs(scrollView.zoomScale - zoomScale) > ImagePreviewConstants.zoomScaleTolerance {
+            context.coordinator.isApplyingSwiftUIZoom = true
+            scrollView.setZoomScale(zoomScale, animated: false)
+            context.coordinator.isApplyingSwiftUIZoom = false
+        }
+    }
+
+    final class Coordinator: NSObject, UIScrollViewDelegate {
+        weak var imageView: UIImageView?
+        var zoomScale: Binding<CGFloat>
+        var onTap: () -> Void
+        var isApplyingSwiftUIZoom = false
+
+        init(zoomScale: Binding<CGFloat>, onTap: @escaping () -> Void) {
+            self.zoomScale = zoomScale
+            self.onTap = onTap
+        }
+
+        @objc func handleTap() {
+            onTap()
+        }
+
+        func viewForZooming(in scrollView: UIScrollView) -> UIView? {
+            imageView
+        }
+
+        func scrollViewDidZoom(_ scrollView: UIScrollView) {
+            guard !isApplyingSwiftUIZoom else { return }
+
+            DispatchQueue.main.async { [zoomScale] in
+                if abs(zoomScale.wrappedValue - scrollView.zoomScale) > ImagePreviewConstants.zoomScaleTolerance {
+                    zoomScale.wrappedValue = scrollView.zoomScale
+                }
             }
         }
     }
