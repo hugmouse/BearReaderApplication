@@ -9,11 +9,8 @@
 
 
 import SwiftUI
-import Combine
 
 struct ContentView: View {
-    @State var selectedFeedType: FeedType
-    @State private var shouldFocusSearch = false
     @State private var router = Router.shared
 
     init() {
@@ -21,18 +18,17 @@ struct ContentView: View {
         appearance.configureWithDefaultBackground()
         UITabBar.appearance().standardAppearance = appearance
         UITabBar.appearance().scrollEdgeAppearance = appearance
-        self.selectedFeedType = .trending
     }
 
     var body: some View {
             TabView(selection: $router.selectedTab) {
-                PostsView(selectedFeedType: $selectedFeedType)
+                PostsView(feedType: .trending)
             .tabItem {
                 Label("Trending", systemImage: "house.fill")
             }
             .tag(Tab.trending)
 
-            PostsView(selectedFeedType: $selectedFeedType)
+            PostsView(feedType: .recent)
                 .tabItem {
                     Label("Recent", systemImage: "clock.fill")
                 }
@@ -55,14 +51,6 @@ struct ContentView: View {
                 Label("Search", systemImage: "magnifyingglass")
             }
             .tag(Tab.search)
-        }
-        .onReceive(Just(router.selectedTab)) {
-            if $0 == .trending {
-                self.selectedFeedType = .trending
-            }
-            if $0 == .recent {
-                self.selectedFeedType = .recent
-            }
         }
     }
 }

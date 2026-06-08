@@ -29,6 +29,10 @@ enum FeedType {
     private let bearBlogService: BearBlogServiceProtocol
     private var currentPage = 0
     private var hasMorePages = true
+    private var lastVisitedAt: Date?
+    private var isStaleRefreshInProgress = false
+
+    private static let staleRefreshInterval: TimeInterval = 10 * 60
 
     init(feedType: FeedType, bearBlogService: BearBlogServiceProtocol = BearBlogService()) {
         self.feedType = feedType
@@ -41,9 +45,9 @@ enum FeedType {
         isOffline = false
         currentPage = 0
         hasMorePages = true
+        isStaleRefreshInProgress = false
 
         do {
-            // Refresh is requested upon navigating to Recent tab
             if refresh {
                 do {
                     let result = try await fetchPosts(page: currentPage, refresh: true)
@@ -64,6 +68,27 @@ enum FeedType {
         } catch {
             handleError(error, isInitialLoad: posts.isEmpty)
         }
+    }
+
+    func refreshIfStaleAfterVisit() {
+        let now = Date()
+        let previousVisitAt = lastVisitedAt
+        lastVisitedAt = now
+
+        guard !posts.isEmpty else {
+            guard !isLoading else { return }
+            Task { await loadInitialPosts(refresh: feedType == .recent) }
+            return
+        }
+
+        guard let previousVisitAt,
+              now.timeIntervalSince(previousVisitAt) >= Self.staleRefreshInterval,
+              !isLoading,
+              !isLoadingMore,
+              !isStaleRefreshInProgress
+        else { return }
+
+        Task { await refreshStalePosts() }
     }
 
     func loadMorePosts() async {
@@ -105,6 +130,23 @@ enum FeedType {
         errorMessage = nil
         isOffline = false
         await loadInitialPosts(refresh: true)
+    }
+
+    private func refreshStalePosts() async {
+        isStaleRefreshInProgress = true
+        defer { isStaleRefreshInProgress = false }
+
+        do {
+            let refreshedPosts = try await fetchPosts(page: 0, refresh: true)
+            guard !refreshedPosts.isEmpty else { return }
+            posts = refreshedPosts
+            currentPage = 0
+            hasMorePages = true
+            errorMessage = nil
+            isOffline = false
+        } catch {
+            handleError(error, isInitialLoad: false)
+        }
     }
     
     private func fetchPosts(page: Int, refresh: Bool = false) async throws -> [PostItem] {

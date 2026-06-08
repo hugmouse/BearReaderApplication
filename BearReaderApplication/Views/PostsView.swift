@@ -12,37 +12,33 @@ import SwiftUI
 import UIKit
 
 struct PostsView: View {
-    @Binding var selectedFeedType: FeedType
-    @State private var trendingViewModel = PostsViewModel(feedType: .trending)
-    @State private var recentViewModel = PostsViewModel(feedType: .recent)
+    let feedType: FeedType
+
+    @State private var viewModel: PostsViewModel
     @State private var router = Router.shared
     @State private var tabBarVisibility: Visibility = .visible
     @State private var hasPlayedErrorHaptic = false
 
-    private var currentViewModel: PostsViewModel {
-        switch selectedFeedType {
-        case .trending:
-            return trendingViewModel
-        case .recent:
-            return recentViewModel
-        }
+    init(feedType: FeedType) {
+        self.feedType = feedType
+        self._viewModel = State(initialValue: PostsViewModel(feedType: feedType))
     }
     
     var body: some View {
         NavigationStack(path: $router.path) {
             ZStack(alignment: .top) {
-                if let errorMessage = currentViewModel.errorMessage, currentViewModel.posts.isEmpty {
+                if let errorMessage = viewModel.errorMessage, viewModel.posts.isEmpty {
                     VStack {
-                        Image(systemName: currentViewModel.isOffline ? "wifi.slash" : "exclamationmark.triangle")
+                        Image(systemName: viewModel.isOffline ? "wifi.slash" : "exclamationmark.triangle")
                             .font(.largeTitle)
-                            .foregroundColor(currentViewModel.isOffline ? .red : .orange)
+                            .foregroundColor(viewModel.isOffline ? .red : .orange)
                             .accessibilityHidden(true)
                         Text(errorMessage)
                             .foregroundColor(.secondary)
                             .multilineTextAlignment(.center)
                         Button("Retry") {
                             Task {
-                                await currentViewModel.loadInitialPosts()
+                                await viewModel.loadInitialPosts()
                             }
                         }
                         .accessibilityLabel("Retry loading posts")
@@ -55,16 +51,16 @@ struct PostsView: View {
                             hasPlayedErrorHaptic = true
                         }
                     }
-                } else if currentViewModel.isLoading && currentViewModel.posts.isEmpty {
+                } else if viewModel.isLoading && viewModel.posts.isEmpty {
                     ProgressView("Loading posts...")
                         .frame(maxWidth: .infinity, maxHeight: .infinity)
-                } else if currentViewModel.posts.isEmpty && !currentViewModel.isLoading {
+                } else if viewModel.posts.isEmpty && !viewModel.isLoading {
                     VStack(spacing: 12) {
                         Text("No posts found")
                             .foregroundStyle(.secondary)
                         Button("Refresh") {
                             Task {
-                                await currentViewModel.refresh()
+                                await viewModel.refresh()
                             }
                         }
                         .buttonStyle(.bordered)
@@ -73,7 +69,7 @@ struct PostsView: View {
                 } else {
                     VStack(spacing: 0) {
                         // Offline banner
-                        if let errorMessage = currentViewModel.errorMessage, currentViewModel.isOffline && !currentViewModel.posts.isEmpty {
+                        if let errorMessage = viewModel.errorMessage, viewModel.isOffline && !viewModel.posts.isEmpty {
                             HStack {
                                 Image(systemName: "wifi.slash")
                                     .foregroundColor(.white)
@@ -84,7 +80,7 @@ struct PostsView: View {
                                 Spacer()
                                 Button("Retry") {
                                     Task {
-                                        await currentViewModel.refresh()
+                                        await viewModel.refresh()
                                     }
                                 }
                                 .accessibilityLabel("Retry loading posts")
@@ -97,16 +93,16 @@ struct PostsView: View {
                         }
                         
                         List {
-                            ForEach(currentViewModel.posts, id: \.url) { post in
+                            ForEach(viewModel.posts, id: \.url) { post in
                                 NavigationLink(value: post) {
                                     PostRowView(post: post)
                                 }
                                 .accessibilityIdentifier("PostRow")
                                 .onAppear {
                                     tabBarVisibility = .visible
-                                    if currentViewModel.shouldLoadMore(currentItem: post) {
+                                    if viewModel.shouldLoadMore(currentItem: post) {
                                         Task {
-                                            await currentViewModel.loadMorePosts()
+                                            await viewModel.loadMorePosts()
                                         }
                                     }
                                 }
@@ -114,7 +110,7 @@ struct PostsView: View {
                             .listSectionSeparator(.hidden, edges: .top)
 
 
-                            if currentViewModel.isLoadingMore {
+                            if viewModel.isLoadingMore {
                                 HStack {
                                     Spacer()
                                     ProgressView()
@@ -130,7 +126,7 @@ struct PostsView: View {
                         }
                         .listStyle(.inset)
                         .refreshable {
-                            await currentViewModel.refresh()
+                            await viewModel.refresh()
                         }
                     }
                     // Can't put this inside of List for whatever reason
@@ -157,16 +153,9 @@ struct PostsView: View {
         }
         .toolbar(tabBarVisibility, for: .tabBar)
         .onAppear {
-            Task {
-                await currentViewModel.loadInitialPosts(refresh: selectedFeedType == .recent)
-                if !currentViewModel.posts.isEmpty {
-                    hasPlayedErrorHaptic = false
-                }
-            }
-        }
-        .onChange(of: selectedFeedType) {
-            Task {
-                await currentViewModel.loadInitialPosts(refresh: selectedFeedType == .recent)
+            viewModel.refreshIfStaleAfterVisit()
+            if !viewModel.posts.isEmpty {
+                hasPlayedErrorHaptic = false
             }
         }
     }
