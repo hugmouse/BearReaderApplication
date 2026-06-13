@@ -15,6 +15,7 @@ struct SettingsView: View {
     @StateObject private var settingsManager = SettingsManager.shared
     @State private var previewManager = ParserPreviewSelectorViewModel.shared
     @State private var showingResetAlert = false
+    @State private var newBlacklistTerm = ""
     @State private var path = [Int]()
 
     
@@ -31,6 +32,34 @@ struct SettingsView: View {
                         icon: "globe",
                         placeholder: "https://bearblog.dev/discover/"
                     )
+                }
+
+                Section(header: Text("Title Blacklist"), footer:
+                    Text("Hide posts from Trending and Recent when their title contains any listed word or phrase.")
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                ) {
+                    HStack {
+                        TextField("Word or phrase", text: $newBlacklistTerm)
+                            .submitLabel(.done)
+                            .onSubmit(addBlacklistTerm)
+
+                        Button(action: addBlacklistTerm) {
+                            Image(systemName: "plus.circle.fill")
+                                .accessibilityLabel("Add blacklist item")
+                        }
+                        .disabled(trimmedBlacklistTerm.isEmpty)
+                    }
+
+                    if settingsManager.titleBlacklistTerms.isEmpty {
+                        Text("No blacklisted titles")
+                            .foregroundStyle(.secondary)
+                    } else {
+                        ForEach(Array(settingsManager.titleBlacklistTerms.enumerated()), id: \.offset) { _, term in
+                            Text(term)
+                        }
+                        .onDelete(perform: removeBlacklistTerms)
+                    }
                 }
                 
                 Section(header: Text("CSS Selectors"), footer:
@@ -126,6 +155,32 @@ struct SettingsView: View {
         .task {
             await previewManager.fetchHTMLIfNeeded(from: settingsManager.serviceURL)
         }
+    }
+
+    private var trimmedBlacklistTerm: String {
+        newBlacklistTerm.trimmingCharacters(in: .whitespacesAndNewlines)
+    }
+
+    private func addBlacklistTerm() {
+        let term = trimmedBlacklistTerm
+        guard !term.isEmpty else { return }
+        defer { newBlacklistTerm = "" }
+
+        var terms = settingsManager.titleBlacklistTerms
+        guard !terms.contains(where: { $0.caseInsensitiveCompare(term) == .orderedSame }) else { return }
+
+        terms.append(term)
+        updateBlacklist(with: terms)
+    }
+
+    private func removeBlacklistTerms(at offsets: IndexSet) {
+        var terms = settingsManager.titleBlacklistTerms
+        terms.remove(atOffsets: offsets)
+        updateBlacklist(with: terms)
+    }
+
+    private func updateBlacklist(with terms: [String]) {
+        settingsManager.titleBlacklist = terms.joined(separator: "\n")
     }
 }
 

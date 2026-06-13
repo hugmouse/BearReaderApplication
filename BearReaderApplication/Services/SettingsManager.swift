@@ -23,7 +23,15 @@ class SettingsManager: ObservableObject {
     @AppStorage("cssMainContent") var cssMainContent: String = SettingsModel.defaults.cssSelectors.mainContent
     @AppStorage("memoryCacheMB") var memoryCacheMB: Int = CacheSettings.defaults.memoryCacheMB
     @AppStorage("diskCacheMB") var diskCacheMB: Int = CacheSettings.defaults.diskCacheMB
+    @AppStorage("titleBlacklist") var titleBlacklist: String = ""
     @AppStorage("hasSeenOnboarding") var hasSeenOnboarding: Bool = false
+
+    var titleBlacklistTerms: [String] {
+        titleBlacklist
+            .split { $0.isNewline || $0 == "," }
+            .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
+            .filter { !$0.isEmpty }
+    }
 
     var currentSettings: SettingsModel {
         SettingsModel(
@@ -53,6 +61,7 @@ class SettingsManager: ObservableObject {
         cssMainContent = SettingsModel.defaults.cssSelectors.mainContent
         memoryCacheMB = CacheSettings.defaults.memoryCacheMB
         diskCacheMB = CacheSettings.defaults.diskCacheMB
+        titleBlacklist = ""
         applyURLCacheSettings()
     }
 

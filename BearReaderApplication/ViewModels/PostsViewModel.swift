@@ -27,6 +27,7 @@ enum FeedType {
 
     private let feedType: FeedType
     private let bearBlogService: BearBlogServiceProtocol
+    private var allPosts: [PostItem] = []
     private var currentPage = 0
     private var hasMorePages = true
     private var lastVisitedAt: Date?
@@ -51,7 +52,8 @@ enum FeedType {
             if refresh {
                 do {
                     let result = try await fetchPosts(page: currentPage, refresh: true)
-                    posts = result
+                    allPosts = result
+                    applyTitleBlacklist()
                     hasMorePages = !result.isEmpty
                     isLoading = false
                     return
@@ -62,7 +64,8 @@ enum FeedType {
             
             // Default load (uses cache if available from URLSession config)
             let result = try await fetchPosts(page: currentPage, refresh: false)
-            posts = result
+            allPosts = result
+            applyTitleBlacklist()
             hasMorePages = !result.isEmpty
             isLoading = false
         } catch {
@@ -75,7 +78,7 @@ enum FeedType {
         let previousVisitAt = lastVisitedAt
         lastVisitedAt = now
 
-        guard !posts.isEmpty else {
+        guard !allPosts.isEmpty else {
             guard !isLoading else { return }
             Task { await loadInitialPosts(refresh: feedType == .recent) }
             return
@@ -103,8 +106,9 @@ enum FeedType {
             let newPosts = try await fetchPosts(page: nextPage)
 
             if !newPosts.isEmpty {
-                self.posts.append(contentsOf: newPosts)
-                self.currentPage = nextPage
+                allPosts.append(contentsOf: newPosts)
+                applyTitleBlacklist()
+                currentPage = nextPage
             } else {
                 hasMorePages = false
             }
@@ -132,6 +136,20 @@ enum FeedType {
         await loadInitialPosts(refresh: true)
     }
 
+    func applyTitleBlacklist() {
+        let blacklistTerms = SettingsManager.shared.titleBlacklistTerms
+        guard !blacklistTerms.isEmpty else {
+            posts = allPosts
+            return
+        }
+
+        posts = allPosts.filter { post in
+            !blacklistTerms.contains { term in
+                post.title.localizedCaseInsensitiveContains(term)
+            }
+        }
+    }
+
     private func refreshStalePosts() async {
         isStaleRefreshInProgress = true
         defer { isStaleRefreshInProgress = false }
@@ -139,7 +157,8 @@ enum FeedType {
         do {
             let refreshedPosts = try await fetchPosts(page: 0, refresh: true)
             guard !refreshedPosts.isEmpty else { return }
-            posts = refreshedPosts
+            allPosts = refreshedPosts
+            applyTitleBlacklist()
             currentPage = 0
             hasMorePages = true
             errorMessage = nil

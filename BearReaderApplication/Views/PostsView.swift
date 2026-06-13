@@ -16,6 +16,7 @@ struct PostsView: View {
 
     @State private var viewModel: PostsViewModel
     @State private var router = Router.shared
+    @StateObject private var settingsManager = SettingsManager.shared
     @State private var tabBarVisibility: Visibility = .visible
     @State private var hasPlayedErrorHaptic = false
 
@@ -157,6 +158,9 @@ struct PostsView: View {
             if !viewModel.posts.isEmpty {
                 hasPlayedErrorHaptic = false
             }
+        }
+        .onChange(of: settingsManager.titleBlacklist) {
+            viewModel.applyTitleBlacklist()
         }
     }
 }
