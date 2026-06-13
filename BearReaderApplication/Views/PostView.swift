@@ -83,6 +83,15 @@ struct PostView: View {
                 }
             }
         }
+        .safeAreaInset(edge: .top) {
+            if viewModel.isTranslating {
+                TranslationProgressBanner()
+                    .padding(.horizontal)
+                    .padding(.bottom, 8)
+                    .transition(.move(edge: .top).combined(with: .opacity))
+            }
+        }
+        .animation(.easeInOut(duration: 0.2), value: viewModel.isTranslating)
         .toolbar {
             ToolbarItem(placement: .navigationBarTrailing) {
                 Menu {
@@ -254,4 +263,22 @@ struct PostView: View {
     }
 
     
+}
+
+private struct TranslationProgressBanner: View {
+    var body: some View {
+        HStack(spacing: 10) {
+            ProgressView()
+                .controlSize(.small)
+
+            Text("Translating post…")
+                .font(.subheadline.weight(.medium))
+        }
+        .padding(.horizontal, 14)
+        .padding(.vertical, 10)
+        .background(.regularMaterial, in: Capsule())
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel("Translating post")
+        .accessibilityValue("In progress")
+    }
 }
