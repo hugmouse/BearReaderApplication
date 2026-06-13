@@ -34,25 +34,26 @@ struct SettingsView: View {
                     )
                 }
 
-                Section(header: Text("Title Blacklist"), footer:
-                    Text("Hide posts from Trending and Recent when their title contains any listed word or phrase.")
+                Section(header: Text("Muted Title Keywords"), footer:
+                    Text("Hide posts from Trending and Recent when their title contains any keyword or phrase.")
                         .font(.caption)
                         .foregroundColor(.secondary)
                 ) {
                     HStack {
-                        TextField("Word or phrase", text: $newBlacklistTerm)
+                        TextField("Keyword or phrase", text: $newBlacklistTerm)
                             .submitLabel(.done)
                             .onSubmit(addBlacklistTerm)
 
                         Button(action: addBlacklistTerm) {
                             Image(systemName: "plus.circle.fill")
-                                .accessibilityLabel("Add blacklist item")
+                                .accessibilityHidden(true)
                         }
+                        .accessibilityLabel("Add muted keyword")
                         .disabled(trimmedBlacklistTerm.isEmpty)
                     }
 
                     if settingsManager.titleBlacklistTerms.isEmpty {
-                        Text("No blacklisted titles")
+                        Text("No muted keywords")
                             .foregroundStyle(.secondary)
                     } else {
                         ForEach(Array(settingsManager.titleBlacklistTerms.enumerated()), id: \.offset) { _, term in
