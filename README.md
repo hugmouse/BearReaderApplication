@@ -6,13 +6,16 @@
 
 # Bear Reader
 
-**Warning**: There's no official release on App Store just yet.
+> [!WARNING]
+> This project is archived. It will no longer receive updates.
+> 
+> I was unable to fight against App Store guideline 4.2, where the reviewer stated that this application "[...] does not provide sufficient content and features to be useful, unique, and 'app-like.'".
+>
+> Additionally, many blog authors included too much content in the `<main>` tag, which my parser incorrectly interpreted, resulting in an ugly swiftui view.
 
 SwiftUI-based iOS/iPadOS Bear Blog Reader. Optimized for iPhone SE. Supports iOS 17, 18 and 26. iPadOS is supported too, but not as a primary target.
 
 ## Screenshots
-
-To view images in full resolution, open them in a new tab. 
 
 <table>
   <tr>
@@ -21,13 +24,6 @@ To view images in full resolution, open them in a new tab.
           <source width="160" height="347" srcset="https://github.com/user-attachments/assets/0930346a-cb0f-4af1-bcde-c8f0d79db6df" media="(prefers-color-scheme: light)" />
           <source width="160" height="347" srcset="https://github.com/user-attachments/assets/f143fc31-bac5-4a52-9d35-665ae4c7d19c" media="(prefers-color-scheme: dark)" />
           <img width="160" height="347" alt="Main screen - Trending Posts" src="https://github.com/user-attachments/assets/0930346a-cb0f-4af1-bcde-c8f0d79db6df" />
-        </picture>
-    </td>
-    <td>
-        <picture>
-          <source width="160" height="347" srcset="https://github.com/user-attachments/assets/d5229f9c-6718-4cc9-93f4-878fa9d88204" media="(prefers-color-scheme: light)" />
-          <source width="160" height="347" srcset="https://github.com/user-attachments/assets/afb95ad3-288b-4c16-aea0-e522a923b581" media="(prefers-color-scheme: dark)" />
-          <img width="160" height="347" alt="Blogs page" src="https://github.com/user-attachments/assets/d5229f9c-6718-4cc9-93f4-878fa9d88204" />
         </picture>
     </td>
     <td>
