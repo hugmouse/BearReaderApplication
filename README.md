@@ -6,13 +6,6 @@
 
 # Bear Reader
 
-> [!WARNING]
-> This project is archived. It will no longer receive updates.
-> 
-> I was unable to fight against App Store guideline 4.2, where the reviewer stated that this application "[...] does not provide sufficient content and features to be useful, unique, and 'app-like.'".
->
-> Additionally, many blog authors included too much content in the `<main>` tag, which my parser incorrectly interpreted, resulting in an ugly swiftui view.
-
 SwiftUI-based iOS/iPadOS Bear Blog Reader. Optimized for iPhone SE. Supports iOS 17, 18 and 26. iPadOS is supported too, but not as a primary target.
 
 ## Screenshots
